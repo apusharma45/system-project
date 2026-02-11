@@ -1,0 +1,28 @@
+# Node
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Prisma
+generated/prisma
+
+# Coverage
+coverage/
+
+# Temp
+.temp
+.tmp
