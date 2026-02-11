@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: system-project-db
+    environment:
+      POSTGRES_USER: system
+      POSTGRES_PASSWORD: systempass
+      POSTGRES_DB: system_project
+    ports:
+      - "5433:5432"
+    volumes:
+      - system_project_pgdata:/var/lib/postgresql/data
+
+volumes:
+  system_project_pgdata:
