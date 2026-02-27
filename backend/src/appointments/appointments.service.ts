@@ -146,6 +146,7 @@ export class AppointmentsService {
     const appointment = await this.getAppointmentOrThrow(appointmentId);
     this.assertDoctorOwnership(appointment.doctorId, doctorId);
     this.transitionOrThrow(appointment.status, nextStatus);
+    await this.assertCloseAllowed(appointment, nextStatus);
 
     return this.prisma.appointment.update({
       where: { id: appointmentId },
@@ -172,6 +173,38 @@ export class AppointmentsService {
   private transitionOrThrow(current: AppointmentStatus, next: AppointmentStatus) {
     if (!TRANSITIONS[current].includes(next)) {
       throw new BadRequestException(`Invalid transition: ${current} -> ${next}`);
+    }
+  }
+
+  private async assertCloseAllowed(
+    appointment: { id: string; status: AppointmentStatus } & Record<string, unknown>,
+    nextStatus: AppointmentStatus,
+  ) {
+    if (nextStatus !== AppointmentStatus.CLOSED) {
+      return;
+    }
+
+    const requiresLab = Boolean((appointment as any).requiresLab);
+    const labFlowLocked = Boolean((appointment as any).labFlowLocked);
+    if (!requiresLab) {
+      return;
+    }
+    if (labFlowLocked) {
+      throw new BadRequestException(
+        'Cannot close appointment while lab workflow is pending result upload',
+      );
+    }
+
+    const db = this.prisma as any;
+    const result = await db.labResult.findFirst({
+      where: {
+        labOrder: {
+          appointmentId: appointment.id,
+        },
+      },
+    });
+    if (!result) {
+      throw new BadRequestException('Cannot close appointment before lab result is uploaded');
     }
   }
 }
