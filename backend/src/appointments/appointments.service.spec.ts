@@ -20,6 +20,9 @@ describe('AppointmentsService', () => {
     user: {
       findUnique: jest.fn(),
     },
+    labResult: {
+      findFirst: jest.fn(),
+    },
     appointment: {
       create: jest.fn(),
       findMany: jest.fn(),
@@ -30,6 +33,7 @@ describe('AppointmentsService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    prismaMock.labResult.findFirst.mockResolvedValue(null);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AppointmentsService,
@@ -133,6 +137,48 @@ describe('AppointmentsService', () => {
     prismaMock.appointment.update.mockResolvedValueOnce({
       ...baseAppointment,
       status: AppointmentStatus.CLOSED,
+    });
+
+    const result = await service.closeByDoctor('d1', 'a1');
+    expect(result.status).toBe(AppointmentStatus.CLOSED);
+  });
+
+  it('closeByDoctor rejects closing when lab is required and locked', async () => {
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.EXAM_DONE,
+      requiresLab: true,
+      labFlowLocked: true,
+    });
+
+    await expect(service.closeByDoctor('d1', 'a1')).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('closeByDoctor rejects closing when lab required but no result exists', async () => {
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.EXAM_DONE,
+      requiresLab: true,
+      labFlowLocked: false,
+    });
+    prismaMock.labResult.findFirst.mockResolvedValueOnce(null);
+
+    await expect(service.closeByDoctor('d1', 'a1')).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('closeByDoctor allows closing when lab required and result exists', async () => {
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.EXAM_DONE,
+      requiresLab: true,
+      labFlowLocked: false,
+    });
+    prismaMock.labResult.findFirst.mockResolvedValueOnce({ id: 'r1' });
+    prismaMock.appointment.update.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.CLOSED,
+      requiresLab: true,
+      labFlowLocked: false,
     });
 
     const result = await service.closeByDoctor('d1', 'a1');

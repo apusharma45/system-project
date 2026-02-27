@@ -11,6 +11,7 @@ describe('AppController (e2e)', () => {
   let app: INestApplication;
   const DOCTOR_ID = '11111111-1111-4111-8111-111111111111';
   const PATIENT_ID = '22222222-2222-4222-8222-222222222222';
+  const DIAGNOSTIC_ID = '33333333-3333-4333-8333-333333333333';
   const jwtService = new JwtService({ secret: process.env.JWT_SECRET || 'test-secret' });
   const authServiceMock = {
     register: jest.fn().mockResolvedValue({ access_token: 'register-token' }),
@@ -20,6 +21,8 @@ describe('AppController (e2e)', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     const appointments = new Map<string, any>();
+    const labOrders = new Map<string, any>();
+    const labResults = new Map<string, any>();
     const prismaMock = {
       $connect: jest.fn(),
       $disconnect: jest.fn(),
@@ -32,6 +35,9 @@ describe('AppController (e2e)', () => {
           if (where.id === PATIENT_ID) {
             return Promise.resolve({ id: PATIENT_ID, role: 'PATIENT' });
           }
+          if (where.id === DIAGNOSTIC_ID) {
+            return Promise.resolve({ id: DIAGNOSTIC_ID, role: 'DIAGNOSTIC' });
+          }
           return Promise.resolve(null);
         }),
       },
@@ -43,6 +49,8 @@ describe('AppController (e2e)', () => {
             doctorId: data.doctorId,
             status: 'REQUESTED',
             scheduledAt: data.scheduledAt,
+            requiresLab: false,
+            labFlowLocked: false,
             createdAt: new Date(),
             updatedAt: new Date(),
           };
@@ -69,6 +77,99 @@ describe('AppController (e2e)', () => {
           };
           appointments.set(where.id, next);
           return Promise.resolve(next);
+        }),
+      },
+      labOrder: {
+        findUnique: jest.fn(({ where, include }: any) => {
+          const item =
+            where.id !== undefined
+              ? labOrders.get(where.id)
+              : [...labOrders.values()].find((o) => o.appointmentId === where.appointmentId) ??
+                null;
+          if (!item) {
+            return Promise.resolve(null);
+          }
+          if (!include) {
+            return Promise.resolve(item);
+          }
+          const appointment = appointments.get(item.appointmentId);
+          const labResult = [...labResults.values()].find((r) => r.labOrderId === item.id) ?? null;
+          return Promise.resolve({ ...item, appointment, labResult });
+        }),
+        findMany: jest.fn(({ where }: any) => {
+          const list = [...labOrders.values()].filter((order) => {
+            const appointment = appointments.get(order.appointmentId);
+            if (where?.diagnosticId) {
+              return order.diagnosticId === where.diagnosticId;
+            }
+            if (where?.appointment?.doctorId) {
+              return appointment?.doctorId === where.appointment.doctorId;
+            }
+            if (where?.appointment?.patientId) {
+              return appointment?.patientId === where.appointment.patientId;
+            }
+            return true;
+          });
+          return Promise.resolve(
+            list.map((order) => ({
+              ...order,
+              appointment: appointments.get(order.appointmentId),
+              labResult:
+                [...labResults.values()].find((r) => r.labOrderId === order.id) ?? null,
+            })),
+          );
+        }),
+        create: jest.fn(({ data }: any) => {
+          const item = {
+            id: randomUUID(),
+            appointmentId: data.appointmentId,
+            diagnosticId: data.diagnosticId,
+            status: 'CREATED',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          labOrders.set(item.id, item);
+          return Promise.resolve(item);
+        }),
+        update: jest.fn(({ where, data }: any) => {
+          const existing = labOrders.get(where.id);
+          const next = {
+            ...existing,
+            ...data,
+            updatedAt: new Date(),
+          };
+          labOrders.set(where.id, next);
+          return Promise.resolve(next);
+        }),
+      },
+      labResult: {
+        findUnique: jest.fn(({ where }: any) => {
+          const item = [...labResults.values()].find((r) => r.labOrderId === where.labOrderId);
+          return Promise.resolve(item ?? null);
+        }),
+        findFirst: jest.fn(({ where }: any) => {
+          const appointmentId = where?.labOrder?.appointmentId;
+          if (!appointmentId) {
+            return Promise.resolve(null);
+          }
+          const order = [...labOrders.values()].find((o) => o.appointmentId === appointmentId);
+          if (!order) {
+            return Promise.resolve(null);
+          }
+          const result = [...labResults.values()].find((r) => r.labOrderId === order.id) ?? null;
+          return Promise.resolve(result);
+        }),
+        create: jest.fn(({ data }: any) => {
+          const item = {
+            id: randomUUID(),
+            labOrderId: data.labOrderId,
+            fileUrl: data.fileUrl,
+            uploadedAt: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          labResults.set(item.id, item);
+          return Promise.resolve(item);
         }),
       },
     };
@@ -410,5 +511,242 @@ describe('AppController (e2e)', () => {
       .patch(`/appointments/${two.body.id}/cancel`)
       .set('Authorization', `Bearer ${doctorToken}`)
       .expect(400);
+  });
+
+  it('test-required workflow blocks close until lab result is uploaded', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const diagnosticToken = await jwtService.signAsync({
+      sub: DIAGNOSTIC_ID,
+      email: 'diagnostic@example.com',
+      role: 'DIAGNOSTIC',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+
+    const appointmentId = create.body.id;
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/call`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/in-visit`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/exam-done`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    const order = await request(app.getHttpServer())
+      .post('/labs/orders')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        diagnosticId: DIAGNOSTIC_ID,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/close`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/assign`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/sample-collected`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/result-uploaded`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .send({ fileUrl: 'https://files.test/result.pdf' })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/close`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200)
+      .expect((res) => expect(res.body.status).toBe('CLOSED'));
+  });
+
+  it('labs endpoints enforce role guard and role-scoped list visibility', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const diagnosticToken = await jwtService.signAsync({
+      sub: DIAGNOSTIC_ID,
+      email: 'diagnostic@example.com',
+      role: 'DIAGNOSTIC',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+    const appointmentId = create.body.id;
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/in-visit`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .post('/labs/orders')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        appointmentId,
+        diagnosticId: DIAGNOSTIC_ID,
+      })
+      .expect(403);
+
+    const order = await request(app.getHttpServer())
+      .post('/labs/orders')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        diagnosticId: DIAGNOSTIC_ID,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .get('/labs/orders/me')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200)
+      .expect((res) => expect(res.body).toHaveLength(1));
+    await request(app.getHttpServer())
+      .get('/labs/orders/me')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .expect(200)
+      .expect((res) => expect(res.body).toHaveLength(1));
+    await request(app.getHttpServer())
+      .get('/labs/orders/me')
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200)
+      .expect((res) => expect(res.body).toHaveLength(1));
+
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/assign`)
+      .set('Authorization', `Bearer ${patientToken}`)
+      .expect(403);
+  });
+
+  it('lab result endpoint enforces access controls', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const diagnosticToken = await jwtService.signAsync({
+      sub: DIAGNOSTIC_ID,
+      email: 'diagnostic@example.com',
+      role: 'DIAGNOSTIC',
+    });
+    const otherDoctorToken = await jwtService.signAsync({
+      sub: '44444444-4444-4444-8444-444444444444',
+      email: 'otherdoctor@example.com',
+      role: 'DOCTOR',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+    const appointmentId = create.body.id;
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/in-visit`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    const order = await request(app.getHttpServer())
+      .post('/labs/orders')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        diagnosticId: DIAGNOSTIC_ID,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/assign`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/sample-collected`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/result-uploaded`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .send({ fileUrl: 'https://files.test/result.pdf' })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get(`/labs/orders/${order.body.id}/result`)
+      .set('Authorization', `Bearer ${patientToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(`/labs/orders/${order.body.id}/result`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(`/labs/orders/${order.body.id}/result`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(`/labs/orders/${order.body.id}/result`)
+      .set('Authorization', `Bearer ${otherDoctorToken}`)
+      .expect(403);
   });
 });

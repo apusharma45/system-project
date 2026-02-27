@@ -25,6 +25,14 @@ enum AppointmentStatus {
   CANCELLED
 }
 
+enum LabOrderStatus {
+  CREATED
+  ASSIGNED
+  SAMPLE_COLLECTED
+  RESULT_UPLOADED
+  SENT
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -33,8 +41,9 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  patientAppointments Appointment[] @relation("PatientAppointments")
-  doctorAppointments  Appointment[] @relation("DoctorAppointments")
+  patientAppointments  Appointment[] @relation("PatientAppointments")
+  doctorAppointments   Appointment[] @relation("DoctorAppointments")
+  diagnosticLabOrders  LabOrder[]    @relation("DiagnosticLabOrders")
 }
 
 model Appointment {
@@ -48,10 +57,45 @@ model Appointment {
 
   status      AppointmentStatus @default(REQUESTED)
   scheduledAt DateTime
+  requiresLab Boolean           @default(false)
+  labFlowLocked Boolean         @default(false)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+  labOrder    LabOrder?
 
   @@index([patientId])
   @@index([doctorId])
   @@index([scheduledAt])
+}
+
+model LabOrder {
+  id String @id @default(uuid())
+
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+
+  diagnosticId String
+  diagnostic   User @relation("DiagnosticLabOrders", fields: [diagnosticId], references: [id], onDelete: Restrict)
+
+  status    LabOrderStatus @default(CREATED)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  labResult LabResult?
+
+  @@index([diagnosticId])
+}
+
+model LabResult {
+  id String @id @default(uuid())
+
+  labOrderId String
+  labOrder   LabOrder @relation(fields: [labOrderId], references: [id], onDelete: Restrict)
+
+  fileUrl    String
+  uploadedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([labOrderId])
 }
