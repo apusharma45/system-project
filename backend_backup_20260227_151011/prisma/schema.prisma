@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  PHARMACY
+  DIAGNOSTIC
+  ADMIN
+}
+
+enum AppointmentStatus {
+  REQUESTED
+  CONFIRMED
+  CALLED
+  IN_VISIT
+  EXAM_DONE
+  CLOSED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patientProfile    PatientProfile?
+  doctorProfile     DoctorProfile?
+  pharmacyProfile   PharmacyProfile?
+  diagnosticProfile DiagnosticProfile?
+  patientAppointments Appointment[] @relation("PatientAppointments")
+  doctorAppointments  Appointment[] @relation("DoctorAppointments")
+}
+
+model Address {
+  id       String  @id @default(uuid())
+  line1    String?
+  line2    String?
+  city     String?
+  area     String?
+  postcode String?
+  country  String?
+  lat      Float?
+  lng      Float?
+
+  // reverse relations (required by Prisma)
+  patientProfiles    PatientProfile[]
+  pharmacyProfiles   PharmacyProfile[]
+  diagnosticProfiles DiagnosticProfile[]
+}
+
+model PatientProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName    String?
+  phone       String?
+  dateOfBirth DateTime? 
+
+  heightCm   Int? 
+  weightKg   Float?
+  bloodGroup String?
+
+  addressId String?
+  address   Address? @relation(fields: [addressId], references: [id])
+}
+
+model DoctorProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName    String?
+  phone       String?
+  dateOfBirth DateTime?
+
+  currentTitle       String? // Consultant, Specialist etc
+  specialty          String?
+  subSpecialty       String?
+  mbbsInstitute      String?
+  mbbsGraduationYear Int?
+  registrationNumber String?
+
+  yearsOfExperience Int?
+  bio               String?
+
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+}
+
+model PharmacyProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name          String?
+  phone         String?
+  licenseNumber String?
+
+  addressId String?
+  address   Address? @relation(fields: [addressId], references: [id])
+}
+
+model DiagnosticProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name          String?
+  phone         String?
+  licenseNumber String?
+
+  addressId String?
+  address   Address? @relation(fields: [addressId], references: [id])
+}
+
+model Appointment {
+  id String @id @default(uuid())
+
+  patientId String
+  patient   User   @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Restrict)
+
+  doctorId String
+  doctor   User   @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Restrict)
+
+  status      AppointmentStatus @default(REQUESTED)
+  scheduledAt DateTime
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([scheduledAt])
+}

@@ -1,18 +1,58 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Role } from '../../generated/prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let service: UsersService;
+  const prismaMock = {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+    },
+  };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService],
+      providers: [
+        UsersService,
+        {
+          provide: PrismaService,
+          useValue: prismaMock,
+        },
+      ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('findByEmail forwards query to prisma', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com' });
+    const user = await service.findByEmail('a@b.com');
+
+    expect(prismaMock.user.findUnique).toHaveBeenCalledWith({
+      where: { email: 'a@b.com' },
+    });
+    expect(user).toEqual({ id: 'u1', email: 'a@b.com' });
+  });
+
+  it('createUser creates a user with role', async () => {
+    prismaMock.user.create.mockResolvedValue({ id: 'u2', email: 'new@x.com' });
+
+    const user = await service.createUser({
+      email: 'new@x.com',
+      passwordHash: 'hash',
+      role: Role.PATIENT,
+    });
+
+    expect(prismaMock.user.create).toHaveBeenCalledWith({
+      data: {
+        email: 'new@x.com',
+        passwordHash: 'hash',
+        role: Role.PATIENT,
+      },
+    });
+    expect(user).toEqual({ id: 'u2', email: 'new@x.com' });
   });
 });
