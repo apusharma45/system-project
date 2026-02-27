@@ -8,6 +8,20 @@ import { AppointmentStatus, Role } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 
+const TRANSITIONS: Record<AppointmentStatus, AppointmentStatus[]> = {
+  REQUESTED: [AppointmentStatus.CONFIRMED, AppointmentStatus.CANCELLED],
+  CONFIRMED: [
+    AppointmentStatus.CALLED,
+    AppointmentStatus.IN_VISIT,
+    AppointmentStatus.CANCELLED,
+  ],
+  CALLED: [AppointmentStatus.IN_VISIT, AppointmentStatus.CANCELLED],
+  IN_VISIT: [AppointmentStatus.EXAM_DONE, AppointmentStatus.CANCELLED],
+  EXAM_DONE: [AppointmentStatus.CLOSED],
+  CLOSED: [],
+  CANCELLED: [],
+};
+
 @Injectable()
 export class AppointmentsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -49,22 +63,115 @@ export class AppointmentsService {
   }
 
   async confirmByDoctor(doctorId: string, appointmentId: string) {
+    return this.updateByDoctorTransition(
+      doctorId,
+      appointmentId,
+      AppointmentStatus.CONFIRMED,
+    );
+  }
+
+  async callByDoctor(doctorId: string, appointmentId: string) {
+    return this.updateByDoctorTransition(doctorId, appointmentId, AppointmentStatus.CALLED);
+  }
+
+  async markInVisitByDoctor(doctorId: string, appointmentId: string) {
+    return this.updateByDoctorTransition(
+      doctorId,
+      appointmentId,
+      AppointmentStatus.IN_VISIT,
+    );
+  }
+
+  async markExamDoneByDoctor(doctorId: string, appointmentId: string) {
+    return this.updateByDoctorTransition(
+      doctorId,
+      appointmentId,
+      AppointmentStatus.EXAM_DONE,
+    );
+  }
+
+  async closeByDoctor(doctorId: string, appointmentId: string) {
+    return this.updateByDoctorTransition(doctorId, appointmentId, AppointmentStatus.CLOSED);
+  }
+
+  async cancelByDoctor(doctorId: string, appointmentId: string) {
+    const appointment = await this.getAppointmentOrThrow(appointmentId);
+    this.assertDoctorOwnership(appointment.doctorId, doctorId);
+
+    const doctorCancellable: AppointmentStatus[] = [
+      AppointmentStatus.REQUESTED,
+      AppointmentStatus.CONFIRMED,
+      AppointmentStatus.CALLED,
+      AppointmentStatus.IN_VISIT,
+    ];
+    if (!doctorCancellable.includes(appointment.status)) {
+      throw new BadRequestException(
+        'Doctor can cancel only REQUESTED, CONFIRMED, CALLED, or IN_VISIT appointments',
+      );
+    }
+
+    return this.prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: AppointmentStatus.CANCELLED },
+    });
+  }
+
+  async cancelByPatient(patientId: string, appointmentId: string) {
+    const appointment = await this.getAppointmentOrThrow(appointmentId);
+    if (appointment.patientId !== patientId) {
+      throw new ForbiddenException('You can only cancel your own appointments');
+    }
+
+    const patientCancellable: AppointmentStatus[] = [
+      AppointmentStatus.REQUESTED,
+      AppointmentStatus.CONFIRMED,
+    ];
+    if (!patientCancellable.includes(appointment.status)) {
+      throw new BadRequestException(
+        'Patient can cancel only REQUESTED or CONFIRMED appointments',
+      );
+    }
+
+    return this.prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: AppointmentStatus.CANCELLED },
+    });
+  }
+
+  private async updateByDoctorTransition(
+    doctorId: string,
+    appointmentId: string,
+    nextStatus: AppointmentStatus,
+  ) {
+    const appointment = await this.getAppointmentOrThrow(appointmentId);
+    this.assertDoctorOwnership(appointment.doctorId, doctorId);
+    this.transitionOrThrow(appointment.status, nextStatus);
+
+    return this.prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: nextStatus },
+    });
+  }
+
+  private async getAppointmentOrThrow(appointmentId: string) {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id: appointmentId },
     });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
-    if (appointment.doctorId !== doctorId) {
-      throw new ForbiddenException('You can only confirm your own appointments');
-    }
-    if (appointment.status !== AppointmentStatus.REQUESTED) {
-      throw new BadRequestException('Only REQUESTED appointments can be confirmed');
-    }
+    return appointment;
+  }
 
-    return this.prisma.appointment.update({
-      where: { id: appointmentId },
-      data: { status: AppointmentStatus.CONFIRMED },
-    });
+  private assertDoctorOwnership(doctorIdInAppointment: string, doctorId: string) {
+    if (doctorIdInAppointment !== doctorId) {
+      throw new ForbiddenException('You can only modify your own appointments');
+    }
+  }
+
+  private transitionOrThrow(current: AppointmentStatus, next: AppointmentStatus) {
+    if (!TRANSITIONS[current].includes(next)) {
+      throw new BadRequestException(`Invalid transition: ${current} -> ${next}`);
+    }
   }
 }

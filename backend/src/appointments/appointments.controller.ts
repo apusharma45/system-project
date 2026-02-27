@@ -43,4 +43,37 @@ export class AppointmentsController {
   confirm(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
     return this.appointmentsService.confirmByDoctor(req.user.userId, id);
   }
+
+  @Patch(':id/call')
+  @Roles(Role.DOCTOR)
+  call(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
+    return this.appointmentsService.callByDoctor(req.user.userId, id);
+  }
+
+  @Patch(':id/in-visit')
+  @Roles(Role.DOCTOR)
+  markInVisit(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
+    return this.appointmentsService.markInVisitByDoctor(req.user.userId, id);
+  }
+
+  @Patch(':id/exam-done')
+  @Roles(Role.DOCTOR)
+  markExamDone(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
+    return this.appointmentsService.markExamDoneByDoctor(req.user.userId, id);
+  }
+
+  @Patch(':id/close')
+  @Roles(Role.DOCTOR)
+  close(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
+    return this.appointmentsService.closeByDoctor(req.user.userId, id);
+  }
+
+  @Patch(':id/cancel')
+  @Roles(Role.PATIENT, Role.DOCTOR)
+  cancel(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
+    if (req.user.role === Role.DOCTOR) {
+      return this.appointmentsService.cancelByDoctor(req.user.userId, id);
+    }
+    return this.appointmentsService.cancelByPatient(req.user.userId, id);
+  }
 }
