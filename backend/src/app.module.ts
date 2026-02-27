@@ -7,9 +7,18 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { LabsModule } from './labs/labs.module';
+import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 
 @Module({
-  imports: [PrismaModule, HealthModule, UsersModule, AuthModule, AppointmentsModule, LabsModule],
+  imports: [
+    PrismaModule,
+    HealthModule,
+    UsersModule,
+    AuthModule,
+    AppointmentsModule,
+    LabsModule,
+    PrescriptionsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -33,6 +33,14 @@ enum LabOrderStatus {
   SENT
 }
 
+enum PrescriptionStatus {
+  DRAFT
+  SIGNED
+  SENT_TO_PATIENT
+  SENT_TO_PHARMACY
+  DISPENSED
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -44,6 +52,8 @@ model User {
   patientAppointments  Appointment[] @relation("PatientAppointments")
   doctorAppointments   Appointment[] @relation("DoctorAppointments")
   diagnosticLabOrders  LabOrder[]    @relation("DiagnosticLabOrders")
+  doctorPrescriptions  Prescription[] @relation("DoctorPrescriptions")
+  pharmacyPrescriptions Prescription[] @relation("PharmacyPrescriptions")
 }
 
 model Appointment {
@@ -62,6 +72,7 @@ model Appointment {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   labOrder    LabOrder?
+  prescription Prescription?
 
   @@index([patientId])
   @@index([doctorId])
@@ -98,4 +109,25 @@ model LabResult {
   updatedAt  DateTime @updatedAt
 
   @@unique([labOrderId])
+}
+
+model Prescription {
+  id String @id @default(uuid())
+
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+
+  doctorId String
+  doctor   User @relation("DoctorPrescriptions", fields: [doctorId], references: [id], onDelete: Restrict)
+
+  pharmacyId String
+  pharmacy   User @relation("PharmacyPrescriptions", fields: [pharmacyId], references: [id], onDelete: Restrict)
+
+  notes  String
+  status PrescriptionStatus @default(DRAFT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([doctorId])
+  @@index([pharmacyId])
 }

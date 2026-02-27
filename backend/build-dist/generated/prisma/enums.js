@@ -1,0 +1,34 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PrescriptionStatus = exports.LabOrderStatus = exports.AppointmentStatus = exports.Role = void 0;
+exports.Role = {
+    PATIENT: 'PATIENT',
+    DOCTOR: 'DOCTOR',
+    PHARMACY: 'PHARMACY',
+    DIAGNOSTIC: 'DIAGNOSTIC',
+    ADMIN: 'ADMIN'
+};
+exports.AppointmentStatus = {
+    REQUESTED: 'REQUESTED',
+    CONFIRMED: 'CONFIRMED',
+    CALLED: 'CALLED',
+    IN_VISIT: 'IN_VISIT',
+    EXAM_DONE: 'EXAM_DONE',
+    CLOSED: 'CLOSED',
+    CANCELLED: 'CANCELLED'
+};
+exports.LabOrderStatus = {
+    CREATED: 'CREATED',
+    ASSIGNED: 'ASSIGNED',
+    SAMPLE_COLLECTED: 'SAMPLE_COLLECTED',
+    RESULT_UPLOADED: 'RESULT_UPLOADED',
+    SENT: 'SENT'
+};
+exports.PrescriptionStatus = {
+    DRAFT: 'DRAFT',
+    SIGNED: 'SIGNED',
+    SENT_TO_PATIENT: 'SENT_TO_PATIENT',
+    SENT_TO_PHARMACY: 'SENT_TO_PHARMACY',
+    DISPENSED: 'DISPENSED'
+};
+//# sourceMappingURL=enums.js.map
