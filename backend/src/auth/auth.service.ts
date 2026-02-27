@@ -1,38 +1,55 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '../../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { UsersService } from '../users/users.service';
-import { Role } from '../../generated/prisma/client.js';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly users: UsersService,
-    private readonly jwt: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: { email: string; password: string; role: Role }) {
-    const existing = await this.users.findByEmail(dto.email);
-    if (existing) throw new ConflictException('Email already in use');
+  async register(dto: RegisterDto) {
+    const existing = await this.usersService.findByEmail(dto.email);
+    if (existing) {
+      throw new ConflictException('Email already in use');
+    }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.users.createUser({ email: dto.email, passwordHash, role: dto.role });
+    const user = await this.usersService.createUser({
+      email: dto.email,
+      passwordHash,
+      role: dto.role as Role,
+    });
 
     return this.signToken(user.id, user.email, user.role);
   }
 
-  async login(dto: { email: string; password: string }) {
-    const user = await this.users.findByEmail(dto.email);
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+  async login(dto: LoginDto) {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
-    const ok = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!ok) throw new UnauthorizedException('Invalid credentials');
+    const validPassword = await bcrypt.compare(dto.password, user.passwordHash);
+    if (!validPassword) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     return this.signToken(user.id, user.email, user.role);
   }
 
   private async signToken(userId: string, email: string, role: Role) {
-    const payload = { sub: userId, email, role };
-    return { access_token: await this.jwt.signAsync(payload) };
+    return {
+      access_token: await this.jwtService.signAsync({
+        sub: userId,
+        email,
+        role,
+      }),
+    };
   }
 }
