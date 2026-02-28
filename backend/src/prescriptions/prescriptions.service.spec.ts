@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentStatus, PrescriptionStatus, Role } from '../../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PrescriptionsService } from './prescriptions.service';
 
@@ -27,6 +29,12 @@ describe('PrescriptionsService', () => {
       findFirst: jest.fn(),
     },
   };
+  const notificationsMock = {
+    createAndEmit: jest.fn(),
+  };
+  const auditMock = {
+    record: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -36,6 +44,14 @@ describe('PrescriptionsService', () => {
         {
           provide: PrismaService,
           useValue: prismaMock,
+        },
+        {
+          provide: NotificationsService,
+          useValue: notificationsMock,
+        },
+        {
+          provide: AuditService,
+          useValue: auditMock,
         },
       ],
     }).compile();
@@ -228,6 +244,8 @@ describe('PrescriptionsService', () => {
     const two = await service.sendToPharmacyByDoctor('d1', 'rx1');
     expect(one.status).toBe(PrescriptionStatus.SENT_TO_PATIENT);
     expect(two.status).toBe(PrescriptionStatus.SENT_TO_PHARMACY);
+    expect(notificationsMock.createAndEmit).toHaveBeenCalledTimes(2);
+    expect(auditMock.record).toHaveBeenCalled();
   });
 
   it('dispenseByPharmacy allows assigned pharmacy and rejects others/invalid state', async () => {

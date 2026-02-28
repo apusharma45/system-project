@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentStatus, Role } from '../../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LabsService } from './labs.service';
 
@@ -29,6 +31,12 @@ describe('LabsService', () => {
       create: jest.fn(),
     },
   };
+  const notificationsMock = {
+    createAndEmit: jest.fn(),
+  };
+  const auditMock = {
+    record: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -38,6 +46,14 @@ describe('LabsService', () => {
         {
           provide: PrismaService,
           useValue: prismaMock,
+        },
+        {
+          provide: NotificationsService,
+          useValue: notificationsMock,
+        },
+        {
+          provide: AuditService,
+          useValue: auditMock,
         },
       ],
     }).compile();
@@ -170,6 +186,11 @@ describe('LabsService', () => {
       diagnosticId: 'diag1',
       status: 'SAMPLE_COLLECTED',
     });
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      id: 'a1',
+      doctorId: 'doc1',
+      patientId: 'pat1',
+    });
     prismaMock.labResult.findUnique.mockResolvedValueOnce(null);
     prismaMock.labOrder.update.mockResolvedValueOnce({
       id: 'o1',
@@ -189,6 +210,8 @@ describe('LabsService', () => {
       where: { id: 'a1' },
       data: { labFlowLocked: false },
     });
+    expect(notificationsMock.createAndEmit).toHaveBeenCalledTimes(2);
+    expect(auditMock.record).toHaveBeenCalled();
     expect(result.labOrderId).toBe('o1');
   });
 

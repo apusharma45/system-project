@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentStatus, Role } from '../../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AppointmentsService } from './appointments.service';
 
@@ -15,6 +17,12 @@ describe('AppointmentsService', () => {
     patientId: 'p1',
     doctorId: 'd1',
     status: AppointmentStatus.REQUESTED,
+  };
+  const notificationsMock = {
+    createAndEmit: jest.fn(),
+  };
+  const auditMock = {
+    record: jest.fn(),
   };
   const prismaMock = {
     user: {
@@ -38,6 +46,8 @@ describe('AppointmentsService', () => {
       providers: [
         AppointmentsService,
         { provide: PrismaService, useValue: prismaMock },
+        { provide: NotificationsService, useValue: notificationsMock },
+        { provide: AuditService, useValue: auditMock },
       ],
     }).compile();
 
@@ -99,6 +109,19 @@ describe('AppointmentsService', () => {
 
     const result = await service.callByDoctor('d1', 'a1');
     expect(result.status).toBe(AppointmentStatus.CALLED);
+    expect(notificationsMock.createAndEmit).toHaveBeenCalledTimes(1);
+    expect(auditMock.record).toHaveBeenCalled();
+  });
+
+  it('callByDoctor does not notify on invalid transition', async () => {
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.REQUESTED,
+    });
+
+    await expect(service.callByDoctor('d1', 'a1')).rejects.toBeInstanceOf(BadRequestException);
+    expect(notificationsMock.createAndEmit).not.toHaveBeenCalled();
+    expect(auditMock.record).not.toHaveBeenCalled();
   });
 
   it('markInVisitByDoctor updates CALLED to IN_VISIT', async () => {

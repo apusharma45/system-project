@@ -41,6 +41,12 @@ enum PrescriptionStatus {
   DISPENSED
 }
 
+enum NotificationType {
+  APPOINTMENT_CALLED
+  LAB_RESULT_UPLOADED
+  PRESCRIPTION_READY
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -54,6 +60,8 @@ model User {
   diagnosticLabOrders  LabOrder[]    @relation("DiagnosticLabOrders")
   doctorPrescriptions  Prescription[] @relation("DoctorPrescriptions")
   pharmacyPrescriptions Prescription[] @relation("PharmacyPrescriptions")
+  notifications Notification[]
+  auditLogs AuditLog[] @relation("ActorAuditLogs")
 }
 
 model Appointment {
@@ -130,4 +138,38 @@ model Prescription {
 
   @@index([doctorId])
   @@index([pharmacyId])
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  type    NotificationType
+  message String
+  read    Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  actorUserId String?
+  actor       User? @relation("ActorAuditLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
 }

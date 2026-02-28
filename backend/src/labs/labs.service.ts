@@ -4,7 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AppointmentStatus, Role } from '../../generated/prisma/client';
+import { AppointmentStatus, NotificationType, Role } from '../../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLabOrderDto } from './dto/create-lab-order.dto';
 import { UploadLabResultDto } from './dto/upload-lab-result.dto';
@@ -26,7 +28,11 @@ const TRANSITIONS: Record<LabOrderStatus, LabOrderStatus[]> = {
 
 @Injectable()
 export class LabsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async createOrder(doctorId: string, dto: CreateLabOrderDto) {
     const db = this.prisma as any;
@@ -66,20 +72,33 @@ export class LabsService {
       data: { requiresLab: true, labFlowLocked: true },
     });
 
-    return db.labOrder.create({
+    const order = await db.labOrder.create({
       data: {
         appointmentId: dto.appointmentId,
         diagnosticId: dto.diagnosticId,
       },
     });
+    await this.auditService.record(doctorId, 'LAB_ORDER_CREATED', 'LabOrder', order.id, {
+      appointmentId: dto.appointmentId,
+      diagnosticId: dto.diagnosticId,
+    });
+    return order;
   }
 
   async assignOrder(diagnosticId: string, orderId: string) {
-    return this.updateByDiagnosticTransition(diagnosticId, orderId, 'ASSIGNED');
+    const order = await this.updateByDiagnosticTransition(diagnosticId, orderId, 'ASSIGNED');
+    await this.auditService.record(diagnosticId, 'LAB_ORDER_ASSIGNED', 'LabOrder', order.id);
+    return order;
   }
 
   async collectSample(diagnosticId: string, orderId: string) {
-    return this.updateByDiagnosticTransition(diagnosticId, orderId, 'SAMPLE_COLLECTED');
+    const order = await this.updateByDiagnosticTransition(
+      diagnosticId,
+      orderId,
+      'SAMPLE_COLLECTED',
+    );
+    await this.auditService.record(diagnosticId, 'LAB_SAMPLE_COLLECTED', 'LabOrder', order.id);
+    return order;
   }
 
   async uploadResult(diagnosticId: string, orderId: string, dto: UploadLabResultDto) {
@@ -112,11 +131,37 @@ export class LabsService {
       data: { labFlowLocked: false },
     });
 
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: order.appointmentId },
+      select: { id: true, doctorId: true, patientId: true },
+    });
+    if (appointment) {
+      await this.notificationsService.createAndEmit(
+        appointment.doctorId,
+        NotificationType.LAB_RESULT_UPLOADED,
+        'Lab result uploaded for your appointment.',
+        { appointmentId: appointment.id, labOrderId: orderId },
+        diagnosticId,
+      );
+      await this.notificationsService.createAndEmit(
+        appointment.patientId,
+        NotificationType.LAB_RESULT_UPLOADED,
+        'Lab result uploaded for your appointment.',
+        { appointmentId: appointment.id, labOrderId: orderId },
+        diagnosticId,
+      );
+    }
+    await this.auditService.record(diagnosticId, 'LAB_RESULT_UPLOADED', 'LabOrder', order.id, {
+      appointmentId: order.appointmentId,
+    });
+
     return result;
   }
 
   async markSent(diagnosticId: string, orderId: string) {
-    return this.updateByDiagnosticTransition(diagnosticId, orderId, 'SENT');
+    const order = await this.updateByDiagnosticTransition(diagnosticId, orderId, 'SENT');
+    await this.auditService.record(diagnosticId, 'LAB_ORDER_SENT', 'LabOrder', order.id);
+    return order;
   }
 
   listMine(userId: string, role: Role) {
