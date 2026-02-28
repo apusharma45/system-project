@@ -24,4 +24,18 @@ export class UsersService {
       data: { email, passwordHash, role },
     });
   }
+
+  listByRole(role: Role) {
+    return this.prisma.user.findMany({
+      where: { role },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
 }

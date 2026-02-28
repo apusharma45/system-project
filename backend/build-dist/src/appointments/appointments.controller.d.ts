@@ -14,12 +14,12 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
         doctorId: string;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         scheduledAt: Date;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+        patientId: string;
     }>;
     listMine(req: {
         user: RequestUser;
@@ -27,12 +27,12 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
         doctorId: string;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         scheduledAt: Date;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+        patientId: string;
     }[]>;
     confirm(req: {
         user: RequestUser;
@@ -40,12 +40,12 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
         doctorId: string;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         scheduledAt: Date;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+        patientId: string;
     }>;
     call(req: {
         user: RequestUser;
@@ -53,12 +53,12 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
         doctorId: string;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         scheduledAt: Date;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+        patientId: string;
     }>;
     markInVisit(req: {
         user: RequestUser;
@@ -66,12 +66,12 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
         doctorId: string;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         scheduledAt: Date;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+        patientId: string;
     }>;
     markExamDone(req: {
         user: RequestUser;
@@ -79,12 +79,12 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
         doctorId: string;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         scheduledAt: Date;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+        patientId: string;
     }>;
     close(req: {
         user: RequestUser;
@@ -92,12 +92,12 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
         doctorId: string;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         scheduledAt: Date;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+        patientId: string;
     }>;
     cancel(req: {
         user: RequestUser;
@@ -105,12 +105,12 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
         doctorId: string;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         scheduledAt: Date;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+        patientId: string;
     }>;
 }
 export {};

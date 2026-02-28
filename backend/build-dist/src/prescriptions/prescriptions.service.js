@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrescriptionsService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("../../generated/prisma/client");
+const audit_service_1 = require("../audit/audit.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const TRANSITIONS = {
     DRAFT: [client_1.PrescriptionStatus.SIGNED],
@@ -22,8 +24,12 @@ const TRANSITIONS = {
 };
 let PrescriptionsService = class PrescriptionsService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    auditService;
+    constructor(prisma, notificationsService, auditService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
+        this.auditService = auditService;
     }
     async createDraft(doctorId, dto) {
         const db = this.prisma;
@@ -53,7 +59,7 @@ let PrescriptionsService = class PrescriptionsService {
         if (existing) {
             throw new common_1.BadRequestException('Prescription already exists for this appointment');
         }
-        return db.prescription.create({
+        const prescription = await db.prescription.create({
             data: {
                 appointmentId: dto.appointmentId,
                 doctorId,
@@ -61,6 +67,8 @@ let PrescriptionsService = class PrescriptionsService {
                 notes: dto.notes,
             },
         });
+        await this.auditService.record(doctorId, 'PRESCRIPTION_CREATED', 'Prescription', prescription.id, { appointmentId: dto.appointmentId, pharmacyId: dto.pharmacyId });
+        return prescription;
     }
     async signByDoctor(doctorId, prescriptionId, dto) {
         const db = this.prisma;
@@ -68,19 +76,41 @@ let PrescriptionsService = class PrescriptionsService {
         this.assertDoctorOwnership(prescription.doctorId, doctorId);
         this.transitionOrThrow(prescription.status, client_1.PrescriptionStatus.SIGNED);
         await this.assertLabDependencySatisfied(prescription.appointment);
-        return db.prescription.update({
+        const prescriptionUpdated = await db.prescription.update({
             where: { id: prescriptionId },
             data: {
                 status: client_1.PrescriptionStatus.SIGNED,
                 ...(dto?.notes ? { notes: dto.notes } : {}),
             },
         });
+        await this.auditService.record(doctorId, 'PRESCRIPTION_SIGNED', 'Prescription', prescriptionId);
+        return prescriptionUpdated;
     }
     async sendToPatientByDoctor(doctorId, prescriptionId) {
-        return this.updateByDoctorTransition(doctorId, prescriptionId, client_1.PrescriptionStatus.SENT_TO_PATIENT);
+        const db = this.prisma;
+        const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
+        this.assertDoctorOwnership(prescription.doctorId, doctorId);
+        this.transitionOrThrow(prescription.status, client_1.PrescriptionStatus.SENT_TO_PATIENT);
+        const updated = await db.prescription.update({
+            where: { id: prescriptionId },
+            data: { status: client_1.PrescriptionStatus.SENT_TO_PATIENT },
+        });
+        await this.notificationsService.createAndEmit(prescription.appointment.patientId, client_1.NotificationType.PRESCRIPTION_READY, 'Your prescription is ready.', { prescriptionId }, doctorId);
+        await this.auditService.record(doctorId, 'PRESCRIPTION_SENT_TO_PATIENT', 'Prescription', prescriptionId);
+        return updated;
     }
     async sendToPharmacyByDoctor(doctorId, prescriptionId) {
-        return this.updateByDoctorTransition(doctorId, prescriptionId, client_1.PrescriptionStatus.SENT_TO_PHARMACY);
+        const db = this.prisma;
+        const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
+        this.assertDoctorOwnership(prescription.doctorId, doctorId);
+        this.transitionOrThrow(prescription.status, client_1.PrescriptionStatus.SENT_TO_PHARMACY);
+        const updated = await db.prescription.update({
+            where: { id: prescriptionId },
+            data: { status: client_1.PrescriptionStatus.SENT_TO_PHARMACY },
+        });
+        await this.notificationsService.createAndEmit(prescription.pharmacyId, client_1.NotificationType.PRESCRIPTION_READY, 'A prescription is ready for fulfillment.', { prescriptionId }, doctorId);
+        await this.auditService.record(doctorId, 'PRESCRIPTION_SENT_TO_PHARMACY', 'Prescription', prescriptionId);
+        return updated;
     }
     async dispenseByPharmacy(pharmacyId, prescriptionId) {
         const db = this.prisma;
@@ -89,10 +119,12 @@ let PrescriptionsService = class PrescriptionsService {
             throw new common_1.ForbiddenException('You can only dispense prescriptions assigned to your pharmacy');
         }
         this.transitionOrThrow(prescription.status, client_1.PrescriptionStatus.DISPENSED);
-        return db.prescription.update({
+        const dispensed = await db.prescription.update({
             where: { id: prescriptionId },
             data: { status: client_1.PrescriptionStatus.DISPENSED },
         });
+        await this.auditService.record(pharmacyId, 'PRESCRIPTION_DISPENSED', 'Prescription', prescriptionId);
+        return dispensed;
     }
     listMine(userId, role) {
         const db = this.prisma;
@@ -141,16 +173,6 @@ let PrescriptionsService = class PrescriptionsService {
         }
         throw new common_1.ForbiddenException('You are not allowed to access this prescription');
     }
-    async updateByDoctorTransition(doctorId, prescriptionId, nextStatus) {
-        const db = this.prisma;
-        const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
-        this.assertDoctorOwnership(prescription.doctorId, doctorId);
-        this.transitionOrThrow(prescription.status, nextStatus);
-        return db.prescription.update({
-            where: { id: prescriptionId },
-            data: { status: nextStatus },
-        });
-    }
     async getPrescriptionWithAppointmentOrThrow(prescriptionId) {
         const db = this.prisma;
         const prescription = await db.prescription.findUnique({
@@ -195,6 +217,8 @@ let PrescriptionsService = class PrescriptionsService {
 exports.PrescriptionsService = PrescriptionsService;
 exports.PrescriptionsService = PrescriptionsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService,
+        audit_service_1.AuditService])
 ], PrescriptionsService);
 //# sourceMappingURL=prescriptions.service.js.map

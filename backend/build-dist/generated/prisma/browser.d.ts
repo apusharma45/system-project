@@ -7,3 +7,5 @@ export type Appointment = Prisma.AppointmentModel;
 export type LabOrder = Prisma.LabOrderModel;
 export type LabResult = Prisma.LabResultModel;
 export type Prescription = Prisma.PrescriptionModel;
+export type Notification = Prisma.NotificationModel;
+export type AuditLog = Prisma.AuditLogModel;

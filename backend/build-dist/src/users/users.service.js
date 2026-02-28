@@ -33,6 +33,19 @@ let UsersService = class UsersService {
             data: { email, passwordHash, role },
         });
     }
+    listByRole(role) {
+        return this.prisma.user.findMany({
+            where: { role },
+            select: {
+                id: true,
+                email: true,
+                role: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

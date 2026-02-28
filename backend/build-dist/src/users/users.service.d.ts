@@ -37,4 +37,9 @@ export declare class UsersService {
     }, never, import("@prisma/client/runtime/client").DefaultArgs, {
         omit: import("../../generated/prisma/internal/prismaNamespace").GlobalOmitConfig | undefined;
     }>;
+    listByRole(role: Role): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
+        id: string;
+        email: string;
+        role: Role;
+    }[]>;
 }

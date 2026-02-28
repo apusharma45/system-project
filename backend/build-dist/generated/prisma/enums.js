@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PrescriptionStatus = exports.LabOrderStatus = exports.AppointmentStatus = exports.Role = void 0;
+exports.NotificationType = exports.PrescriptionStatus = exports.LabOrderStatus = exports.AppointmentStatus = exports.Role = void 0;
 exports.Role = {
     PATIENT: 'PATIENT',
     DOCTOR: 'DOCTOR',
@@ -30,5 +30,10 @@ exports.PrescriptionStatus = {
     SENT_TO_PATIENT: 'SENT_TO_PATIENT',
     SENT_TO_PHARMACY: 'SENT_TO_PHARMACY',
     DISPENSED: 'DISPENSED'
+};
+exports.NotificationType = {
+    APPOINTMENT_CALLED: 'APPOINTMENT_CALLED',
+    LAB_RESULT_UPLOADED: 'LAB_RESULT_UPLOADED',
+    PRESCRIPTION_READY: 'PRESCRIPTION_READY'
 };
 //# sourceMappingURL=enums.js.map
