@@ -8,7 +8,7 @@ import { useAuth } from './auth-context'
 const registerSchema = z.object({
   email: z.email('Provide a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['PATIENT', 'DOCTOR']),
+  role: z.enum(['PATIENT', 'DOCTOR', 'DIAGNOSTIC']),
 })
 
 export function RegisterPage() {
@@ -16,7 +16,7 @@ export function RegisterPage() {
   const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'PATIENT' | 'DOCTOR'>('PATIENT')
+  const [role, setRole] = useState<'PATIENT' | 'DOCTOR' | 'DIAGNOSTIC'>('PATIENT')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -33,7 +33,9 @@ export function RegisterPage() {
     try {
       const response = await api.post<{ access_token: string }>('/auth/register', parsed.data)
       await login(response.data.access_token)
-      navigate(role === 'DOCTOR' ? '/doctor' : '/patient')
+      if (role === 'DOCTOR') navigate('/doctor')
+      else if (role === 'DIAGNOSTIC') navigate('/diagnostic')
+      else navigate('/patient')
     } catch (err) {
       setError(getApiErrorMessage(err))
     } finally {
@@ -55,9 +57,14 @@ export function RegisterPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <label htmlFor="role">Role</label>
-        <select id="role" value={role} onChange={(e) => setRole(e.target.value as 'PATIENT' | 'DOCTOR')}>
+        <select
+          id="role"
+          value={role}
+          onChange={(e) => setRole(e.target.value as 'PATIENT' | 'DOCTOR' | 'DIAGNOSTIC')}
+        >
           <option value="PATIENT">PATIENT</option>
           <option value="DOCTOR">DOCTOR</option>
+          <option value="DIAGNOSTIC">DIAGNOSTIC</option>
         </select>
         {error ? <p className="error">{error}</p> : null}
         <button type="submit" disabled={submitting}>

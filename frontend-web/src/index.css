@@ -502,6 +502,11 @@ textarea:focus {
   color: #ea580c;
 }
 
+.icon-chip.yellow {
+  background: #fef9c3;
+  color: #a16207;
+}
+
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
