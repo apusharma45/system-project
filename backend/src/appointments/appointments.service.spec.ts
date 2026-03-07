@@ -97,6 +97,43 @@ describe('AppointmentsService', () => {
     expect(result.status).toBe(AppointmentStatus.CONFIRMED);
   });
 
+  it('scheduleByDoctor updates REQUESTED to CONFIRMED and assigns scheduledAt', async () => {
+    const scheduledAt = '2026-03-10T09:30:00.000Z';
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.REQUESTED,
+    });
+    prismaMock.appointment.update.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.CONFIRMED,
+      scheduledAt: new Date(scheduledAt),
+    });
+
+    const result = await service.scheduleByDoctor('d1', 'a1', scheduledAt);
+
+    expect(prismaMock.appointment.update).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      data: {
+        scheduledAt: new Date(scheduledAt),
+        status: AppointmentStatus.CONFIRMED,
+      },
+    });
+    expect(notificationsMock.createAndEmit).toHaveBeenCalledTimes(1);
+    expect(result.status).toBe(AppointmentStatus.CONFIRMED);
+  });
+
+  it('scheduleByDoctor rejects non-requested appointments', async () => {
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.CONFIRMED,
+    });
+
+    await expect(service.scheduleByDoctor('d1', 'a1', new Date().toISOString())).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(notificationsMock.createAndEmit).not.toHaveBeenCalled();
+  });
+
   it('callByDoctor updates CONFIRMED to CALLED', async () => {
     prismaMock.appointment.findUnique.mockResolvedValueOnce({
       ...baseAppointment,

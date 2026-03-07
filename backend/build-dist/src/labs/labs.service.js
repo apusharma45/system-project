@@ -67,6 +67,7 @@ let LabsService = class LabsService {
             data: {
                 appointmentId: dto.appointmentId,
                 diagnosticId: dto.diagnosticId,
+                tests: dto.tests,
             },
         });
         await this.auditService.record(doctorId, 'LAB_ORDER_CREATED', 'LabOrder', order.id, {
@@ -90,6 +91,12 @@ let LabsService = class LabsService {
         const order = await this.getOrderOrThrow(orderId);
         this.assertDiagnosticOwnership(order.diagnosticId, diagnosticId);
         this.transitionOrThrow(order.status, 'RESULT_UPLOADED');
+        if (dto.fileMimeType && !/^application\/pdf$|^image\/(png|jpeg|jpg|webp)$/i.test(dto.fileMimeType)) {
+            throw new common_1.BadRequestException('Only PDF and image lab result MIME types are allowed');
+        }
+        if (dto.fileSizeBytes && dto.fileSizeBytes > 10 * 1024 * 1024) {
+            throw new common_1.BadRequestException('Lab result file size exceeds 10MB limit');
+        }
         const existingResult = await db.labResult.findUnique({
             where: { labOrderId: orderId },
         });
@@ -104,6 +111,9 @@ let LabsService = class LabsService {
             data: {
                 labOrderId: orderId,
                 fileUrl: dto.fileUrl,
+                filePublicId: dto.filePublicId ?? null,
+                fileMimeType: dto.fileMimeType ?? null,
+                fileSizeBytes: dto.fileSizeBytes ?? null,
             },
         });
         await db.appointment.update({
@@ -138,7 +148,17 @@ let LabsService = class LabsService {
                     },
                 },
                 include: {
-                    appointment: true,
+                    appointment: {
+                        include: {
+                            patient: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
                     labResult: true,
                 },
                 orderBy: { createdAt: 'desc' },
@@ -162,7 +182,17 @@ let LabsService = class LabsService {
             return db.labOrder.findMany({
                 where: { diagnosticId: userId },
                 include: {
-                    appointment: true,
+                    appointment: {
+                        include: {
+                            patient: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
                     labResult: true,
                 },
                 orderBy: { createdAt: 'desc' },

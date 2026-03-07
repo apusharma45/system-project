@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../features/auth/auth-context'
 import { useDoctorNotifications } from '../features/doctor/doctor-shared'
+import { usePharmacyNotifications } from '../features/pharmacy/pharmacy-shared'
 
 export function AppLayout() {
   const { user, logout } = useAuth()
@@ -20,21 +21,24 @@ export function AppLayout() {
   const location = useLocation()
   const [open, setOpen] = useState(true)
   const notificationsQuery = useDoctorNotifications()
+  const pharmacyNotificationsQuery = usePharmacyNotifications()
   const todayLabel = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   }).format(new Date())
-  const userLabel = user?.role === 'DOCTOR' ? 'Dr. User' : 'Patient User'
-  const userSubtitle = user?.role === 'DOCTOR' ? 'Doctor' : 'Patient'
-  const initials = user?.role === 'DOCTOR' ? 'DR' : 'PT'
+  const userLabel = user?.role === 'DOCTOR' ? 'Dr. User' : user?.role === 'PHARMACY' ? 'Pharmacy User' : 'Patient User'
+  const userSubtitle = user?.role === 'DOCTOR' ? 'Doctor' : user?.role === 'PHARMACY' ? 'Pharmacy' : 'Patient'
+  const initials = user?.role === 'DOCTOR' ? 'DR' : user?.role === 'PHARMACY' ? 'PH' : 'PT'
 
   const navItems = useMemo<Array<{ label: string; to: string; icon: typeof LayoutDashboard; badge?: number }>>(() => {
     if (!user) return []
     const unreadNotifications =
       user.role === 'DOCTOR'
         ? (notificationsQuery.data ?? []).filter((item) => !item.read).length
+        : user.role === 'PHARMACY'
+          ? (pharmacyNotificationsQuery.data ?? []).filter((item) => !item.read).length
         : 0
 
     if (user.role === 'DOCTOR') {
@@ -47,12 +51,19 @@ export function AppLayout() {
         { label: 'Notifications', to: '/doctor/notifications', icon: Bell, badge: unreadNotifications },
       ]
     }
+    if (user.role === 'PHARMACY') {
+      return [
+        { label: 'Dashboard', to: '/pharmacy', icon: LayoutDashboard },
+        { label: 'Prescriptions', to: '/pharmacy/prescriptions', icon: FileText },
+        { label: 'Notifications', to: '/pharmacy/notifications', icon: Bell, badge: unreadNotifications },
+      ]
+    }
     return [
       { label: 'Dashboard', to: '/patient', icon: LayoutDashboard },
       { label: 'Appointments', to: '/patient#appointments', icon: Calendar },
       { label: 'Notifications', to: '/patient#notifications', icon: Bell },
     ]
-  }, [notificationsQuery.data, user])
+  }, [notificationsQuery.data, pharmacyNotificationsQuery.data, user])
 
   return (
     <div className="shell">
@@ -70,7 +81,10 @@ export function AppLayout() {
             {navItems.map((item) => {
               const active =
                 location.pathname === item.to ||
-                (item.to !== '/doctor' && item.to !== '/patient' && location.pathname.startsWith(item.to))
+                (item.to !== '/doctor' &&
+                  item.to !== '/patient' &&
+                  item.to !== '/pharmacy' &&
+                  location.pathname.startsWith(item.to))
               const Icon = item.icon
               return (
                 <Link key={item.label} to={item.to} className={active ? 'active' : ''}>

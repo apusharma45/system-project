@@ -12,6 +12,7 @@ export declare const JsonNull: import("@prisma/client-runtime-utils").JsonNullCl
 export declare const AnyNull: import("@prisma/client-runtime-utils").AnyNullClass;
 export declare const ModelName: {
     readonly User: "User";
+    readonly PatientProfile: "PatientProfile";
     readonly Appointment: "Appointment";
     readonly LabOrder: "LabOrder";
     readonly LabResult: "LabResult";
@@ -29,6 +30,7 @@ export declare const TransactionIsolationLevel: {
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel];
 export declare const UserScalarFieldEnum: {
     readonly id: "id";
+    readonly fullName: "fullName";
     readonly email: "email";
     readonly passwordHash: "passwordHash";
     readonly role: "role";
@@ -36,12 +38,33 @@ export declare const UserScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum];
+export declare const PatientProfileScalarFieldEnum: {
+    readonly id: "id";
+    readonly patientId: "patientId";
+    readonly dateOfBirth: "dateOfBirth";
+    readonly gender: "gender";
+    readonly phone: "phone";
+    readonly address: "address";
+    readonly allergies: "allergies";
+    readonly chronicConditions: "chronicConditions";
+    readonly currentMedications: "currentMedications";
+    readonly emergencyContactName: "emergencyContactName";
+    readonly emergencyContactPhone: "emergencyContactPhone";
+    readonly emergencyContactRelation: "emergencyContactRelation";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type PatientProfileScalarFieldEnum = (typeof PatientProfileScalarFieldEnum)[keyof typeof PatientProfileScalarFieldEnum];
 export declare const AppointmentScalarFieldEnum: {
     readonly id: "id";
     readonly patientId: "patientId";
     readonly doctorId: "doctorId";
     readonly status: "status";
     readonly scheduledAt: "scheduledAt";
+    readonly reason: "reason";
+    readonly preferredDateFrom: "preferredDateFrom";
+    readonly preferredDateTo: "preferredDateTo";
+    readonly preferredTimeNote: "preferredTimeNote";
     readonly requiresLab: "requiresLab";
     readonly labFlowLocked: "labFlowLocked";
     readonly createdAt: "createdAt";
@@ -53,6 +76,7 @@ export declare const LabOrderScalarFieldEnum: {
     readonly appointmentId: "appointmentId";
     readonly diagnosticId: "diagnosticId";
     readonly status: "status";
+    readonly tests: "tests";
     readonly createdAt: "createdAt";
     readonly updatedAt: "updatedAt";
 };
@@ -61,6 +85,9 @@ export declare const LabResultScalarFieldEnum: {
     readonly id: "id";
     readonly labOrderId: "labOrderId";
     readonly fileUrl: "fileUrl";
+    readonly filePublicId: "filePublicId";
+    readonly fileMimeType: "fileMimeType";
+    readonly fileSizeBytes: "fileSizeBytes";
     readonly uploadedAt: "uploadedAt";
     readonly createdAt: "createdAt";
     readonly updatedAt: "updatedAt";
@@ -72,7 +99,14 @@ export declare const PrescriptionScalarFieldEnum: {
     readonly doctorId: "doctorId";
     readonly pharmacyId: "pharmacyId";
     readonly notes: "notes";
+    readonly diagnosis: "diagnosis";
+    readonly instructions: "instructions";
+    readonly medications: "medications";
     readonly status: "status";
+    readonly documentUrl: "documentUrl";
+    readonly documentPublicId: "documentPublicId";
+    readonly documentMimeType: "documentMimeType";
+    readonly documentVersion: "documentVersion";
     readonly createdAt: "createdAt";
     readonly updatedAt: "updatedAt";
 };
@@ -113,14 +147,14 @@ export declare const QueryMode: {
     readonly insensitive: "insensitive";
 };
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode];
+export declare const NullsOrder: {
+    readonly first: "first";
+    readonly last: "last";
+};
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder];
 export declare const JsonNullValueFilter: {
     readonly DbNull: import("@prisma/client-runtime-utils").DbNullClass;
     readonly JsonNull: import("@prisma/client-runtime-utils").JsonNullClass;
     readonly AnyNull: import("@prisma/client-runtime-utils").AnyNullClass;
 };
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter];
-export declare const NullsOrder: {
-    readonly first: "first";
-    readonly last: "last";
-};
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder];

@@ -13,6 +13,10 @@ export type AppointmentMinAggregateOutputType = {
     doctorId: string | null;
     status: $Enums.AppointmentStatus | null;
     scheduledAt: Date | null;
+    reason: string | null;
+    preferredDateFrom: Date | null;
+    preferredDateTo: Date | null;
+    preferredTimeNote: string | null;
     requiresLab: boolean | null;
     labFlowLocked: boolean | null;
     createdAt: Date | null;
@@ -24,6 +28,10 @@ export type AppointmentMaxAggregateOutputType = {
     doctorId: string | null;
     status: $Enums.AppointmentStatus | null;
     scheduledAt: Date | null;
+    reason: string | null;
+    preferredDateFrom: Date | null;
+    preferredDateTo: Date | null;
+    preferredTimeNote: string | null;
     requiresLab: boolean | null;
     labFlowLocked: boolean | null;
     createdAt: Date | null;
@@ -35,6 +43,10 @@ export type AppointmentCountAggregateOutputType = {
     doctorId: number;
     status: number;
     scheduledAt: number;
+    reason: number;
+    preferredDateFrom: number;
+    preferredDateTo: number;
+    preferredTimeNote: number;
     requiresLab: number;
     labFlowLocked: number;
     createdAt: number;
@@ -47,6 +59,10 @@ export type AppointmentMinAggregateInputType = {
     doctorId?: true;
     status?: true;
     scheduledAt?: true;
+    reason?: true;
+    preferredDateFrom?: true;
+    preferredDateTo?: true;
+    preferredTimeNote?: true;
     requiresLab?: true;
     labFlowLocked?: true;
     createdAt?: true;
@@ -58,6 +74,10 @@ export type AppointmentMaxAggregateInputType = {
     doctorId?: true;
     status?: true;
     scheduledAt?: true;
+    reason?: true;
+    preferredDateFrom?: true;
+    preferredDateTo?: true;
+    preferredTimeNote?: true;
     requiresLab?: true;
     labFlowLocked?: true;
     createdAt?: true;
@@ -69,6 +89,10 @@ export type AppointmentCountAggregateInputType = {
     doctorId?: true;
     status?: true;
     scheduledAt?: true;
+    reason?: true;
+    preferredDateFrom?: true;
+    preferredDateTo?: true;
+    preferredTimeNote?: true;
     requiresLab?: true;
     labFlowLocked?: true;
     createdAt?: true;
@@ -104,7 +128,11 @@ export type AppointmentGroupByOutputType = {
     patientId: string;
     doctorId: string;
     status: $Enums.AppointmentStatus;
-    scheduledAt: Date;
+    scheduledAt: Date | null;
+    reason: string | null;
+    preferredDateFrom: Date | null;
+    preferredDateTo: Date | null;
+    preferredTimeNote: string | null;
     requiresLab: boolean;
     labFlowLocked: boolean;
     createdAt: Date;
@@ -124,7 +152,11 @@ export type AppointmentWhereInput = {
     patientId?: Prisma.StringFilter<"Appointment"> | string;
     doctorId?: Prisma.StringFilter<"Appointment"> | string;
     status?: Prisma.EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string;
+    scheduledAt?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    reason?: Prisma.StringNullableFilter<"Appointment"> | string | null;
+    preferredDateFrom?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    preferredDateTo?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    preferredTimeNote?: Prisma.StringNullableFilter<"Appointment"> | string | null;
     requiresLab?: Prisma.BoolFilter<"Appointment"> | boolean;
     labFlowLocked?: Prisma.BoolFilter<"Appointment"> | boolean;
     createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string;
@@ -139,7 +171,11 @@ export type AppointmentOrderByWithRelationInput = {
     patientId?: Prisma.SortOrder;
     doctorId?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
-    scheduledAt?: Prisma.SortOrder;
+    scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder;
+    reason?: Prisma.SortOrderInput | Prisma.SortOrder;
+    preferredDateFrom?: Prisma.SortOrderInput | Prisma.SortOrder;
+    preferredDateTo?: Prisma.SortOrderInput | Prisma.SortOrder;
+    preferredTimeNote?: Prisma.SortOrderInput | Prisma.SortOrder;
     requiresLab?: Prisma.SortOrder;
     labFlowLocked?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -157,7 +193,11 @@ export type AppointmentWhereUniqueInput = Prisma.AtLeast<{
     patientId?: Prisma.StringFilter<"Appointment"> | string;
     doctorId?: Prisma.StringFilter<"Appointment"> | string;
     status?: Prisma.EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string;
+    scheduledAt?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    reason?: Prisma.StringNullableFilter<"Appointment"> | string | null;
+    preferredDateFrom?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    preferredDateTo?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    preferredTimeNote?: Prisma.StringNullableFilter<"Appointment"> | string | null;
     requiresLab?: Prisma.BoolFilter<"Appointment"> | boolean;
     labFlowLocked?: Prisma.BoolFilter<"Appointment"> | boolean;
     createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string;
@@ -172,7 +212,11 @@ export type AppointmentOrderByWithAggregationInput = {
     patientId?: Prisma.SortOrder;
     doctorId?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
-    scheduledAt?: Prisma.SortOrder;
+    scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder;
+    reason?: Prisma.SortOrderInput | Prisma.SortOrder;
+    preferredDateFrom?: Prisma.SortOrderInput | Prisma.SortOrder;
+    preferredDateTo?: Prisma.SortOrderInput | Prisma.SortOrder;
+    preferredTimeNote?: Prisma.SortOrderInput | Prisma.SortOrder;
     requiresLab?: Prisma.SortOrder;
     labFlowLocked?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -189,7 +233,11 @@ export type AppointmentScalarWhereWithAggregatesInput = {
     patientId?: Prisma.StringWithAggregatesFilter<"Appointment"> | string;
     doctorId?: Prisma.StringWithAggregatesFilter<"Appointment"> | string;
     status?: Prisma.EnumAppointmentStatusWithAggregatesFilter<"Appointment"> | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeWithAggregatesFilter<"Appointment"> | Date | string;
+    scheduledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Appointment"> | Date | string | null;
+    reason?: Prisma.StringNullableWithAggregatesFilter<"Appointment"> | string | null;
+    preferredDateFrom?: Prisma.DateTimeNullableWithAggregatesFilter<"Appointment"> | Date | string | null;
+    preferredDateTo?: Prisma.DateTimeNullableWithAggregatesFilter<"Appointment"> | Date | string | null;
+    preferredTimeNote?: Prisma.StringNullableWithAggregatesFilter<"Appointment"> | string | null;
     requiresLab?: Prisma.BoolWithAggregatesFilter<"Appointment"> | boolean;
     labFlowLocked?: Prisma.BoolWithAggregatesFilter<"Appointment"> | boolean;
     createdAt?: Prisma.DateTimeWithAggregatesFilter<"Appointment"> | Date | string;
@@ -198,7 +246,11 @@ export type AppointmentScalarWhereWithAggregatesInput = {
 export type AppointmentCreateInput = {
     id?: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -213,7 +265,11 @@ export type AppointmentUncheckedCreateInput = {
     patientId: string;
     doctorId: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -224,7 +280,11 @@ export type AppointmentUncheckedCreateInput = {
 export type AppointmentUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -239,7 +299,11 @@ export type AppointmentUncheckedUpdateInput = {
     patientId?: Prisma.StringFieldUpdateOperationsInput | string;
     doctorId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -252,7 +316,11 @@ export type AppointmentCreateManyInput = {
     patientId: string;
     doctorId: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -261,7 +329,11 @@ export type AppointmentCreateManyInput = {
 export type AppointmentUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -272,7 +344,11 @@ export type AppointmentUncheckedUpdateManyInput = {
     patientId?: Prisma.StringFieldUpdateOperationsInput | string;
     doctorId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -292,6 +368,10 @@ export type AppointmentCountOrderByAggregateInput = {
     doctorId?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
     scheduledAt?: Prisma.SortOrder;
+    reason?: Prisma.SortOrder;
+    preferredDateFrom?: Prisma.SortOrder;
+    preferredDateTo?: Prisma.SortOrder;
+    preferredTimeNote?: Prisma.SortOrder;
     requiresLab?: Prisma.SortOrder;
     labFlowLocked?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -303,6 +383,10 @@ export type AppointmentMaxOrderByAggregateInput = {
     doctorId?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
     scheduledAt?: Prisma.SortOrder;
+    reason?: Prisma.SortOrder;
+    preferredDateFrom?: Prisma.SortOrder;
+    preferredDateTo?: Prisma.SortOrder;
+    preferredTimeNote?: Prisma.SortOrder;
     requiresLab?: Prisma.SortOrder;
     labFlowLocked?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -314,6 +398,10 @@ export type AppointmentMinOrderByAggregateInput = {
     doctorId?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
     scheduledAt?: Prisma.SortOrder;
+    reason?: Prisma.SortOrder;
+    preferredDateFrom?: Prisma.SortOrder;
+    preferredDateTo?: Prisma.SortOrder;
+    preferredTimeNote?: Prisma.SortOrder;
     requiresLab?: Prisma.SortOrder;
     labFlowLocked?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -432,7 +520,11 @@ export type AppointmentUpdateOneRequiredWithoutPrescriptionNestedInput = {
 export type AppointmentCreateWithoutPatientInput = {
     id?: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -445,7 +537,11 @@ export type AppointmentUncheckedCreateWithoutPatientInput = {
     id?: string;
     doctorId: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -464,7 +560,11 @@ export type AppointmentCreateManyPatientInputEnvelope = {
 export type AppointmentCreateWithoutDoctorInput = {
     id?: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -477,7 +577,11 @@ export type AppointmentUncheckedCreateWithoutDoctorInput = {
     id?: string;
     patientId: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -514,7 +618,11 @@ export type AppointmentScalarWhereInput = {
     patientId?: Prisma.StringFilter<"Appointment"> | string;
     doctorId?: Prisma.StringFilter<"Appointment"> | string;
     status?: Prisma.EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string;
+    scheduledAt?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    reason?: Prisma.StringNullableFilter<"Appointment"> | string | null;
+    preferredDateFrom?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    preferredDateTo?: Prisma.DateTimeNullableFilter<"Appointment"> | Date | string | null;
+    preferredTimeNote?: Prisma.StringNullableFilter<"Appointment"> | string | null;
     requiresLab?: Prisma.BoolFilter<"Appointment"> | boolean;
     labFlowLocked?: Prisma.BoolFilter<"Appointment"> | boolean;
     createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string;
@@ -536,7 +644,11 @@ export type AppointmentUpdateManyWithWhereWithoutDoctorInput = {
 export type AppointmentCreateWithoutLabOrderInput = {
     id?: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -550,7 +662,11 @@ export type AppointmentUncheckedCreateWithoutLabOrderInput = {
     patientId: string;
     doctorId: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -573,7 +689,11 @@ export type AppointmentUpdateToOneWithWhereWithoutLabOrderInput = {
 export type AppointmentUpdateWithoutLabOrderInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -587,7 +707,11 @@ export type AppointmentUncheckedUpdateWithoutLabOrderInput = {
     patientId?: Prisma.StringFieldUpdateOperationsInput | string;
     doctorId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -597,7 +721,11 @@ export type AppointmentUncheckedUpdateWithoutLabOrderInput = {
 export type AppointmentCreateWithoutPrescriptionInput = {
     id?: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -611,7 +739,11 @@ export type AppointmentUncheckedCreateWithoutPrescriptionInput = {
     patientId: string;
     doctorId: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -634,7 +766,11 @@ export type AppointmentUpdateToOneWithWhereWithoutPrescriptionInput = {
 export type AppointmentUpdateWithoutPrescriptionInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -648,7 +784,11 @@ export type AppointmentUncheckedUpdateWithoutPrescriptionInput = {
     patientId?: Prisma.StringFieldUpdateOperationsInput | string;
     doctorId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -659,7 +799,11 @@ export type AppointmentCreateManyPatientInput = {
     id?: string;
     doctorId: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -669,7 +813,11 @@ export type AppointmentCreateManyDoctorInput = {
     id?: string;
     patientId: string;
     status?: $Enums.AppointmentStatus;
-    scheduledAt: Date | string;
+    scheduledAt?: Date | string | null;
+    reason?: string | null;
+    preferredDateFrom?: Date | string | null;
+    preferredDateTo?: Date | string | null;
+    preferredTimeNote?: string | null;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: Date | string;
@@ -678,7 +826,11 @@ export type AppointmentCreateManyDoctorInput = {
 export type AppointmentUpdateWithoutPatientInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -691,7 +843,11 @@ export type AppointmentUncheckedUpdateWithoutPatientInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     doctorId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -703,7 +859,11 @@ export type AppointmentUncheckedUpdateManyWithoutPatientInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     doctorId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -712,7 +872,11 @@ export type AppointmentUncheckedUpdateManyWithoutPatientInput = {
 export type AppointmentUpdateWithoutDoctorInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -725,7 +889,11 @@ export type AppointmentUncheckedUpdateWithoutDoctorInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     patientId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -737,7 +905,11 @@ export type AppointmentUncheckedUpdateManyWithoutDoctorInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     patientId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
-    scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    preferredDateFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredDateTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+    preferredTimeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     requiresLab?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -749,6 +921,10 @@ export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
     doctorId?: boolean;
     status?: boolean;
     scheduledAt?: boolean;
+    reason?: boolean;
+    preferredDateFrom?: boolean;
+    preferredDateTo?: boolean;
+    preferredTimeNote?: boolean;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: boolean;
@@ -764,6 +940,10 @@ export type AppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
     doctorId?: boolean;
     status?: boolean;
     scheduledAt?: boolean;
+    reason?: boolean;
+    preferredDateFrom?: boolean;
+    preferredDateTo?: boolean;
+    preferredTimeNote?: boolean;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: boolean;
@@ -777,6 +957,10 @@ export type AppointmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
     doctorId?: boolean;
     status?: boolean;
     scheduledAt?: boolean;
+    reason?: boolean;
+    preferredDateFrom?: boolean;
+    preferredDateTo?: boolean;
+    preferredTimeNote?: boolean;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: boolean;
@@ -790,12 +974,16 @@ export type AppointmentSelectScalar = {
     doctorId?: boolean;
     status?: boolean;
     scheduledAt?: boolean;
+    reason?: boolean;
+    preferredDateFrom?: boolean;
+    preferredDateTo?: boolean;
+    preferredTimeNote?: boolean;
     requiresLab?: boolean;
     labFlowLocked?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "doctorId" | "status" | "scheduledAt" | "requiresLab" | "labFlowLocked" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>;
+export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "doctorId" | "status" | "scheduledAt" | "reason" | "preferredDateFrom" | "preferredDateTo" | "preferredTimeNote" | "requiresLab" | "labFlowLocked" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>;
 export type AppointmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     patient?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
     doctor?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -823,7 +1011,11 @@ export type $AppointmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
         patientId: string;
         doctorId: string;
         status: $Enums.AppointmentStatus;
-        scheduledAt: Date;
+        scheduledAt: Date | null;
+        reason: string | null;
+        preferredDateFrom: Date | null;
+        preferredDateTo: Date | null;
+        preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
         createdAt: Date;
@@ -894,6 +1086,10 @@ export interface AppointmentFieldRefs {
     readonly doctorId: Prisma.FieldRef<"Appointment", 'String'>;
     readonly status: Prisma.FieldRef<"Appointment", 'AppointmentStatus'>;
     readonly scheduledAt: Prisma.FieldRef<"Appointment", 'DateTime'>;
+    readonly reason: Prisma.FieldRef<"Appointment", 'String'>;
+    readonly preferredDateFrom: Prisma.FieldRef<"Appointment", 'DateTime'>;
+    readonly preferredDateTo: Prisma.FieldRef<"Appointment", 'DateTime'>;
+    readonly preferredTimeNote: Prisma.FieldRef<"Appointment", 'String'>;
     readonly requiresLab: Prisma.FieldRef<"Appointment", 'Boolean'>;
     readonly labFlowLocked: Prisma.FieldRef<"Appointment", 'Boolean'>;
     readonly createdAt: Prisma.FieldRef<"Appointment", 'DateTime'>;

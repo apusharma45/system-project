@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrescriptionsController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
 const client_1 = require("../../generated/prisma/client");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
@@ -37,6 +38,9 @@ let PrescriptionsController = class PrescriptionsController {
     }
     sendPharmacy(req, id) {
         return this.prescriptionsService.sendToPharmacyByDoctor(req.user.userId, id);
+    }
+    uploadDocument(req, id, file) {
+        return this.prescriptionsService.uploadDocumentByDoctor(req.user.userId, id, file);
     }
     dispense(req, id) {
         return this.prescriptionsService.dispenseByPharmacy(req.user.userId, id);
@@ -86,6 +90,17 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], PrescriptionsController.prototype, "sendPharmacy", null);
+__decorate([
+    (0, common_1.Patch)(':id/upload-document'),
+    (0, roles_decorator_1.Roles)(client_1.Role.DOCTOR),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(2, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], PrescriptionsController.prototype, "uploadDocument", null);
 __decorate([
     (0, common_1.Patch)(':id/dispense'),
     (0, roles_decorator_1.Roles)(client_1.Role.PHARMACY),

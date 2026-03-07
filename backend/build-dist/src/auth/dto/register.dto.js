@@ -13,11 +13,17 @@ exports.RegisterDto = void 0;
 const class_validator_1 = require("class-validator");
 const role_values_1 = require("../role.values");
 class RegisterDto {
+    fullName;
     email;
     password;
     role;
 }
 exports.RegisterDto = RegisterDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(2),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "fullName", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
     __metadata("design:type", String)

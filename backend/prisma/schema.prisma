@@ -49,6 +49,7 @@ enum NotificationType {
 
 model User {
   id           String   @id @default(uuid())
+  fullName     String?
   email        String   @unique
   passwordHash String
   role         Role
@@ -62,6 +63,29 @@ model User {
   pharmacyPrescriptions Prescription[] @relation("PharmacyPrescriptions")
   notifications Notification[]
   auditLogs AuditLog[] @relation("ActorAuditLogs")
+  patientProfile PatientProfile?
+}
+
+model PatientProfile {
+  id String @id @default(uuid())
+
+  patientId String @unique
+  patient   User   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  dateOfBirth DateTime?
+  gender      String?
+  phone       String?
+  address     String?
+  allergies   String?
+  chronicConditions String?
+  currentMedications String?
+  emergencyContactName String?
+  emergencyContactPhone String?
+  emergencyContactRelation String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientId])
 }
 
 model Appointment {
@@ -74,7 +98,11 @@ model Appointment {
   doctor   User   @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Restrict)
 
   status      AppointmentStatus @default(REQUESTED)
-  scheduledAt DateTime
+  scheduledAt DateTime?
+  reason      String?
+  preferredDateFrom DateTime?
+  preferredDateTo   DateTime?
+  preferredTimeNote String?
   requiresLab Boolean           @default(false)
   labFlowLocked Boolean         @default(false)
   createdAt   DateTime          @default(now())
@@ -85,6 +113,8 @@ model Appointment {
   @@index([patientId])
   @@index([doctorId])
   @@index([scheduledAt])
+  @@index([preferredDateFrom])
+  @@index([preferredDateTo])
 }
 
 model LabOrder {
@@ -97,6 +127,7 @@ model LabOrder {
   diagnostic   User @relation("DiagnosticLabOrders", fields: [diagnosticId], references: [id], onDelete: Restrict)
 
   status    LabOrderStatus @default(CREATED)
+  tests     Json?
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
@@ -112,6 +143,9 @@ model LabResult {
   labOrder   LabOrder @relation(fields: [labOrderId], references: [id], onDelete: Restrict)
 
   fileUrl    String
+  filePublicId String?
+  fileMimeType String?
+  fileSizeBytes Int?
   uploadedAt DateTime @default(now())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -132,7 +166,14 @@ model Prescription {
   pharmacy   User @relation("PharmacyPrescriptions", fields: [pharmacyId], references: [id], onDelete: Restrict)
 
   notes  String
+  diagnosis String?
+  instructions String?
+  medications Json?
   status PrescriptionStatus @default(DRAFT)
+  documentUrl String?
+  documentPublicId String?
+  documentMimeType String?
+  documentVersion Int @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -3,13 +3,24 @@ import type * as Prisma from "../internal/prismaNamespace";
 export type LabResultModel = runtime.Types.Result.DefaultSelection<Prisma.$LabResultPayload>;
 export type AggregateLabResult = {
     _count: LabResultCountAggregateOutputType | null;
+    _avg: LabResultAvgAggregateOutputType | null;
+    _sum: LabResultSumAggregateOutputType | null;
     _min: LabResultMinAggregateOutputType | null;
     _max: LabResultMaxAggregateOutputType | null;
+};
+export type LabResultAvgAggregateOutputType = {
+    fileSizeBytes: number | null;
+};
+export type LabResultSumAggregateOutputType = {
+    fileSizeBytes: number | null;
 };
 export type LabResultMinAggregateOutputType = {
     id: string | null;
     labOrderId: string | null;
     fileUrl: string | null;
+    filePublicId: string | null;
+    fileMimeType: string | null;
+    fileSizeBytes: number | null;
     uploadedAt: Date | null;
     createdAt: Date | null;
     updatedAt: Date | null;
@@ -18,6 +29,9 @@ export type LabResultMaxAggregateOutputType = {
     id: string | null;
     labOrderId: string | null;
     fileUrl: string | null;
+    filePublicId: string | null;
+    fileMimeType: string | null;
+    fileSizeBytes: number | null;
     uploadedAt: Date | null;
     createdAt: Date | null;
     updatedAt: Date | null;
@@ -26,15 +40,27 @@ export type LabResultCountAggregateOutputType = {
     id: number;
     labOrderId: number;
     fileUrl: number;
+    filePublicId: number;
+    fileMimeType: number;
+    fileSizeBytes: number;
     uploadedAt: number;
     createdAt: number;
     updatedAt: number;
     _all: number;
 };
+export type LabResultAvgAggregateInputType = {
+    fileSizeBytes?: true;
+};
+export type LabResultSumAggregateInputType = {
+    fileSizeBytes?: true;
+};
 export type LabResultMinAggregateInputType = {
     id?: true;
     labOrderId?: true;
     fileUrl?: true;
+    filePublicId?: true;
+    fileMimeType?: true;
+    fileSizeBytes?: true;
     uploadedAt?: true;
     createdAt?: true;
     updatedAt?: true;
@@ -43,6 +69,9 @@ export type LabResultMaxAggregateInputType = {
     id?: true;
     labOrderId?: true;
     fileUrl?: true;
+    filePublicId?: true;
+    fileMimeType?: true;
+    fileSizeBytes?: true;
     uploadedAt?: true;
     createdAt?: true;
     updatedAt?: true;
@@ -51,6 +80,9 @@ export type LabResultCountAggregateInputType = {
     id?: true;
     labOrderId?: true;
     fileUrl?: true;
+    filePublicId?: true;
+    fileMimeType?: true;
+    fileSizeBytes?: true;
     uploadedAt?: true;
     createdAt?: true;
     updatedAt?: true;
@@ -63,6 +95,8 @@ export type LabResultAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inte
     take?: number;
     skip?: number;
     _count?: true | LabResultCountAggregateInputType;
+    _avg?: LabResultAvgAggregateInputType;
+    _sum?: LabResultSumAggregateInputType;
     _min?: LabResultMinAggregateInputType;
     _max?: LabResultMaxAggregateInputType;
 };
@@ -77,6 +111,8 @@ export type LabResultGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
     take?: number;
     skip?: number;
     _count?: LabResultCountAggregateInputType | true;
+    _avg?: LabResultAvgAggregateInputType;
+    _sum?: LabResultSumAggregateInputType;
     _min?: LabResultMinAggregateInputType;
     _max?: LabResultMaxAggregateInputType;
 };
@@ -84,10 +120,15 @@ export type LabResultGroupByOutputType = {
     id: string;
     labOrderId: string;
     fileUrl: string;
+    filePublicId: string | null;
+    fileMimeType: string | null;
+    fileSizeBytes: number | null;
     uploadedAt: Date;
     createdAt: Date;
     updatedAt: Date;
     _count: LabResultCountAggregateOutputType | null;
+    _avg: LabResultAvgAggregateOutputType | null;
+    _sum: LabResultSumAggregateOutputType | null;
     _min: LabResultMinAggregateOutputType | null;
     _max: LabResultMaxAggregateOutputType | null;
 };
@@ -101,6 +142,9 @@ export type LabResultWhereInput = {
     id?: Prisma.StringFilter<"LabResult"> | string;
     labOrderId?: Prisma.StringFilter<"LabResult"> | string;
     fileUrl?: Prisma.StringFilter<"LabResult"> | string;
+    filePublicId?: Prisma.StringNullableFilter<"LabResult"> | string | null;
+    fileMimeType?: Prisma.StringNullableFilter<"LabResult"> | string | null;
+    fileSizeBytes?: Prisma.IntNullableFilter<"LabResult"> | number | null;
     uploadedAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
     createdAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
@@ -110,6 +154,9 @@ export type LabResultOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
     labOrderId?: Prisma.SortOrder;
     fileUrl?: Prisma.SortOrder;
+    filePublicId?: Prisma.SortOrderInput | Prisma.SortOrder;
+    fileMimeType?: Prisma.SortOrderInput | Prisma.SortOrder;
+    fileSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder;
     uploadedAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
@@ -122,6 +169,9 @@ export type LabResultWhereUniqueInput = Prisma.AtLeast<{
     OR?: Prisma.LabResultWhereInput[];
     NOT?: Prisma.LabResultWhereInput | Prisma.LabResultWhereInput[];
     fileUrl?: Prisma.StringFilter<"LabResult"> | string;
+    filePublicId?: Prisma.StringNullableFilter<"LabResult"> | string | null;
+    fileMimeType?: Prisma.StringNullableFilter<"LabResult"> | string | null;
+    fileSizeBytes?: Prisma.IntNullableFilter<"LabResult"> | number | null;
     uploadedAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
     createdAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
@@ -131,12 +181,17 @@ export type LabResultOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
     labOrderId?: Prisma.SortOrder;
     fileUrl?: Prisma.SortOrder;
+    filePublicId?: Prisma.SortOrderInput | Prisma.SortOrder;
+    fileMimeType?: Prisma.SortOrderInput | Prisma.SortOrder;
+    fileSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder;
     uploadedAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     _count?: Prisma.LabResultCountOrderByAggregateInput;
+    _avg?: Prisma.LabResultAvgOrderByAggregateInput;
     _max?: Prisma.LabResultMaxOrderByAggregateInput;
     _min?: Prisma.LabResultMinOrderByAggregateInput;
+    _sum?: Prisma.LabResultSumOrderByAggregateInput;
 };
 export type LabResultScalarWhereWithAggregatesInput = {
     AND?: Prisma.LabResultScalarWhereWithAggregatesInput | Prisma.LabResultScalarWhereWithAggregatesInput[];
@@ -145,6 +200,9 @@ export type LabResultScalarWhereWithAggregatesInput = {
     id?: Prisma.StringWithAggregatesFilter<"LabResult"> | string;
     labOrderId?: Prisma.StringWithAggregatesFilter<"LabResult"> | string;
     fileUrl?: Prisma.StringWithAggregatesFilter<"LabResult"> | string;
+    filePublicId?: Prisma.StringNullableWithAggregatesFilter<"LabResult"> | string | null;
+    fileMimeType?: Prisma.StringNullableWithAggregatesFilter<"LabResult"> | string | null;
+    fileSizeBytes?: Prisma.IntNullableWithAggregatesFilter<"LabResult"> | number | null;
     uploadedAt?: Prisma.DateTimeWithAggregatesFilter<"LabResult"> | Date | string;
     createdAt?: Prisma.DateTimeWithAggregatesFilter<"LabResult"> | Date | string;
     updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LabResult"> | Date | string;
@@ -152,6 +210,9 @@ export type LabResultScalarWhereWithAggregatesInput = {
 export type LabResultCreateInput = {
     id?: string;
     fileUrl: string;
+    filePublicId?: string | null;
+    fileMimeType?: string | null;
+    fileSizeBytes?: number | null;
     uploadedAt?: Date | string;
     createdAt?: Date | string;
     updatedAt?: Date | string;
@@ -161,6 +222,9 @@ export type LabResultUncheckedCreateInput = {
     id?: string;
     labOrderId: string;
     fileUrl: string;
+    filePublicId?: string | null;
+    fileMimeType?: string | null;
+    fileSizeBytes?: number | null;
     uploadedAt?: Date | string;
     createdAt?: Date | string;
     updatedAt?: Date | string;
@@ -168,6 +232,9 @@ export type LabResultUncheckedCreateInput = {
 export type LabResultUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fileUrl?: Prisma.StringFieldUpdateOperationsInput | string;
+    filePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -177,6 +244,9 @@ export type LabResultUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     labOrderId?: Prisma.StringFieldUpdateOperationsInput | string;
     fileUrl?: Prisma.StringFieldUpdateOperationsInput | string;
+    filePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -185,6 +255,9 @@ export type LabResultCreateManyInput = {
     id?: string;
     labOrderId: string;
     fileUrl: string;
+    filePublicId?: string | null;
+    fileMimeType?: string | null;
+    fileSizeBytes?: number | null;
     uploadedAt?: Date | string;
     createdAt?: Date | string;
     updatedAt?: Date | string;
@@ -192,6 +265,9 @@ export type LabResultCreateManyInput = {
 export type LabResultUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fileUrl?: Prisma.StringFieldUpdateOperationsInput | string;
+    filePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -200,6 +276,9 @@ export type LabResultUncheckedUpdateManyInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     labOrderId?: Prisma.StringFieldUpdateOperationsInput | string;
     fileUrl?: Prisma.StringFieldUpdateOperationsInput | string;
+    filePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -212,14 +291,23 @@ export type LabResultCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     labOrderId?: Prisma.SortOrder;
     fileUrl?: Prisma.SortOrder;
+    filePublicId?: Prisma.SortOrder;
+    fileMimeType?: Prisma.SortOrder;
+    fileSizeBytes?: Prisma.SortOrder;
     uploadedAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
+};
+export type LabResultAvgOrderByAggregateInput = {
+    fileSizeBytes?: Prisma.SortOrder;
 };
 export type LabResultMaxOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     labOrderId?: Prisma.SortOrder;
     fileUrl?: Prisma.SortOrder;
+    filePublicId?: Prisma.SortOrder;
+    fileMimeType?: Prisma.SortOrder;
+    fileSizeBytes?: Prisma.SortOrder;
     uploadedAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
@@ -228,9 +316,15 @@ export type LabResultMinOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     labOrderId?: Prisma.SortOrder;
     fileUrl?: Prisma.SortOrder;
+    filePublicId?: Prisma.SortOrder;
+    fileMimeType?: Prisma.SortOrder;
+    fileSizeBytes?: Prisma.SortOrder;
     uploadedAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
+};
+export type LabResultSumOrderByAggregateInput = {
+    fileSizeBytes?: Prisma.SortOrder;
 };
 export type LabResultCreateNestedOneWithoutLabOrderInput = {
     create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput>;
@@ -260,9 +354,19 @@ export type LabResultUncheckedUpdateOneWithoutLabOrderNestedInput = {
     connect?: Prisma.LabResultWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.LabResultUpdateToOneWithWhereWithoutLabOrderInput, Prisma.LabResultUpdateWithoutLabOrderInput>, Prisma.LabResultUncheckedUpdateWithoutLabOrderInput>;
 };
+export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null;
+    increment?: number;
+    decrement?: number;
+    multiply?: number;
+    divide?: number;
+};
 export type LabResultCreateWithoutLabOrderInput = {
     id?: string;
     fileUrl: string;
+    filePublicId?: string | null;
+    fileMimeType?: string | null;
+    fileSizeBytes?: number | null;
     uploadedAt?: Date | string;
     createdAt?: Date | string;
     updatedAt?: Date | string;
@@ -270,6 +374,9 @@ export type LabResultCreateWithoutLabOrderInput = {
 export type LabResultUncheckedCreateWithoutLabOrderInput = {
     id?: string;
     fileUrl: string;
+    filePublicId?: string | null;
+    fileMimeType?: string | null;
+    fileSizeBytes?: number | null;
     uploadedAt?: Date | string;
     createdAt?: Date | string;
     updatedAt?: Date | string;
@@ -290,6 +397,9 @@ export type LabResultUpdateToOneWithWhereWithoutLabOrderInput = {
 export type LabResultUpdateWithoutLabOrderInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fileUrl?: Prisma.StringFieldUpdateOperationsInput | string;
+    filePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -297,6 +407,9 @@ export type LabResultUpdateWithoutLabOrderInput = {
 export type LabResultUncheckedUpdateWithoutLabOrderInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fileUrl?: Prisma.StringFieldUpdateOperationsInput | string;
+    filePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -305,6 +418,9 @@ export type LabResultSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
     id?: boolean;
     labOrderId?: boolean;
     fileUrl?: boolean;
+    filePublicId?: boolean;
+    fileMimeType?: boolean;
+    fileSizeBytes?: boolean;
     uploadedAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -314,6 +430,9 @@ export type LabResultSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
     id?: boolean;
     labOrderId?: boolean;
     fileUrl?: boolean;
+    filePublicId?: boolean;
+    fileMimeType?: boolean;
+    fileSizeBytes?: boolean;
     uploadedAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -323,6 +442,9 @@ export type LabResultSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
     id?: boolean;
     labOrderId?: boolean;
     fileUrl?: boolean;
+    filePublicId?: boolean;
+    fileMimeType?: boolean;
+    fileSizeBytes?: boolean;
     uploadedAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -332,11 +454,14 @@ export type LabResultSelectScalar = {
     id?: boolean;
     labOrderId?: boolean;
     fileUrl?: boolean;
+    filePublicId?: boolean;
+    fileMimeType?: boolean;
+    fileSizeBytes?: boolean;
     uploadedAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type LabResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "labOrderId" | "fileUrl" | "uploadedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["labResult"]>;
+export type LabResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "labOrderId" | "fileUrl" | "filePublicId" | "fileMimeType" | "fileSizeBytes" | "uploadedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["labResult"]>;
 export type LabResultInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     labOrder?: boolean | Prisma.LabOrderDefaultArgs<ExtArgs>;
 };
@@ -355,6 +480,9 @@ export type $LabResultPayload<ExtArgs extends runtime.Types.Extensions.InternalA
         id: string;
         labOrderId: string;
         fileUrl: string;
+        filePublicId: string | null;
+        fileMimeType: string | null;
+        fileSizeBytes: number | null;
         uploadedAt: Date;
         createdAt: Date;
         updatedAt: Date;
@@ -419,6 +547,9 @@ export interface LabResultFieldRefs {
     readonly id: Prisma.FieldRef<"LabResult", 'String'>;
     readonly labOrderId: Prisma.FieldRef<"LabResult", 'String'>;
     readonly fileUrl: Prisma.FieldRef<"LabResult", 'String'>;
+    readonly filePublicId: Prisma.FieldRef<"LabResult", 'String'>;
+    readonly fileMimeType: Prisma.FieldRef<"LabResult", 'String'>;
+    readonly fileSizeBytes: Prisma.FieldRef<"LabResult", 'Int'>;
     readonly uploadedAt: Prisma.FieldRef<"LabResult", 'DateTime'>;
     readonly createdAt: Prisma.FieldRef<"LabResult", 'DateTime'>;
     readonly updatedAt: Prisma.FieldRef<"LabResult", 'DateTime'>;

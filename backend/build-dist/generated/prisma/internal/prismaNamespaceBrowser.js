@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -46,6 +46,7 @@ exports.JsonNull = runtime.JsonNull;
 exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
     User: 'User',
+    PatientProfile: 'PatientProfile',
     Appointment: 'Appointment',
     LabOrder: 'LabOrder',
     LabResult: 'LabResult',
@@ -61,9 +62,26 @@ exports.TransactionIsolationLevel = runtime.makeStrictEnum({
 });
 exports.UserScalarFieldEnum = {
     id: 'id',
+    fullName: 'fullName',
     email: 'email',
     passwordHash: 'passwordHash',
     role: 'role',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.PatientProfileScalarFieldEnum = {
+    id: 'id',
+    patientId: 'patientId',
+    dateOfBirth: 'dateOfBirth',
+    gender: 'gender',
+    phone: 'phone',
+    address: 'address',
+    allergies: 'allergies',
+    chronicConditions: 'chronicConditions',
+    currentMedications: 'currentMedications',
+    emergencyContactName: 'emergencyContactName',
+    emergencyContactPhone: 'emergencyContactPhone',
+    emergencyContactRelation: 'emergencyContactRelation',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -73,6 +91,10 @@ exports.AppointmentScalarFieldEnum = {
     doctorId: 'doctorId',
     status: 'status',
     scheduledAt: 'scheduledAt',
+    reason: 'reason',
+    preferredDateFrom: 'preferredDateFrom',
+    preferredDateTo: 'preferredDateTo',
+    preferredTimeNote: 'preferredTimeNote',
     requiresLab: 'requiresLab',
     labFlowLocked: 'labFlowLocked',
     createdAt: 'createdAt',
@@ -83,6 +105,7 @@ exports.LabOrderScalarFieldEnum = {
     appointmentId: 'appointmentId',
     diagnosticId: 'diagnosticId',
     status: 'status',
+    tests: 'tests',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -90,6 +113,9 @@ exports.LabResultScalarFieldEnum = {
     id: 'id',
     labOrderId: 'labOrderId',
     fileUrl: 'fileUrl',
+    filePublicId: 'filePublicId',
+    fileMimeType: 'fileMimeType',
+    fileSizeBytes: 'fileSizeBytes',
     uploadedAt: 'uploadedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -100,7 +126,14 @@ exports.PrescriptionScalarFieldEnum = {
     doctorId: 'doctorId',
     pharmacyId: 'pharmacyId',
     notes: 'notes',
+    diagnosis: 'diagnosis',
+    instructions: 'instructions',
+    medications: 'medications',
     status: 'status',
+    documentUrl: 'documentUrl',
+    documentPublicId: 'documentPublicId',
+    documentMimeType: 'documentMimeType',
+    documentVersion: 'documentVersion',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -135,13 +168,13 @@ exports.QueryMode = {
     default: 'default',
     insensitive: 'insensitive'
 };
+exports.NullsOrder = {
+    first: 'first',
+    last: 'last'
+};
 exports.JsonNullValueFilter = {
     DbNull: exports.DbNull,
     JsonNull: exports.JsonNull,
     AnyNull: exports.AnyNull
-};
-exports.NullsOrder = {
-    first: 'first',
-    last: 'last'
 };
 //# sourceMappingURL=prismaNamespaceBrowser.js.map

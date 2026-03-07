@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Calendar, Clock3, Search } from 'lucide-react'
 import { api, getApiErrorMessage } from '../../lib/api'
 import type { Appointment, AppointmentStatus } from '../../types'
 import { useDoctorAppointments } from './doctor-shared'
 
 const appointmentActions: Array<{ label: string; action: string; from: AppointmentStatus[] }> = [
-  { label: 'Confirm', action: 'confirm', from: ['REQUESTED'] },
   { label: 'Call', action: 'call', from: ['CONFIRMED'] },
   { label: 'In Visit', action: 'in-visit', from: ['CONFIRMED', 'CALLED'] },
   { label: 'Exam Done', action: 'exam-done', from: ['IN_VISIT'] },
@@ -19,6 +19,7 @@ export function DoctorAppointmentsPage() {
   const appointmentsQuery = useDoctorAppointments()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | AppointmentStatus>('all')
+  const [scheduleById, setScheduleById] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
 
   const appointmentMutation = useMutation({
@@ -26,6 +27,22 @@ export function DoctorAppointmentsPage() {
       (await api.patch<Appointment>(`/appointments/${payload.id}/${payload.action}`)).data,
     onSuccess: () => {
       setError(null)
+      void queryClient.invalidateQueries({ queryKey: ['appointments'] })
+      void queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+    onError: (err) => setError(getApiErrorMessage(err)),
+  })
+
+  const scheduleMutation = useMutation({
+    mutationFn: async (payload: { id: string; scheduledAt: string }) =>
+      (await api.patch<Appointment>(`/appointments/${payload.id}/schedule`, { scheduledAt: payload.scheduledAt })).data,
+    onSuccess: (_, variables) => {
+      setError(null)
+      setScheduleById((current) => {
+        const next = { ...current }
+        delete next[variables.id]
+        return next
+      })
       void queryClient.invalidateQueries({ queryKey: ['appointments'] })
       void queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
@@ -83,22 +100,62 @@ export function DoctorAppointmentsPage() {
           {filtered.map((appointment) => (
             <li key={appointment.id}>
               <div>
-                <strong>{new Date(appointment.scheduledAt).toLocaleString()}</strong>
+                <strong>
+                  {appointment.scheduledAt
+                    ? new Date(appointment.scheduledAt).toLocaleString()
+                    : 'Pending doctor schedule'}
+                </strong>
                 <p>
                   <span className={statusClass(appointment.status)}>{appointment.status}</span> #{appointment.id}
                 </p>
+                {appointment.status === 'REQUESTED' ? (
+                  <p className="muted">
+                    Preferred window:{' '}
+                    {appointment.preferredDateFrom && appointment.preferredDateTo
+                      ? `${new Date(appointment.preferredDateFrom).toLocaleString()} - ${new Date(appointment.preferredDateTo).toLocaleString()}`
+                      : 'Not provided'}
+                  </p>
+                ) : null}
                 <p className="muted">Patient ID: {appointment.patientId}</p>
                 <p className="muted row-meta">
                   <Calendar size={14} /> requiresLab: {String(appointment.requiresLab)}
                   <Clock3 size={14} /> lock: {String(appointment.labFlowLocked)}
                 </p>
+                <Link to={`/doctor/patients/${appointment.patientId}/profile`} className="quick-link">
+                  View Patient Profile
+                </Link>
               </div>
               <div className="actions">
+                {appointment.status === 'REQUESTED' ? (
+                  <>
+                    <input
+                      type="datetime-local"
+                      value={scheduleById[appointment.id] ?? ''}
+                      onChange={(e) =>
+                        setScheduleById((current) => ({ ...current, [appointment.id]: e.target.value }))
+                      }
+                    />
+                    <button
+                      type="button"
+                      disabled={!scheduleById[appointment.id] || scheduleMutation.isPending}
+                      onClick={() =>
+                        scheduleMutation.mutate({
+                          id: appointment.id,
+                          scheduledAt: new Date(scheduleById[appointment.id]).toISOString(),
+                        })
+                      }
+                    >
+                      Schedule
+                    </button>
+                  </>
+                ) : null}
                 {appointmentActions.map((item) => (
                   <button
                     key={item.action}
                     type="button"
-                    disabled={!item.from.includes(appointment.status) || appointmentMutation.isPending}
+                    disabled={
+                      !item.from.includes(appointment.status) || appointmentMutation.isPending || scheduleMutation.isPending
+                    }
                     onClick={() => appointmentMutation.mutate({ id: appointment.id, action: item.action })}
                   >
                     {item.label}

@@ -13,6 +13,7 @@ exports.PrescriptionsService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("../../generated/prisma/client");
 const audit_service_1 = require("../audit/audit.service");
+const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
 const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const TRANSITIONS = {
@@ -26,10 +27,12 @@ let PrescriptionsService = class PrescriptionsService {
     prisma;
     notificationsService;
     auditService;
-    constructor(prisma, notificationsService, auditService) {
+    cloudinaryService;
+    constructor(prisma, notificationsService, auditService, cloudinaryService) {
         this.prisma = prisma;
         this.notificationsService = notificationsService;
         this.auditService = auditService;
+        this.cloudinaryService = cloudinaryService;
     }
     async createDraft(doctorId, dto) {
         const db = this.prisma;
@@ -65,6 +68,9 @@ let PrescriptionsService = class PrescriptionsService {
                 doctorId,
                 pharmacyId: dto.pharmacyId,
                 notes: dto.notes,
+                diagnosis: dto.diagnosis ?? null,
+                instructions: dto.instructions ?? null,
+                medications: dto.medications ?? null,
             },
         });
         await this.auditService.record(doctorId, 'PRESCRIPTION_CREATED', 'Prescription', prescription.id, { appointmentId: dto.appointmentId, pharmacyId: dto.pharmacyId });
@@ -81,6 +87,9 @@ let PrescriptionsService = class PrescriptionsService {
             data: {
                 status: client_1.PrescriptionStatus.SIGNED,
                 ...(dto?.notes ? { notes: dto.notes } : {}),
+                ...(dto?.diagnosis !== undefined ? { diagnosis: dto.diagnosis } : {}),
+                ...(dto?.instructions !== undefined ? { instructions: dto.instructions } : {}),
+                ...(dto?.medications !== undefined ? { medications: dto.medications } : {}),
             },
         });
         await this.auditService.record(doctorId, 'PRESCRIPTION_SIGNED', 'Prescription', prescriptionId);
@@ -126,12 +135,63 @@ let PrescriptionsService = class PrescriptionsService {
         await this.auditService.record(pharmacyId, 'PRESCRIPTION_DISPENSED', 'Prescription', prescriptionId);
         return dispensed;
     }
+    async uploadDocumentByDoctor(doctorId, prescriptionId, file) {
+        const db = this.prisma;
+        const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
+        this.assertDoctorOwnership(prescription.doctorId, doctorId);
+        if (!file) {
+            throw new common_1.BadRequestException('Prescription document file is required');
+        }
+        const allowedMime = /^application\/pdf$|^image\/(png|jpeg|jpg|webp)$/i.test(file.mimetype);
+        if (!allowedMime) {
+            throw new common_1.BadRequestException('Supported formats are PDF, PNG, JPG, or WEBP');
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            throw new common_1.BadRequestException('Prescription document must be 10MB or less');
+        }
+        const upload = await this.cloudinaryService.uploadBuffer({
+            buffer: file.buffer,
+            fileName: file.originalname || `prescription-${prescription.id}`,
+            folder: 'prescriptions',
+            contentType: file.mimetype,
+            resourceType: file.mimetype === 'application/pdf' ? 'raw' : 'image',
+        });
+        if (prescription.documentPublicId) {
+            await this.cloudinaryService.destroy(prescription.documentPublicId, prescription.documentMimeType?.startsWith('image/') ? 'image' : 'raw');
+        }
+        const updated = await db.prescription.update({
+            where: { id: prescriptionId },
+            data: {
+                documentUrl: upload.url,
+                documentPublicId: upload.publicId,
+                documentMimeType: upload.mimeType,
+                documentVersion: (prescription.documentVersion ?? 0) + 1,
+            },
+        });
+        await this.auditService.record(doctorId, 'PRESCRIPTION_DOCUMENT_UPLOADED', 'Prescription', prescriptionId, {
+            documentPublicId: updated.documentPublicId,
+            documentVersion: updated.documentVersion,
+        });
+        return updated;
+    }
     listMine(userId, role) {
         const db = this.prisma;
         if (role === client_1.Role.DOCTOR) {
             return db.prescription.findMany({
                 where: { doctorId: userId },
-                include: { appointment: true },
+                include: {
+                    appointment: {
+                        include: {
+                            patient: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
+                },
                 orderBy: { createdAt: 'desc' },
             });
         }
@@ -219,6 +279,7 @@ exports.PrescriptionsService = PrescriptionsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         notifications_service_1.NotificationsService,
-        audit_service_1.AuditService])
+        audit_service_1.AuditService,
+        cloudinary_service_1.CloudinaryService])
 ], PrescriptionsService);
 //# sourceMappingURL=prescriptions.service.js.map

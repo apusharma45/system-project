@@ -20,6 +20,7 @@ const roles_decorator_1 = require("../auth/roles.decorator");
 const roles_guard_1 = require("../auth/roles.guard");
 const appointments_service_1 = require("./appointments.service");
 const create_appointment_dto_1 = require("./dto/create-appointment.dto");
+const schedule_appointment_dto_1 = require("./dto/schedule-appointment.dto");
 let AppointmentsController = class AppointmentsController {
     appointmentsService;
     constructor(appointmentsService) {
@@ -33,6 +34,9 @@ let AppointmentsController = class AppointmentsController {
     }
     confirm(req, id) {
         return this.appointmentsService.confirmByDoctor(req.user.userId, id);
+    }
+    schedule(req, id, dto) {
+        return this.appointmentsService.scheduleByDoctor(req.user.userId, id, dto.scheduledAt);
     }
     call(req, id) {
         return this.appointmentsService.callByDoctor(req.user.userId, id);
@@ -80,6 +84,16 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], AppointmentsController.prototype, "confirm", null);
+__decorate([
+    (0, common_1.Patch)(':id/schedule'),
+    (0, roles_decorator_1.Roles)(client_1.Role.DOCTOR),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, schedule_appointment_dto_1.ScheduleAppointmentDto]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "schedule", null);
 __decorate([
     (0, common_1.Patch)(':id/call'),
     (0, roles_decorator_1.Roles)(client_1.Role.DOCTOR),

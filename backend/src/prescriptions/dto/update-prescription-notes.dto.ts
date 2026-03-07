@@ -1,8 +1,24 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
+import { PrescriptionMedicationDto } from './prescription-medication.dto';
 
 export class UpdatePrescriptionNotesDto {
   @IsOptional()
   @IsString()
   @MinLength(1)
-  notes: string;
+  notes?: string;
+
+  @IsOptional()
+  @IsString()
+  diagnosis?: string;
+
+  @IsOptional()
+  @IsString()
+  instructions?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PrescriptionMedicationDto)
+  medications?: PrescriptionMedicationDto[];
 }

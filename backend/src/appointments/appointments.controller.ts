@@ -15,6 +15,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { ScheduleAppointmentDto } from './dto/schedule-appointment.dto';
 
 type RequestUser = {
   userId: string;
@@ -42,6 +43,16 @@ export class AppointmentsController {
   @Roles(Role.DOCTOR)
   confirm(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
     return this.appointmentsService.confirmByDoctor(req.user.userId, id);
+  }
+
+  @Patch(':id/schedule')
+  @Roles(Role.DOCTOR)
+  schedule(
+    @Req() req: { user: RequestUser },
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ScheduleAppointmentDto,
+  ) {
+    return this.appointmentsService.scheduleByDoctor(req.user.userId, id, dto.scheduledAt);
   }
 
   @Patch(':id/call')

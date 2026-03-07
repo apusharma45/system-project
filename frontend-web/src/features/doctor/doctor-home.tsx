@@ -20,12 +20,13 @@ type ChartPoint = {
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-function buildWeeklyAppointments(scheduledAtList: string[]): ChartPoint[] {
+function buildWeeklyAppointments(scheduledAtList: Array<string | null>): ChartPoint[] {
   const counts = new Map<string, number>()
   for (const day of weekDays) {
     counts.set(day, 0)
   }
   for (const scheduledAt of scheduledAtList) {
+    if (!scheduledAt) continue
     const date = new Date(scheduledAt)
     const day = weekDays[date.getDay()]
     counts.set(day, (counts.get(day) ?? 0) + 1)
@@ -33,9 +34,10 @@ function buildWeeklyAppointments(scheduledAtList: string[]): ChartPoint[] {
   return weekDays.map((label) => ({ label, value: counts.get(label) ?? 0 }))
 }
 
-function buildPatientGrowth(patientEvents: Array<{ patientId: string; scheduledAt: string }>): ChartPoint[] {
+function buildPatientGrowth(patientEvents: Array<{ patientId: string; scheduledAt: string | null }>): ChartPoint[] {
   const byMonth = new Map<string, Set<string>>()
   for (const event of patientEvents) {
+    if (!event.scheduledAt) continue
     const date = new Date(event.scheduledAt)
     const label = date.toLocaleString('en-US', { month: 'short' })
     if (!byMonth.has(label)) byMonth.set(label, new Set())

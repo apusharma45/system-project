@@ -49,7 +49,10 @@ const doctorData = {
       pharmacyId: 'pharmacy-1',
       notes: 'Take once daily',
       status: 'DRAFT' as const,
-      appointment: { patientId: 'patient-2' },
+      appointment: {
+        patientId: 'patient-2',
+        patient: { id: 'patient-2', fullName: 'John Doe', email: 'john@example.com' },
+      },
     },
   ],
   labs: [
@@ -58,7 +61,11 @@ const doctorData = {
       appointmentId: 'apt-1',
       diagnosticId: 'diag-1',
       status: 'CREATED' as const,
-      appointment: { patientId: 'patient-1' },
+      tests: [{ title: 'Test 1', description: 'CBC panel' }],
+      appointment: {
+        patientId: 'patient-1',
+        patient: { id: 'patient-1', fullName: 'Alice Smith', email: 'alice@example.com' },
+      },
       labResult: null,
     },
   ],
@@ -147,5 +154,22 @@ describe('doctor UI regression', () => {
   ])('renders key section for route %s', (path, heading) => {
     renderDoctorRoute(path, <div />)
     expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument()
+  })
+
+  it('lab orders page shows requested tests and readable patient identity', () => {
+    renderDoctorRoute('/doctor/lab-orders', <div />)
+    expect(screen.getByText('Tests: Test 1: Test 1')).toBeInTheDocument()
+    expect(screen.getByText('Patient: Alice Smith (alice@example.com) • #apt-1')).toBeInTheDocument()
+  })
+
+  it('prescriptions page is upload-only and shows patient-readable label', () => {
+    renderDoctorRoute('/doctor/prescriptions', <div />)
+
+    expect(screen.queryByText('Create Structured Prescription')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Sign' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Send Patient' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Send Pharmacy' })).not.toBeInTheDocument()
+    expect(screen.getByText('Patient: John Doe (john@example.com)')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Upload Document' })).toBeInTheDocument()
   })
 })

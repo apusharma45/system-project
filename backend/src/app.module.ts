@@ -10,10 +10,13 @@ import { LabsModule } from './labs/labs.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
+import { PatientsModule } from './patients/patients.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     PrismaModule,
+    CloudinaryModule,
     HealthModule,
     UsersModule,
     AuthModule,
@@ -22,6 +25,7 @@ import { AuditModule } from './audit/audit.module';
     PrescriptionsModule,
     NotificationsModule,
     AuditModule,
+    PatientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

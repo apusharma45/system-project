@@ -11,10 +11,18 @@ import {
   Role,
 } from '../../generated/prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionNotesDto } from './dto/update-prescription-notes.dto';
+
+type UploadedPrescriptionFile = {
+  originalname: string;
+  mimetype: string;
+  size: number;
+  buffer: Buffer;
+};
 
 const TRANSITIONS: Record<PrescriptionStatus, PrescriptionStatus[]> = {
   DRAFT: [PrescriptionStatus.SIGNED],
@@ -30,6 +38,7 @@ export class PrescriptionsService {
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
     private readonly auditService: AuditService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async createDraft(doctorId: string, dto: CreatePrescriptionDto) {
@@ -73,6 +82,9 @@ export class PrescriptionsService {
         doctorId,
         pharmacyId: dto.pharmacyId,
         notes: dto.notes,
+        diagnosis: dto.diagnosis ?? null,
+        instructions: dto.instructions ?? null,
+        medications: dto.medications ?? null,
       },
     });
     await this.auditService.record(
@@ -97,6 +109,9 @@ export class PrescriptionsService {
       data: {
         status: PrescriptionStatus.SIGNED,
         ...(dto?.notes ? { notes: dto.notes } : {}),
+        ...(dto?.diagnosis !== undefined ? { diagnosis: dto.diagnosis } : {}),
+        ...(dto?.instructions !== undefined ? { instructions: dto.instructions } : {}),
+        ...(dto?.medications !== undefined ? { medications: dto.medications } : {}),
       },
     });
     await this.auditService.record(
@@ -183,12 +198,82 @@ export class PrescriptionsService {
     return dispensed;
   }
 
+  async uploadDocumentByDoctor(
+    doctorId: string,
+    prescriptionId: string,
+    file: UploadedPrescriptionFile | undefined,
+  ) {
+    const db = this.prisma as any;
+    const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
+    this.assertDoctorOwnership(prescription.doctorId, doctorId);
+
+    if (!file) {
+      throw new BadRequestException('Prescription document file is required');
+    }
+    const allowedMime = /^application\/pdf$|^image\/(png|jpeg|jpg|webp)$/i.test(file.mimetype);
+    if (!allowedMime) {
+      throw new BadRequestException('Supported formats are PDF, PNG, JPG, or WEBP');
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      throw new BadRequestException('Prescription document must be 10MB or less');
+    }
+
+    const upload = await this.cloudinaryService.uploadBuffer({
+      buffer: file.buffer,
+      fileName: file.originalname || `prescription-${prescription.id}`,
+      folder: 'prescriptions',
+      contentType: file.mimetype,
+      resourceType: file.mimetype === 'application/pdf' ? 'raw' : 'image',
+    });
+
+    if (prescription.documentPublicId) {
+      await this.cloudinaryService.destroy(
+        prescription.documentPublicId,
+        prescription.documentMimeType?.startsWith('image/') ? 'image' : 'raw',
+      );
+    }
+
+    const updated = await db.prescription.update({
+      where: { id: prescriptionId },
+      data: {
+        documentUrl: upload.url,
+        documentPublicId: upload.publicId,
+        documentMimeType: upload.mimeType,
+        documentVersion: (prescription.documentVersion ?? 0) + 1,
+      },
+    });
+
+    await this.auditService.record(
+      doctorId,
+      'PRESCRIPTION_DOCUMENT_UPLOADED',
+      'Prescription',
+      prescriptionId,
+      {
+        documentPublicId: updated.documentPublicId,
+        documentVersion: updated.documentVersion,
+      },
+    );
+    return updated;
+  }
+
   listMine(userId: string, role: Role) {
     const db = this.prisma as any;
     if (role === Role.DOCTOR) {
       return db.prescription.findMany({
         where: { doctorId: userId },
-        include: { appointment: true },
+        include: {
+          appointment: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
     }

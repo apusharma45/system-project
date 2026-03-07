@@ -151,6 +151,7 @@ describe('AppController (e2e)', () => {
             id: randomUUID(),
             appointmentId: data.appointmentId,
             diagnosticId: data.diagnosticId,
+            tests: data.tests ?? null,
             status: 'CREATED',
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -407,6 +408,7 @@ describe('AppController (e2e)', () => {
     await request(app.getHttpServer())
       .post('/auth/register')
       .send({
+        fullName: 'Patient One',
         email: 'patient@example.com',
         password: 'secret123',
         role: 'PATIENT',
@@ -430,6 +432,7 @@ describe('AppController (e2e)', () => {
     await request(app.getHttpServer())
       .post('/auth/register')
       .send({
+        fullName: 'Patient One',
         email: 'patient@example.com',
         password: 'secret123',
         role: 'UNKNOWN',
@@ -811,6 +814,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -882,6 +886,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(403);
 
@@ -891,6 +896,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -963,6 +969,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -1126,6 +1133,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -1342,6 +1350,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -1571,6 +1580,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
     await request(app.getHttpServer())

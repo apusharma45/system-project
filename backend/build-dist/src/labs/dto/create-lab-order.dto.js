@@ -10,10 +10,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateLabOrderDto = void 0;
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+const lab_test_item_dto_1 = require("./lab-test-item.dto");
 class CreateLabOrderDto {
     appointmentId;
     diagnosticId;
+    tests;
 }
 exports.CreateLabOrderDto = CreateLabOrderDto;
 __decorate([
@@ -24,4 +27,11 @@ __decorate([
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateLabOrderDto.prototype, "diagnosticId", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayMinSize)(1),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => lab_test_item_dto_1.LabTestItemDto),
+    __metadata("design:type", Array)
+], CreateLabOrderDto.prototype, "tests", void 0);
 //# sourceMappingURL=create-lab-order.dto.js.map

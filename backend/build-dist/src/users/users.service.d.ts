@@ -6,6 +6,7 @@ export declare class UsersService {
     findByEmail(email: string): import("../../generated/prisma/models").Prisma__UserClient<{
         id: string;
         email: string;
+        fullName: string | null;
         passwordHash: string;
         role: Role;
         createdAt: Date;
@@ -16,6 +17,7 @@ export declare class UsersService {
     findById(id: string): import("../../generated/prisma/models").Prisma__UserClient<{
         id: string;
         email: string;
+        fullName: string | null;
         passwordHash: string;
         role: Role;
         createdAt: Date;
@@ -24,12 +26,14 @@ export declare class UsersService {
         omit: import("../../generated/prisma/internal/prismaNamespace").GlobalOmitConfig | undefined;
     }>;
     createUser(params: {
+        fullName: string;
         email: string;
         passwordHash: string;
         role: Role;
     }): import("../../generated/prisma/models").Prisma__UserClient<{
         id: string;
         email: string;
+        fullName: string | null;
         passwordHash: string;
         role: Role;
         createdAt: Date;
@@ -40,6 +44,7 @@ export declare class UsersService {
     listByRole(role: Role): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
         id: string;
         email: string;
+        fullName: string | null;
         role: Role;
     }[]>;
 }

@@ -28,9 +28,9 @@ let UsersService = class UsersService {
         });
     }
     createUser(params) {
-        const { email, passwordHash, role } = params;
+        const { fullName, email, passwordHash, role } = params;
         return this.prisma.user.create({
-            data: { email, passwordHash, role },
+            data: { fullName, email, passwordHash, role },
         });
     }
     listByRole(role) {
@@ -38,6 +38,7 @@ let UsersService = class UsersService {
             where: { role },
             select: {
                 id: true,
+                fullName: true,
                 email: true,
                 role: true,
             },

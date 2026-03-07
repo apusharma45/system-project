@@ -48,6 +48,7 @@ describe('AuthService', () => {
 
     await expect(
       service.register({
+        fullName: 'Used Account',
         email: 'used@example.com',
         password: 'secret123',
         role: 'PATIENT',

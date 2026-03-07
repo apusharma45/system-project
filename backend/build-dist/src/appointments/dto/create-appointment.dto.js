@@ -13,6 +13,10 @@ exports.CreateAppointmentDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateAppointmentDto {
     doctorId;
+    preferredDateFrom;
+    preferredDateTo;
+    reason;
+    preferredTimeNote;
     scheduledAt;
 }
 exports.CreateAppointmentDto = CreateAppointmentDto;
@@ -21,6 +25,28 @@ __decorate([
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "doctorId", void 0);
 __decorate([
+    (0, class_validator_1.ValidateIf)((dto) => !dto.scheduledAt),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateAppointmentDto.prototype, "preferredDateFrom", void 0);
+__decorate([
+    (0, class_validator_1.ValidateIf)((dto) => !dto.scheduledAt),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateAppointmentDto.prototype, "preferredDateTo", void 0);
+__decorate([
+    (0, class_validator_1.ValidateIf)((dto) => !dto.scheduledAt),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(3),
+    __metadata("design:type", String)
+], CreateAppointmentDto.prototype, "reason", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateAppointmentDto.prototype, "preferredTimeNote", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "scheduledAt", void 0);

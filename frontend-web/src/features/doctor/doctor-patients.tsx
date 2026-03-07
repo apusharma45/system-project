@@ -5,7 +5,7 @@ import { useDoctorAppointments, useDoctorLabOrders, useDoctorPrescriptions } fro
 type PatientAggregate = {
   patientId: string
   appointmentCount: number
-  latestAppointmentAt: string
+  latestAppointmentAt: string | null
   prescriptionCount: number
   labOrderCount: number
 }
@@ -22,14 +22,17 @@ export function DoctorPatientsPage() {
       const existing = map.get(appointment.patientId)
       if (existing) {
         existing.appointmentCount += 1
-        if (new Date(appointment.scheduledAt) > new Date(existing.latestAppointmentAt)) {
+        if (
+          appointment.scheduledAt &&
+          (!existing.latestAppointmentAt || new Date(appointment.scheduledAt) > new Date(existing.latestAppointmentAt))
+        ) {
           existing.latestAppointmentAt = appointment.scheduledAt
         }
       } else {
         map.set(appointment.patientId, {
           patientId: appointment.patientId,
           appointmentCount: 1,
-          latestAppointmentAt: appointment.scheduledAt,
+          latestAppointmentAt: appointment.scheduledAt ?? null,
           prescriptionCount: 0,
           labOrderCount: 0,
         })
@@ -94,7 +97,12 @@ export function DoctorPatientsPage() {
                 <div className="avatar">{item.patientId.slice(0, 2).toUpperCase()}</div>
                 <div>
                   <strong>{item.patientId}</strong>
-                  <p className="muted">Last seen {new Date(item.latestAppointmentAt).toLocaleString()}</p>
+                  <p className="muted">
+                    Last seen{' '}
+                    {item.latestAppointmentAt
+                      ? new Date(item.latestAppointmentAt).toLocaleString()
+                      : 'Pending doctor schedule'}
+                  </p>
                 </div>
               </div>
             </div>

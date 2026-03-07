@@ -76,6 +76,7 @@ export class LabsService {
       data: {
         appointmentId: dto.appointmentId,
         diagnosticId: dto.diagnosticId,
+        tests: dto.tests as any,
       },
     });
     await this.auditService.record(doctorId, 'LAB_ORDER_CREATED', 'LabOrder', order.id, {
@@ -106,6 +107,12 @@ export class LabsService {
     const order = await this.getOrderOrThrow(orderId);
     this.assertDiagnosticOwnership(order.diagnosticId, diagnosticId);
     this.transitionOrThrow(order.status, 'RESULT_UPLOADED');
+    if (dto.fileMimeType && !/^application\/pdf$|^image\/(png|jpeg|jpg|webp)$/i.test(dto.fileMimeType)) {
+      throw new BadRequestException('Only PDF and image lab result MIME types are allowed');
+    }
+    if (dto.fileSizeBytes && dto.fileSizeBytes > 10 * 1024 * 1024) {
+      throw new BadRequestException('Lab result file size exceeds 10MB limit');
+    }
 
     const existingResult = await db.labResult.findUnique({
       where: { labOrderId: orderId },
@@ -123,6 +130,9 @@ export class LabsService {
       data: {
         labOrderId: orderId,
         fileUrl: dto.fileUrl,
+        filePublicId: dto.filePublicId ?? null,
+        fileMimeType: dto.fileMimeType ?? null,
+        fileSizeBytes: dto.fileSizeBytes ?? null,
       },
     });
 
@@ -174,7 +184,17 @@ export class LabsService {
           },
         },
         include: {
-          appointment: true,
+          appointment: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
           labResult: true,
         },
         orderBy: { createdAt: 'desc' },
@@ -198,7 +218,17 @@ export class LabsService {
       return db.labOrder.findMany({
         where: { diagnosticId: userId },
         include: {
-          appointment: true,
+          appointment: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
           labResult: true,
         },
         orderBy: { createdAt: 'desc' },

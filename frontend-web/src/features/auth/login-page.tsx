@@ -24,6 +24,8 @@ export function LoginPage() {
         navigate('/doctor')
       } else if (user.role === 'PATIENT') {
         navigate('/patient')
+      } else if (user.role === 'PHARMACY') {
+        navigate('/pharmacy')
       }
     }
   }, [user, navigate])
@@ -46,8 +48,10 @@ export function LoginPage() {
         navigate('/doctor')
       } else if (me.data.role === 'PATIENT') {
         navigate('/patient')
+      } else if (me.data.role === 'PHARMACY') {
+        navigate('/pharmacy')
       } else {
-        setError('This web app currently supports PATIENT and DOCTOR roles only.')
+        setError('This web app currently supports PATIENT, DOCTOR and PHARMACY roles only.')
       }
     } catch (err) {
       setError(getApiErrorMessage(err))

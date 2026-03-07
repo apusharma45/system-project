@@ -312,9 +312,6 @@ export type AuditLogUncheckedUpdateManyWithoutActorNestedInput = {
     updateMany?: Prisma.AuditLogUpdateManyWithWhereWithoutActorInput | Prisma.AuditLogUpdateManyWithWhereWithoutActorInput[];
     deleteMany?: Prisma.AuditLogScalarWhereInput | Prisma.AuditLogScalarWhereInput[];
 };
-export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null;
-};
 export type AuditLogCreateWithoutActorInput = {
     id?: string;
     action: string;

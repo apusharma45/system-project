@@ -9,16 +9,19 @@ export declare class UsersController {
     listDoctors(): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
         id: string;
         email: string;
+        fullName: string | null;
         role: Role;
     }[]>;
     listPharmacies(): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
         id: string;
         email: string;
+        fullName: string | null;
         role: Role;
     }[]>;
     listDiagnostics(): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
         id: string;
         email: string;
+        fullName: string | null;
         role: Role;
     }[]>;
 }

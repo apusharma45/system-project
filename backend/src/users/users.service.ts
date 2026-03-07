@@ -18,10 +18,10 @@ export class UsersService {
     });
   }
 
-  createUser(params: { email: string; passwordHash: string; role: Role }) {
-    const { email, passwordHash, role } = params;
+  createUser(params: { fullName: string; email: string; passwordHash: string; role: Role }) {
+    const { fullName, email, passwordHash, role } = params;
     return this.prisma.user.create({
-      data: { email, passwordHash, role },
+      data: { fullName, email, passwordHash, role },
     });
   }
 
@@ -30,6 +30,7 @@ export class UsersService {
       where: { role },
       select: {
         id: true,
+        fullName: true,
         email: true,
         role: true,
       },

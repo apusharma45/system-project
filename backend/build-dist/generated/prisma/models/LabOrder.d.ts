@@ -28,6 +28,7 @@ export type LabOrderCountAggregateOutputType = {
     appointmentId: number;
     diagnosticId: number;
     status: number;
+    tests: number;
     createdAt: number;
     updatedAt: number;
     _all: number;
@@ -53,6 +54,7 @@ export type LabOrderCountAggregateInputType = {
     appointmentId?: true;
     diagnosticId?: true;
     status?: true;
+    tests?: true;
     createdAt?: true;
     updatedAt?: true;
     _all?: true;
@@ -86,6 +88,7 @@ export type LabOrderGroupByOutputType = {
     appointmentId: string;
     diagnosticId: string;
     status: $Enums.LabOrderStatus;
+    tests: runtime.JsonValue | null;
     createdAt: Date;
     updatedAt: Date;
     _count: LabOrderCountAggregateOutputType | null;
@@ -103,6 +106,7 @@ export type LabOrderWhereInput = {
     appointmentId?: Prisma.StringFilter<"LabOrder"> | string;
     diagnosticId?: Prisma.StringFilter<"LabOrder"> | string;
     status?: Prisma.EnumLabOrderStatusFilter<"LabOrder"> | $Enums.LabOrderStatus;
+    tests?: Prisma.JsonNullableFilter<"LabOrder">;
     createdAt?: Prisma.DateTimeFilter<"LabOrder"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"LabOrder"> | Date | string;
     appointment?: Prisma.XOR<Prisma.AppointmentScalarRelationFilter, Prisma.AppointmentWhereInput>;
@@ -114,6 +118,7 @@ export type LabOrderOrderByWithRelationInput = {
     appointmentId?: Prisma.SortOrder;
     diagnosticId?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
+    tests?: Prisma.SortOrderInput | Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     appointment?: Prisma.AppointmentOrderByWithRelationInput;
@@ -128,6 +133,7 @@ export type LabOrderWhereUniqueInput = Prisma.AtLeast<{
     NOT?: Prisma.LabOrderWhereInput | Prisma.LabOrderWhereInput[];
     diagnosticId?: Prisma.StringFilter<"LabOrder"> | string;
     status?: Prisma.EnumLabOrderStatusFilter<"LabOrder"> | $Enums.LabOrderStatus;
+    tests?: Prisma.JsonNullableFilter<"LabOrder">;
     createdAt?: Prisma.DateTimeFilter<"LabOrder"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"LabOrder"> | Date | string;
     appointment?: Prisma.XOR<Prisma.AppointmentScalarRelationFilter, Prisma.AppointmentWhereInput>;
@@ -139,6 +145,7 @@ export type LabOrderOrderByWithAggregationInput = {
     appointmentId?: Prisma.SortOrder;
     diagnosticId?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
+    tests?: Prisma.SortOrderInput | Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     _count?: Prisma.LabOrderCountOrderByAggregateInput;
@@ -153,12 +160,14 @@ export type LabOrderScalarWhereWithAggregatesInput = {
     appointmentId?: Prisma.StringWithAggregatesFilter<"LabOrder"> | string;
     diagnosticId?: Prisma.StringWithAggregatesFilter<"LabOrder"> | string;
     status?: Prisma.EnumLabOrderStatusWithAggregatesFilter<"LabOrder"> | $Enums.LabOrderStatus;
+    tests?: Prisma.JsonNullableWithAggregatesFilter<"LabOrder">;
     createdAt?: Prisma.DateTimeWithAggregatesFilter<"LabOrder"> | Date | string;
     updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LabOrder"> | Date | string;
 };
 export type LabOrderCreateInput = {
     id?: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     appointment: Prisma.AppointmentCreateNestedOneWithoutLabOrderInput;
@@ -170,6 +179,7 @@ export type LabOrderUncheckedCreateInput = {
     appointmentId: string;
     diagnosticId: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     labResult?: Prisma.LabResultUncheckedCreateNestedOneWithoutLabOrderInput;
@@ -177,6 +187,7 @@ export type LabOrderUncheckedCreateInput = {
 export type LabOrderUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     appointment?: Prisma.AppointmentUpdateOneRequiredWithoutLabOrderNestedInput;
@@ -188,6 +199,7 @@ export type LabOrderUncheckedUpdateInput = {
     appointmentId?: Prisma.StringFieldUpdateOperationsInput | string;
     diagnosticId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     labResult?: Prisma.LabResultUncheckedUpdateOneWithoutLabOrderNestedInput;
@@ -197,12 +209,14 @@ export type LabOrderCreateManyInput = {
     appointmentId: string;
     diagnosticId: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
 export type LabOrderUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -211,6 +225,7 @@ export type LabOrderUncheckedUpdateManyInput = {
     appointmentId?: Prisma.StringFieldUpdateOperationsInput | string;
     diagnosticId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -231,6 +246,7 @@ export type LabOrderCountOrderByAggregateInput = {
     appointmentId?: Prisma.SortOrder;
     diagnosticId?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
+    tests?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
@@ -338,6 +354,7 @@ export type LabOrderUpdateOneRequiredWithoutLabResultNestedInput = {
 export type LabOrderCreateWithoutDiagnosticInput = {
     id?: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     appointment: Prisma.AppointmentCreateNestedOneWithoutLabOrderInput;
@@ -347,6 +364,7 @@ export type LabOrderUncheckedCreateWithoutDiagnosticInput = {
     id?: string;
     appointmentId: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     labResult?: Prisma.LabResultUncheckedCreateNestedOneWithoutLabOrderInput;
@@ -380,12 +398,14 @@ export type LabOrderScalarWhereInput = {
     appointmentId?: Prisma.StringFilter<"LabOrder"> | string;
     diagnosticId?: Prisma.StringFilter<"LabOrder"> | string;
     status?: Prisma.EnumLabOrderStatusFilter<"LabOrder"> | $Enums.LabOrderStatus;
+    tests?: Prisma.JsonNullableFilter<"LabOrder">;
     createdAt?: Prisma.DateTimeFilter<"LabOrder"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"LabOrder"> | Date | string;
 };
 export type LabOrderCreateWithoutAppointmentInput = {
     id?: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     diagnostic: Prisma.UserCreateNestedOneWithoutDiagnosticLabOrdersInput;
@@ -395,6 +415,7 @@ export type LabOrderUncheckedCreateWithoutAppointmentInput = {
     id?: string;
     diagnosticId: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     labResult?: Prisma.LabResultUncheckedCreateNestedOneWithoutLabOrderInput;
@@ -415,6 +436,7 @@ export type LabOrderUpdateToOneWithWhereWithoutAppointmentInput = {
 export type LabOrderUpdateWithoutAppointmentInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     diagnostic?: Prisma.UserUpdateOneRequiredWithoutDiagnosticLabOrdersNestedInput;
@@ -424,6 +446,7 @@ export type LabOrderUncheckedUpdateWithoutAppointmentInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     diagnosticId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     labResult?: Prisma.LabResultUncheckedUpdateOneWithoutLabOrderNestedInput;
@@ -431,6 +454,7 @@ export type LabOrderUncheckedUpdateWithoutAppointmentInput = {
 export type LabOrderCreateWithoutLabResultInput = {
     id?: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     appointment: Prisma.AppointmentCreateNestedOneWithoutLabOrderInput;
@@ -441,6 +465,7 @@ export type LabOrderUncheckedCreateWithoutLabResultInput = {
     appointmentId: string;
     diagnosticId: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
@@ -460,6 +485,7 @@ export type LabOrderUpdateToOneWithWhereWithoutLabResultInput = {
 export type LabOrderUpdateWithoutLabResultInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     appointment?: Prisma.AppointmentUpdateOneRequiredWithoutLabOrderNestedInput;
@@ -470,6 +496,7 @@ export type LabOrderUncheckedUpdateWithoutLabResultInput = {
     appointmentId?: Prisma.StringFieldUpdateOperationsInput | string;
     diagnosticId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -477,12 +504,14 @@ export type LabOrderCreateManyDiagnosticInput = {
     id?: string;
     appointmentId: string;
     status?: $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
 export type LabOrderUpdateWithoutDiagnosticInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     appointment?: Prisma.AppointmentUpdateOneRequiredWithoutLabOrderNestedInput;
@@ -492,6 +521,7 @@ export type LabOrderUncheckedUpdateWithoutDiagnosticInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     appointmentId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     labResult?: Prisma.LabResultUncheckedUpdateOneWithoutLabOrderNestedInput;
@@ -500,6 +530,7 @@ export type LabOrderUncheckedUpdateManyWithoutDiagnosticInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     appointmentId?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumLabOrderStatusFieldUpdateOperationsInput | $Enums.LabOrderStatus;
+    tests?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -508,6 +539,7 @@ export type LabOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
     appointmentId?: boolean;
     diagnosticId?: boolean;
     status?: boolean;
+    tests?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     appointment?: boolean | Prisma.AppointmentDefaultArgs<ExtArgs>;
@@ -519,6 +551,7 @@ export type LabOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
     appointmentId?: boolean;
     diagnosticId?: boolean;
     status?: boolean;
+    tests?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     appointment?: boolean | Prisma.AppointmentDefaultArgs<ExtArgs>;
@@ -529,6 +562,7 @@ export type LabOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
     appointmentId?: boolean;
     diagnosticId?: boolean;
     status?: boolean;
+    tests?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     appointment?: boolean | Prisma.AppointmentDefaultArgs<ExtArgs>;
@@ -539,10 +573,11 @@ export type LabOrderSelectScalar = {
     appointmentId?: boolean;
     diagnosticId?: boolean;
     status?: boolean;
+    tests?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type LabOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "appointmentId" | "diagnosticId" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["labOrder"]>;
+export type LabOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "appointmentId" | "diagnosticId" | "status" | "tests" | "createdAt" | "updatedAt", ExtArgs["result"]["labOrder"]>;
 export type LabOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     appointment?: boolean | Prisma.AppointmentDefaultArgs<ExtArgs>;
     diagnostic?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -568,6 +603,7 @@ export type $LabOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
         appointmentId: string;
         diagnosticId: string;
         status: $Enums.LabOrderStatus;
+        tests: runtime.JsonValue | null;
         createdAt: Date;
         updatedAt: Date;
     }, ExtArgs["result"]["labOrder"]>;
@@ -634,6 +670,7 @@ export interface LabOrderFieldRefs {
     readonly appointmentId: Prisma.FieldRef<"LabOrder", 'String'>;
     readonly diagnosticId: Prisma.FieldRef<"LabOrder", 'String'>;
     readonly status: Prisma.FieldRef<"LabOrder", 'LabOrderStatus'>;
+    readonly tests: Prisma.FieldRef<"LabOrder", 'Json'>;
     readonly createdAt: Prisma.FieldRef<"LabOrder", 'DateTime'>;
     readonly updatedAt: Prisma.FieldRef<"LabOrder", 'DateTime'>;
 }

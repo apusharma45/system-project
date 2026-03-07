@@ -14,7 +14,10 @@ export function PatientDashboard() {
   const queryClient = useQueryClient()
   const { token } = useAuth()
   const [selectedDoctorId, setSelectedDoctorId] = useState('')
-  const [scheduledAt, setScheduledAt] = useState('')
+  const [preferredDateFrom, setPreferredDateFrom] = useState('')
+  const [preferredDateTo, setPreferredDateTo] = useState('')
+  const [preferredTimeNote, setPreferredTimeNote] = useState('')
+  const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [realtimeEvents, setRealtimeEvents] = useState<string[]>([])
 
@@ -51,7 +54,10 @@ export function PatientDashboard() {
       (
         await api.post<Appointment>('/appointments', {
           doctorId: selectedDoctorId,
-          scheduledAt,
+          preferredDateFrom,
+          preferredDateTo,
+          preferredTimeNote,
+          reason,
         })
       ).data,
     onSuccess: () => {
@@ -99,8 +105,8 @@ export function PatientDashboard() {
   const onCreate = (event: FormEvent) => {
     event.preventDefault()
     setError(null)
-    if (!selectedDoctorId || !scheduledAt) {
-      setError('Select a doctor and schedule time.')
+    if (!selectedDoctorId || !preferredDateFrom || !preferredDateTo || !reason.trim()) {
+      setError('Select doctor, preferred window, and reason.')
       return
     }
     createAppointment.mutate()
@@ -125,7 +131,7 @@ export function PatientDashboard() {
 
       <div className="grid two-col" id="appointments">
         <section className="card">
-          <h3>Book Appointment</h3>
+          <h3>Request Appointment</h3>
           <form onSubmit={onCreate} className="stack">
             <label htmlFor="doctorId">Doctor</label>
             <select
@@ -140,15 +146,38 @@ export function PatientDashboard() {
                 </option>
               ))}
             </select>
-            <label htmlFor="scheduledAt">Schedule</label>
+            <label htmlFor="preferredDateFrom">Preferred From</label>
             <input
-              id="scheduledAt"
+              id="preferredDateFrom"
               type="datetime-local"
-              value={scheduledAt}
-              onChange={(e) => setScheduledAt(e.target.value)}
+              value={preferredDateFrom}
+              onChange={(e) => setPreferredDateFrom(e.target.value)}
+            />
+            <label htmlFor="preferredDateTo">Preferred To</label>
+            <input
+              id="preferredDateTo"
+              type="datetime-local"
+              value={preferredDateTo}
+              onChange={(e) => setPreferredDateTo(e.target.value)}
+            />
+            <label htmlFor="preferredTimeNote">Preferred Time Note (optional)</label>
+            <input
+              id="preferredTimeNote"
+              type="text"
+              value={preferredTimeNote}
+              onChange={(e) => setPreferredTimeNote(e.target.value)}
+              placeholder="e.g. Evening preferred"
+            />
+            <label htmlFor="reason">Reason</label>
+            <textarea
+              id="reason"
+              rows={3}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Briefly describe the concern"
             />
             <button type="submit" disabled={createAppointment.isPending || loading}>
-              {createAppointment.isPending ? 'Booking...' : 'Book'}
+              {createAppointment.isPending ? 'Requesting...' : 'Send Request'}
             </button>
           </form>
         </section>
@@ -160,8 +189,19 @@ export function PatientDashboard() {
             {upcomingAppointments.map((appointment) => (
               <li key={appointment.id}>
                 <div>
-                  <strong>{new Date(appointment.scheduledAt).toLocaleString()}</strong>
+                  <strong>
+                    {appointment.scheduledAt
+                      ? `Scheduled: ${new Date(appointment.scheduledAt).toLocaleString()}`
+                      : 'Pending doctor schedule'}
+                  </strong>
                   <p>Status: {appointment.status}</p>
+                  {!appointment.scheduledAt ? (
+                    <p className="muted">
+                      Preferred: {appointment.preferredDateFrom ? new Date(appointment.preferredDateFrom).toLocaleString() : '-'}
+                      {' -> '}
+                      {appointment.preferredDateTo ? new Date(appointment.preferredDateTo).toLocaleString() : '-'}
+                    </p>
+                  ) : null}
                 </div>
                 {cancellableStatuses.has(appointment.status) ? (
                   <button

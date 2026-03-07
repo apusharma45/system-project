@@ -1,4 +1,8 @@
 export declare class CreateAppointmentDto {
     doctorId: string;
-    scheduledAt: string;
+    preferredDateFrom: string;
+    preferredDateTo: string;
+    reason: string;
+    preferredTimeNote?: string;
+    scheduledAt?: string;
 }

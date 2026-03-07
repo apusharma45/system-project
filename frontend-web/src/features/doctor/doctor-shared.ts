@@ -1,6 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../../lib/api'
-import type { AppNotification, Appointment, LabOrder, Prescription, UserSummary } from '../../types'
+import type {
+  AppNotification,
+  Appointment,
+  LabOrder,
+  PatientProfileResponse,
+  Prescription,
+  UserSummary,
+} from '../../types'
 
 export function useDoctorAppointments() {
   return useQuery({
@@ -41,5 +48,13 @@ export function useDoctorNotifications() {
   return useQuery({
     queryKey: ['notifications', 'doctor'],
     queryFn: async () => (await api.get<AppNotification[]>('/notifications/me')).data,
+  })
+}
+
+export function useDoctorPatientProfile(patientId: string | undefined) {
+  return useQuery({
+    queryKey: ['patients', 'doctor-profile', patientId],
+    queryFn: async () => (await api.get<PatientProfileResponse>(`/patients/${patientId}/profile`)).data,
+    enabled: Boolean(patientId),
   })
 }
