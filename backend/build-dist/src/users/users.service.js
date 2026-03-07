@@ -8,15 +8,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var UsersService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 let UsersService = class UsersService {
+    static { UsersService_1 = this; }
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
+    static REGISTER_SELECT = {
+        id: true,
+        email: true,
+        role: true,
+    };
     findByEmail(email) {
         return this.prisma.user.findUnique({
             where: { email },
@@ -28,9 +35,19 @@ let UsersService = class UsersService {
         });
     }
     createUser(params) {
-        const { fullName, email, passwordHash, role } = params;
+        const { fullName, email, passwordHash, role, phone, address, patientProfile, professionalProfile, } = params;
         return this.prisma.user.create({
-            data: { fullName, email, passwordHash, role },
+            data: {
+                fullName,
+                email,
+                passwordHash,
+                role,
+                phone,
+                address,
+                patientProfile: patientProfile ? { create: patientProfile } : undefined,
+                professionalProfile: professionalProfile ? { create: professionalProfile } : undefined,
+            },
+            select: UsersService_1.REGISTER_SELECT,
         });
     }
     listByRole(role) {
@@ -49,7 +66,7 @@ let UsersService = class UsersService {
     }
 };
 exports.UsersService = UsersService;
-exports.UsersService = UsersService = __decorate([
+exports.UsersService = UsersService = UsersService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], UsersService);

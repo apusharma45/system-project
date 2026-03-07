@@ -4,25 +4,24 @@ import {
   IsString,
   IsUUID,
   MinLength,
-  ValidateIf,
 } from 'class-validator';
 
 export class CreateAppointmentDto {
   @IsUUID()
   doctorId: string;
 
-  @ValidateIf((dto: CreateAppointmentDto) => !dto.scheduledAt)
+  @IsOptional()
   @IsDateString()
-  preferredDateFrom: string;
+  preferredDateFrom?: string;
 
-  @ValidateIf((dto: CreateAppointmentDto) => !dto.scheduledAt)
+  @IsOptional()
   @IsDateString()
-  preferredDateTo: string;
+  preferredDateTo?: string;
 
-  @ValidateIf((dto: CreateAppointmentDto) => !dto.scheduledAt)
+  @IsOptional()
   @IsString()
   @MinLength(3)
-  reason: string;
+  reason?: string;
 
   @IsOptional()
   @IsString()

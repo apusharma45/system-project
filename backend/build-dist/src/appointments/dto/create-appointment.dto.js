@@ -25,17 +25,17 @@ __decorate([
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "doctorId", void 0);
 __decorate([
-    (0, class_validator_1.ValidateIf)((dto) => !dto.scheduledAt),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "preferredDateFrom", void 0);
 __decorate([
-    (0, class_validator_1.ValidateIf)((dto) => !dto.scheduledAt),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "preferredDateTo", void 0);
 __decorate([
-    (0, class_validator_1.ValidateIf)((dto) => !dto.scheduledAt),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(3),
     __metadata("design:type", String)

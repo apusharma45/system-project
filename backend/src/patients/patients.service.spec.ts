@@ -14,6 +14,7 @@ describe('PatientsService', () => {
     },
     user: {
       findUnique: jest.fn(),
+      update: jest.fn(),
     },
     labOrder: {
       findMany: jest.fn(),
@@ -80,5 +81,63 @@ describe('PatientsService', () => {
     expect(result.history.appointments).toHaveLength(1);
     expect(result.history.labOrders).toHaveLength(1);
     expect(result.history.prescriptions).toHaveLength(1);
+  });
+
+  it('returns own patient profile', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({
+      id: 'patient-1',
+      fullName: 'Patient One',
+      email: 'patient@test.com',
+      role: Role.PATIENT,
+      phone: '+8801700000000',
+      address: 'Dhaka',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      patientProfile: { gender: 'MALE', dateOfBirth: new Date('1990-01-01T00:00:00.000Z') },
+    });
+
+    const result = await service.getMyProfile('patient-1');
+
+    expect(result.patient.fullName).toBe('Patient One');
+    expect(result.patient.email).toBe('patient@test.com');
+    expect(result.patient.profile?.gender).toBe('MALE');
+  });
+
+  it('updates allowed fields for own profile', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({
+      id: 'patient-1',
+      role: Role.PATIENT,
+    });
+    prismaMock.user.update.mockResolvedValueOnce({});
+    prismaMock.user.findUnique.mockResolvedValueOnce({
+      id: 'patient-1',
+      fullName: 'Updated Name',
+      email: 'patient@test.com',
+      role: Role.PATIENT,
+      phone: '+8801700000000',
+      address: 'Dhaka Updated',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      patientProfile: { allergies: 'Dust' },
+    });
+
+    const result = await service.updateMyProfile('patient-1', {
+      fullName: 'Updated Name',
+      address: 'Dhaka Updated',
+      allergies: 'Dust',
+    });
+
+    expect(prismaMock.user.update).toHaveBeenCalledWith({
+      where: { id: 'patient-1' },
+      data: expect.objectContaining({
+        fullName: 'Updated Name',
+        address: 'Dhaka Updated',
+        patientProfile: {
+          upsert: {
+            create: { allergies: 'Dust' },
+            update: { allergies: 'Dust' },
+          },
+        },
+      }),
+    });
+    expect(result.patient.fullName).toBe('Updated Name');
   });
 });

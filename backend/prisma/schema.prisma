@@ -51,6 +51,8 @@ model User {
   id           String   @id @default(uuid())
   fullName     String?
   email        String   @unique
+  phone        String?
+  address      String?
   passwordHash String
   role         Role
   createdAt    DateTime @default(now())
@@ -64,6 +66,7 @@ model User {
   notifications Notification[]
   auditLogs AuditLog[] @relation("ActorAuditLogs")
   patientProfile PatientProfile?
+  professionalProfile ProfessionalProfile?
 }
 
 model PatientProfile {
@@ -86,6 +89,32 @@ model PatientProfile {
   updatedAt DateTime @updatedAt
 
   @@index([patientId])
+}
+
+model ProfessionalProfile {
+  id String @id @default(uuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  licenseNumber String?
+  specialization String?
+  pharmacyName String?
+  labName String?
+  gender String?
+  dateOfBirth DateTime?
+
+  degrees Json?
+  certifications Json?
+  yearsOfExperience Int?
+  licenseAuthority String?
+  accreditations Json?
+  availableTests Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Appointment {

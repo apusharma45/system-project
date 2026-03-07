@@ -26,7 +26,15 @@ describe('AuthController', () => {
 
   it('register forwards dto to service', async () => {
     authServiceMock.register.mockResolvedValueOnce({ access_token: 'token' });
-    const dto = { fullName: 'Patient One', email: 'a@a.com', password: 'secret123', role: 'PATIENT' as const };
+    const dto = {
+      fullName: 'Patient One',
+      email: 'a@a.com',
+      password: 'secret123',
+      phone: '+8801700000000',
+      address: 'Dhaka',
+      role: 'PATIENT' as const,
+      patientProfile: { gender: 'MALE' as const, dateOfBirth: '1990-01-01' },
+    };
     const result = await controller.register(dto);
 
     expect(authServiceMock.register).toHaveBeenCalledWith(dto);

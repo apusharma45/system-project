@@ -1,3 +1,4 @@
+import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { PatientsService } from './patients.service';
 type RequestUser = {
     userId: string;
@@ -5,6 +6,64 @@ type RequestUser = {
 export declare class PatientsController {
     private readonly patientsService;
     constructor(patientsService: PatientsService);
+    getMyProfile(req: {
+        user: RequestUser;
+    }): Promise<{
+        patient: {
+            id: string;
+            fullName: string | null;
+            email: string;
+            role: "PATIENT";
+            phone: string | null;
+            address: string | null;
+            joinedAt: Date;
+            profile: {
+                id: string;
+                phone: string | null;
+                address: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                dateOfBirth: Date | null;
+                gender: string | null;
+                allergies: string | null;
+                chronicConditions: string | null;
+                currentMedications: string | null;
+                emergencyContactName: string | null;
+                emergencyContactPhone: string | null;
+                emergencyContactRelation: string | null;
+                patientId: string;
+            } | null;
+        };
+    }>;
+    updateMyProfile(req: {
+        user: RequestUser;
+    }, dto: UpdateMyProfileDto): Promise<{
+        patient: {
+            id: string;
+            fullName: string | null;
+            email: string;
+            role: "PATIENT";
+            phone: string | null;
+            address: string | null;
+            joinedAt: Date;
+            profile: {
+                id: string;
+                phone: string | null;
+                address: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                dateOfBirth: Date | null;
+                gender: string | null;
+                allergies: string | null;
+                chronicConditions: string | null;
+                currentMedications: string | null;
+                emergencyContactName: string | null;
+                emergencyContactPhone: string | null;
+                emergencyContactRelation: string | null;
+                patientId: string;
+            } | null;
+        };
+    }>;
     getProfile(req: {
         user: RequestUser;
     }, patientId: string): Promise<{
@@ -15,19 +74,19 @@ export declare class PatientsController {
             joinedAt: Date;
             profile: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
-                patientId: string;
-                dateOfBirth: Date | null;
-                gender: string | null;
                 phone: string | null;
                 address: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                dateOfBirth: Date | null;
+                gender: string | null;
                 allergies: string | null;
                 chronicConditions: string | null;
                 currentMedications: string | null;
                 emergencyContactName: string | null;
                 emergencyContactPhone: string | null;
                 emergencyContactRelation: string | null;
+                patientId: string;
             } | null;
         };
         summary: {

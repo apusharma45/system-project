@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.ProfessionalProfileScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -47,6 +47,7 @@ exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
     User: 'User',
     PatientProfile: 'PatientProfile',
+    ProfessionalProfile: 'ProfessionalProfile',
     Appointment: 'Appointment',
     LabOrder: 'LabOrder',
     LabResult: 'LabResult',
@@ -64,6 +65,8 @@ exports.UserScalarFieldEnum = {
     id: 'id',
     fullName: 'fullName',
     email: 'email',
+    phone: 'phone',
+    address: 'address',
     passwordHash: 'passwordHash',
     role: 'role',
     createdAt: 'createdAt',
@@ -82,6 +85,24 @@ exports.PatientProfileScalarFieldEnum = {
     emergencyContactName: 'emergencyContactName',
     emergencyContactPhone: 'emergencyContactPhone',
     emergencyContactRelation: 'emergencyContactRelation',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.ProfessionalProfileScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    licenseNumber: 'licenseNumber',
+    specialization: 'specialization',
+    pharmacyName: 'pharmacyName',
+    labName: 'labName',
+    gender: 'gender',
+    dateOfBirth: 'dateOfBirth',
+    degrees: 'degrees',
+    certifications: 'certifications',
+    yearsOfExperience: 'yearsOfExperience',
+    licenseAuthority: 'licenseAuthority',
+    accreditations: 'accreditations',
+    availableTests: 'availableTests',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

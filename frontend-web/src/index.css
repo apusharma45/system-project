@@ -183,6 +183,7 @@ textarea:focus {
   border-radius: 10px;
   background: #f0fdf4;
   padding: 0.68rem;
+  text-decoration: none;
 }
 
 .avatar {

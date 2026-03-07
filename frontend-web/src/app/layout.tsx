@@ -28,14 +28,29 @@ export function AppLayout() {
     day: 'numeric',
     year: 'numeric',
   }).format(new Date())
-  const userLabel = user?.role === 'DOCTOR' ? 'Dr. User' : user?.role === 'PHARMACY' ? 'Pharmacy User' : 'Patient User'
-  const userSubtitle = user?.role === 'DOCTOR' ? 'Doctor' : user?.role === 'PHARMACY' ? 'Pharmacy' : 'Patient'
-  const initials = user?.role === 'DOCTOR' ? 'DR' : user?.role === 'PHARMACY' ? 'PH' : 'PT'
+  const userLabel =
+    user?.role === 'DOCTOR'
+      ? 'Dr. User'
+      : user?.role === 'PHARMACY'
+        ? 'Pharmacy User'
+        : user?.role === 'DIAGNOSTIC'
+          ? 'Diagnostic User'
+          : user?.fullName?.trim() || 'Patient User'
+  const userSubtitle =
+    user?.role === 'DOCTOR'
+      ? 'Doctor'
+      : user?.role === 'PHARMACY'
+        ? 'Pharmacy'
+        : user?.role === 'DIAGNOSTIC'
+          ? 'Diagnostic Lab'
+          : 'Patient'
+  const initials =
+    user?.role === 'DOCTOR' ? 'DR' : user?.role === 'PHARMACY' ? 'PH' : user?.role === 'DIAGNOSTIC' ? 'LB' : 'PT'
 
   const navItems = useMemo<Array<{ label: string; to: string; icon: typeof LayoutDashboard; badge?: number }>>(() => {
     if (!user) return []
     const unreadNotifications =
-      user.role === 'DOCTOR'
+      user.role === 'DOCTOR' || user.role === 'DIAGNOSTIC'
         ? (notificationsQuery.data ?? []).filter((item) => !item.read).length
         : user.role === 'PHARMACY'
           ? (pharmacyNotificationsQuery.data ?? []).filter((item) => !item.read).length
@@ -58,10 +73,15 @@ export function AppLayout() {
         { label: 'Notifications', to: '/pharmacy/notifications', icon: Bell, badge: unreadNotifications },
       ]
     }
+    if (user.role === 'DIAGNOSTIC') {
+      return [{ label: 'Dashboard', to: '/diagnostic', icon: LayoutDashboard, badge: unreadNotifications }]
+    }
     return [
       { label: 'Dashboard', to: '/patient', icon: LayoutDashboard },
-      { label: 'Appointments', to: '/patient#appointments', icon: Calendar },
-      { label: 'Notifications', to: '/patient#notifications', icon: Bell },
+      { label: 'Appointments', to: '/patient/appointments', icon: Calendar },
+      { label: 'Records', to: '/patient/records', icon: FileText },
+      { label: 'Notifications', to: '/patient/notifications', icon: Bell },
+      { label: 'Profile', to: '/patient/profile', icon: User },
     ]
   }, [notificationsQuery.data, pharmacyNotificationsQuery.data, user])
 
@@ -72,8 +92,8 @@ export function AppLayout() {
           <div className="brand">
             <div className="brand-mark">+</div>
             <div>
-              <h2>HealthCare</h2>
-              <p>{user?.role === 'DOCTOR' ? 'Doctor Portal' : 'Patient Portal'}</p>
+              <h2>MedFlow</h2>
+              <p>{user?.role === 'DOCTOR' ? 'Doctor Portal' : user?.role === 'DIAGNOSTIC' ? 'Diagnostic Portal' : user?.role === 'PHARMACY' ? 'Pharmacy Portal' : 'Patient Portal'}</p>
             </div>
           </div>
 
@@ -97,15 +117,27 @@ export function AppLayout() {
           </nav>
 
           <div className="profile">
-            <div className="profile-card">
-              <div className="avatar">
-                <span>{initials}</span>
+            {user?.role === 'PATIENT' ? (
+              <Link to="/patient/profile" className="profile-card" aria-label="Open profile">
+                <div className="avatar">
+                  <span>{initials}</span>
+                </div>
+                <div>
+                  <strong>{userLabel}</strong>
+                  <p>{userSubtitle}</p>
+                </div>
+              </Link>
+            ) : (
+              <div className="profile-card">
+                <div className="avatar">
+                  <span>{initials}</span>
+                </div>
+                <div>
+                  <strong>{userLabel}</strong>
+                  <p>{userSubtitle}</p>
+                </div>
               </div>
-              <div>
-                <strong>{userLabel}</strong>
-                <p>{userSubtitle}</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </aside>

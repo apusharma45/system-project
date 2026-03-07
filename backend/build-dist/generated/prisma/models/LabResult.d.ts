@@ -354,13 +354,6 @@ export type LabResultUncheckedUpdateOneWithoutLabOrderNestedInput = {
     connect?: Prisma.LabResultWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.LabResultUpdateToOneWithWhereWithoutLabOrderInput, Prisma.LabResultUpdateWithoutLabOrderInput>, Prisma.LabResultUncheckedUpdateWithoutLabOrderInput>;
 };
-export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null;
-    increment?: number;
-    decrement?: number;
-    multiply?: number;
-    divide?: number;
-};
 export type LabResultCreateWithoutLabOrderInput = {
     id?: string;
     fileUrl: string;

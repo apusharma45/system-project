@@ -18,17 +18,41 @@ const client_1 = require("../../generated/prisma/client");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const roles_guard_1 = require("../auth/roles.guard");
+const update_my_profile_dto_1 = require("./dto/update-my-profile.dto");
 const patients_service_1 = require("./patients.service");
 let PatientsController = class PatientsController {
     patientsService;
     constructor(patientsService) {
         this.patientsService = patientsService;
     }
+    getMyProfile(req) {
+        return this.patientsService.getMyProfile(req.user.userId);
+    }
+    updateMyProfile(req, dto) {
+        return this.patientsService.updateMyProfile(req.user.userId, dto);
+    }
     getProfile(req, patientId) {
         return this.patientsService.getProfileForDoctor(req.user.userId, patientId);
     }
 };
 exports.PatientsController = PatientsController;
+__decorate([
+    (0, common_1.Get)('me/profile'),
+    (0, roles_decorator_1.Roles)(client_1.Role.PATIENT),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], PatientsController.prototype, "getMyProfile", null);
+__decorate([
+    (0, common_1.Patch)('me/profile'),
+    (0, roles_decorator_1.Roles)(client_1.Role.PATIENT),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_my_profile_dto_1.UpdateMyProfileDto]),
+    __metadata("design:returntype", void 0)
+], PatientsController.prototype, "updateMyProfile", null);
 __decorate([
     (0, common_1.Get)(':patientId/profile'),
     (0, roles_decorator_1.Roles)(client_1.Role.DOCTOR),

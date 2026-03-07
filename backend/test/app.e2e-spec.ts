@@ -28,6 +28,25 @@ describe('AppController (e2e)', () => {
     const prescriptions = new Map<string, any>();
     const notifications = new Map<string, any>();
     const auditLogs = new Map<string, any>();
+    const patientRecord = {
+      id: PATIENT_ID,
+      fullName: 'Patient Demo',
+      email: 'patient@example.com',
+      role: 'PATIENT',
+      phone: '+8801700000002',
+      address: 'Dhaka',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      patientProfile: {
+        gender: 'MALE',
+        dateOfBirth: new Date('1990-01-01T00:00:00.000Z'),
+        allergies: null,
+        chronicConditions: null,
+        currentMedications: null,
+        emergencyContactName: null,
+        emergencyContactPhone: null,
+        emergencyContactRelation: null,
+      },
+    };
     const prismaMock = {
       $connect: jest.fn(),
       $disconnect: jest.fn(),
@@ -35,21 +54,74 @@ describe('AppController (e2e)', () => {
       user: {
         findUnique: jest.fn(({ where }: { where: { id: string } }) => {
           if (where.id === DOCTOR_ID) {
-            return Promise.resolve({ id: DOCTOR_ID, role: 'DOCTOR' });
+            return Promise.resolve({
+              id: DOCTOR_ID,
+              fullName: 'Dr. Demo',
+              email: 'doctor@example.com',
+              role: 'DOCTOR',
+              phone: '+8801700000001',
+              address: 'Dhaka',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              patientProfile: null,
+            });
           }
           if (where.id === PATIENT_ID) {
-            return Promise.resolve({ id: PATIENT_ID, role: 'PATIENT' });
+            return Promise.resolve(patientRecord);
           }
           if (where.id === DIAGNOSTIC_ID) {
-            return Promise.resolve({ id: DIAGNOSTIC_ID, role: 'DIAGNOSTIC' });
+            return Promise.resolve({
+              id: DIAGNOSTIC_ID,
+              fullName: 'Diagnostic Demo',
+              email: 'diagnostic@example.com',
+              role: 'DIAGNOSTIC',
+              phone: '+8801700000003',
+              address: 'Dhaka',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              patientProfile: null,
+            });
           }
           if (where.id === PHARMACY_ID) {
-            return Promise.resolve({ id: PHARMACY_ID, role: 'PHARMACY' });
+            return Promise.resolve({
+              id: PHARMACY_ID,
+              fullName: 'Pharmacy Demo',
+              email: 'pharmacy@example.com',
+              role: 'PHARMACY',
+              phone: '+8801700000004',
+              address: 'Dhaka',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              patientProfile: null,
+            });
           }
           if (where.id === ADMIN_ID) {
-            return Promise.resolve({ id: ADMIN_ID, role: 'ADMIN' });
+            return Promise.resolve({
+              id: ADMIN_ID,
+              fullName: 'Admin Demo',
+              email: 'admin@example.com',
+              role: 'ADMIN',
+              phone: '+8801700000005',
+              address: 'Dhaka',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              patientProfile: null,
+            });
           }
           return Promise.resolve(null);
+        }),
+        update: jest.fn(({ where, data }: any) => {
+          if (where.id !== PATIENT_ID) {
+            return Promise.resolve(null);
+          }
+          const next = {
+            ...patientRecord,
+            ...data,
+            patientProfile: data.patientProfile?.upsert?.update
+              ? {
+                  ...patientRecord.patientProfile,
+                  ...data.patientProfile.upsert.update,
+                }
+              : patientRecord.patientProfile,
+          };
+          Object.assign(patientRecord, next);
+          return Promise.resolve(patientRecord);
         }),
         findMany: jest.fn(({ where }: { where: { role: string } }) => {
           if (where.role === 'DOCTOR') {
@@ -411,7 +483,13 @@ describe('AppController (e2e)', () => {
         fullName: 'Patient One',
         email: 'patient@example.com',
         password: 'secret123',
+        phone: '+8801700000000',
+        address: 'Dhaka',
         role: 'PATIENT',
+        patientProfile: {
+          gender: 'MALE',
+          dateOfBirth: '1990-01-01',
+        },
       })
       .expect(201)
       .expect({ access_token: 'register-token' });
@@ -435,7 +513,13 @@ describe('AppController (e2e)', () => {
         fullName: 'Patient One',
         email: 'patient@example.com',
         password: 'secret123',
+        phone: '+8801700000000',
+        address: 'Dhaka',
         role: 'UNKNOWN',
+        patientProfile: {
+          gender: 'MALE',
+          dateOfBirth: '1990-01-01',
+        },
       })
       .expect(400);
   });
@@ -469,6 +553,7 @@ describe('AppController (e2e)', () => {
         userId: DOCTOR_ID,
         email: 'doctor@example.com',
         role: 'DOCTOR',
+        fullName: 'Dr. Demo',
       });
   });
 
@@ -487,6 +572,7 @@ describe('AppController (e2e)', () => {
         userId: PATIENT_ID,
         email: 'patient@example.com',
         role: 'PATIENT',
+        fullName: 'Patient Demo',
       });
   });
 
@@ -502,6 +588,63 @@ describe('AppController (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect([{ id: DOCTOR_ID, email: 'doctor@example.com', role: 'DOCTOR' }]);
+  });
+
+  it('/patients/me/profile (GET) returns patient profile for patient token', async () => {
+    const token = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    await request(app.getHttpServer())
+      .get('/patients/me/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.patient.id).toBe(PATIENT_ID);
+        expect(res.body.patient.fullName).toBe('Patient Demo');
+        expect(res.body.patient.email).toBe('patient@example.com');
+        expect(res.body.patient.profile.gender).toBe('MALE');
+      });
+  });
+
+  it('/patients/me/profile (PATCH) updates allowed fields and blocks restricted fields', async () => {
+    const token = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    await request(app.getHttpServer())
+      .patch('/patients/me/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        fullName: 'Updated Patient',
+        phone: '+8801700009999',
+        allergies: 'Dust',
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.patient.fullName).toBe('Updated Patient');
+      });
+
+    await request(app.getHttpServer())
+      .patch('/patients/me/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: 'hacker@example.com',
+      })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .patch('/patients/me/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        dateOfBirth: '2000-01-01',
+        gender: 'OTHER',
+      })
+      .expect(400);
   });
 
   it('/users/doctors (GET) rejects diagnostic role', async () => {
@@ -623,6 +766,33 @@ describe('AppController (e2e)', () => {
       .patch(`/appointments/${create.body.id}/exam-done`)
       .set('Authorization', `Bearer ${doctorToken}`)
       .expect(400);
+  });
+
+  it('enforces reason when preferred time note is provided', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        preferredTimeNote: 'Evening preferred',
+      })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        preferredTimeNote: 'Evening preferred',
+        reason: 'Follow-up visit',
+      })
+      .expect(201);
   });
 
   it('rejects patient calling doctor-only endpoint', async () => {

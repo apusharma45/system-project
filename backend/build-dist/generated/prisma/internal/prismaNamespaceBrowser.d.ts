@@ -13,6 +13,7 @@ export declare const AnyNull: import("@prisma/client-runtime-utils").AnyNullClas
 export declare const ModelName: {
     readonly User: "User";
     readonly PatientProfile: "PatientProfile";
+    readonly ProfessionalProfile: "ProfessionalProfile";
     readonly Appointment: "Appointment";
     readonly LabOrder: "LabOrder";
     readonly LabResult: "LabResult";
@@ -32,6 +33,8 @@ export declare const UserScalarFieldEnum: {
     readonly id: "id";
     readonly fullName: "fullName";
     readonly email: "email";
+    readonly phone: "phone";
+    readonly address: "address";
     readonly passwordHash: "passwordHash";
     readonly role: "role";
     readonly createdAt: "createdAt";
@@ -55,6 +58,25 @@ export declare const PatientProfileScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type PatientProfileScalarFieldEnum = (typeof PatientProfileScalarFieldEnum)[keyof typeof PatientProfileScalarFieldEnum];
+export declare const ProfessionalProfileScalarFieldEnum: {
+    readonly id: "id";
+    readonly userId: "userId";
+    readonly licenseNumber: "licenseNumber";
+    readonly specialization: "specialization";
+    readonly pharmacyName: "pharmacyName";
+    readonly labName: "labName";
+    readonly gender: "gender";
+    readonly dateOfBirth: "dateOfBirth";
+    readonly degrees: "degrees";
+    readonly certifications: "certifications";
+    readonly yearsOfExperience: "yearsOfExperience";
+    readonly licenseAuthority: "licenseAuthority";
+    readonly accreditations: "accreditations";
+    readonly availableTests: "availableTests";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type ProfessionalProfileScalarFieldEnum = (typeof ProfessionalProfileScalarFieldEnum)[keyof typeof ProfessionalProfileScalarFieldEnum];
 export declare const AppointmentScalarFieldEnum: {
     readonly id: "id";
     readonly patientId: "patientId";

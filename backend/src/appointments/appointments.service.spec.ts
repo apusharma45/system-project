@@ -65,6 +65,56 @@ describe('AppointmentsService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('createForPatient allows empty preferred window and reason', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'd1', role: Role.DOCTOR });
+    prismaMock.appointment.create.mockResolvedValueOnce({
+      ...baseAppointment,
+      preferredDateFrom: null,
+      preferredDateTo: null,
+      preferredTimeNote: null,
+      reason: null,
+    });
+
+    const result = await service.createForPatient('p1', {
+      doctorId: 'd1',
+    });
+
+    expect(prismaMock.appointment.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        doctorId: 'd1',
+        patientId: 'p1',
+        preferredDateFrom: null,
+        preferredDateTo: null,
+        preferredTimeNote: null,
+        reason: null,
+      }),
+    });
+    expect(result.id).toBe('a1');
+  });
+
+  it('createForPatient rejects preferred time note without reason', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'd1', role: Role.DOCTOR });
+
+    await expect(
+      service.createForPatient('p1', {
+        doctorId: 'd1',
+        preferredTimeNote: 'Evening',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('createForPatient validates preferred window order when both dates are provided', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'd1', role: Role.DOCTOR });
+
+    await expect(
+      service.createForPatient('p1', {
+        doctorId: 'd1',
+        preferredDateFrom: '2026-03-08T10:00:00.000Z',
+        preferredDateTo: '2026-03-08T09:00:00.000Z',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
   it('confirmByDoctor throws NotFoundException for unknown appointment', async () => {
     prismaMock.appointment.findUnique.mockResolvedValueOnce(null);
     await expect(service.confirmByDoctor('d1', 'a1')).rejects.toBeInstanceOf(NotFoundException);

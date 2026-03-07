@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppLayout } from '../../app/layout'
 import { DoctorAppointmentsPage } from './doctor-appointments'
 import { DoctorHome } from './doctor-home'
@@ -10,6 +10,8 @@ import { DoctorLabOrdersPage } from './doctor-lab-orders'
 import { DoctorNotificationsPage } from './doctor-notifications'
 import { DoctorPatientsPage } from './doctor-patients'
 import { DoctorPrescriptionsPage } from './doctor-prescriptions'
+
+const patchMock = vi.fn()
 
 const authState = {
   user: { role: 'DOCTOR' as const },
@@ -26,8 +28,12 @@ const doctorData = {
       id: 'apt-1',
       patientId: 'patient-1',
       doctorId: 'doctor-1',
-      status: 'CONFIRMED' as const,
-      scheduledAt: '2026-02-28T09:00:00.000Z',
+      status: 'REQUESTED' as const,
+      scheduledAt: null,
+      preferredDateFrom: '2026-02-28T08:00:00.000Z',
+      preferredDateTo: '2026-02-28T10:00:00.000Z',
+      preferredTimeNote: 'Evening',
+      reason: 'Fever follow-up',
       requiresLab: true,
       labFlowLocked: false,
     },
@@ -87,6 +93,13 @@ vi.mock('../auth/auth-context', () => ({
   useAuth: () => authState,
 }))
 
+vi.mock('../../lib/api', () => ({
+  api: {
+    patch: (...args: unknown[]) => patchMock(...args),
+  },
+  getApiErrorMessage: () => 'api-error',
+}))
+
 vi.mock('./doctor-shared', () => ({
   useDoctorAppointments: () => ({ data: doctorData.appointments }),
   useDoctorPrescriptions: () => ({ data: doctorData.prescriptions }),
@@ -124,9 +137,15 @@ function renderDoctorRoute(path: string, element: ReactNode) {
 }
 
 describe('doctor UI regression', () => {
+  beforeEach(() => {
+    patchMock.mockReset()
+    patchMock.mockResolvedValue({ data: {} })
+  })
+
   it('renders doctor navigation labels in app layout', () => {
     renderDoctorRoute('/doctor/test', <div>Layout Test Page</div>)
 
+    expect(screen.getByText('MedFlow')).toBeInTheDocument()
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(screen.getByText('Appointments')).toBeInTheDocument()
     expect(screen.getByText('Patients')).toBeInTheDocument()
@@ -154,6 +173,33 @@ describe('doctor UI regression', () => {
   ])('renders key section for route %s', (path, heading) => {
     renderDoctorRoute(path, <div />)
     expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument()
+  })
+
+  it('request cards show preferred time and reason; approve preferred hits confirm endpoint', async () => {
+    renderDoctorRoute('/doctor/appointments', <div />)
+
+    expect(screen.getByText(/Preferred time: Evening/i)).toBeInTheDocument()
+    expect(screen.getByText(/Reason: Fever follow-up/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Approve Preferred' })[0])
+    await waitFor(() => {
+      expect(patchMock).toHaveBeenCalledWith('/appointments/apt-1/confirm')
+    })
+  })
+
+  it('assign new time hits schedule endpoint', async () => {
+    renderDoctorRoute('/doctor/appointments', <div />)
+
+    const requestItem = screen.getByText(/Reason: Fever follow-up/i).closest('li') as HTMLElement
+    const datetimeInput = within(requestItem).getByDisplayValue('') as HTMLInputElement
+    fireEvent.change(datetimeInput, { target: { value: '2026-03-01T10:30' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Assign New Time' }))
+
+    await waitFor(() => {
+      expect(patchMock).toHaveBeenCalledWith('/appointments/apt-1/schedule', {
+        scheduledAt: '2026-03-01T04:30:00.000Z',
+      })
+    })
   })
 
   it('lab orders page shows requested tests and readable patient identity', () => {

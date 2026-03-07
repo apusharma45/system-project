@@ -59,12 +59,47 @@ let AuthService = class AuthService {
         if (existing) {
             throw new common_1.ConflictException('Email already in use');
         }
+        this.assertRequiredRoleFields(dto);
         const passwordHash = await bcrypt.hash(dto.password, 10);
+        const patientProfile = dto.role === 'PATIENT'
+            ? {
+                gender: dto.patientProfile.gender,
+                dateOfBirth: new Date(dto.patientProfile.dateOfBirth),
+                allergies: dto.patientProfile?.allergies,
+                chronicConditions: dto.patientProfile?.chronicConditions,
+                currentMedications: dto.patientProfile?.currentMedications,
+                emergencyContactName: dto.patientProfile?.emergencyContactName,
+                emergencyContactPhone: dto.patientProfile?.emergencyContactPhone,
+                emergencyContactRelation: dto.patientProfile?.emergencyContactRelation,
+            }
+            : undefined;
+        const professionalProfile = dto.role === 'DOCTOR' || dto.role === 'PHARMACY' || dto.role === 'DIAGNOSTIC'
+            ? {
+                gender: dto.professionalProfile?.gender,
+                dateOfBirth: dto.professionalProfile?.dateOfBirth
+                    ? new Date(dto.professionalProfile.dateOfBirth)
+                    : undefined,
+                licenseNumber: dto.professionalProfile?.licenseNumber,
+                specialization: dto.professionalProfile?.specialization,
+                pharmacyName: dto.professionalProfile?.pharmacyName,
+                labName: dto.professionalProfile?.labName,
+                degrees: dto.professionalProfile?.degrees,
+                certifications: dto.professionalProfile?.certifications,
+                yearsOfExperience: dto.professionalProfile?.yearsOfExperience,
+                licenseAuthority: dto.professionalProfile?.licenseAuthority,
+                accreditations: dto.professionalProfile?.accreditations,
+                availableTests: dto.professionalProfile?.availableTests,
+            }
+            : undefined;
         const user = await this.usersService.createUser({
             fullName: dto.fullName,
             email: dto.email,
             passwordHash,
             role: dto.role,
+            phone: dto.phone,
+            address: dto.address,
+            patientProfile,
+            professionalProfile,
         });
         return this.signToken(user.id, user.email, user.role);
     }
@@ -87,6 +122,65 @@ let AuthService = class AuthService {
                 role,
             }),
         };
+    }
+    assertRequiredRoleFields(dto) {
+        if (dto.role === 'PATIENT') {
+            if (!dto.patientProfile) {
+                throw new common_1.BadRequestException('patientProfile is required for PATIENT registration');
+            }
+            const patientProfile = dto.patientProfile;
+            if (!patientProfile.gender) {
+                throw new common_1.BadRequestException('patientProfile.gender is required for PATIENT registration');
+            }
+            if (!patientProfile.dateOfBirth) {
+                throw new common_1.BadRequestException('patientProfile.dateOfBirth is required for PATIENT registration');
+            }
+            return;
+        }
+        if (dto.role === 'DOCTOR') {
+            if (!dto.professionalProfile) {
+                throw new common_1.BadRequestException('professionalProfile is required for DOCTOR registration');
+            }
+            const professionalProfile = dto.professionalProfile;
+            if (!professionalProfile.gender) {
+                throw new common_1.BadRequestException('professionalProfile.gender is required for DOCTOR registration');
+            }
+            if (!professionalProfile.dateOfBirth) {
+                throw new common_1.BadRequestException('professionalProfile.dateOfBirth is required for DOCTOR registration');
+            }
+            if (!professionalProfile.licenseNumber) {
+                throw new common_1.BadRequestException('professionalProfile.licenseNumber is required for DOCTOR registration');
+            }
+            if (!professionalProfile.specialization) {
+                throw new common_1.BadRequestException('professionalProfile.specialization is required for DOCTOR registration');
+            }
+            return;
+        }
+        if (dto.role === 'PHARMACY') {
+            if (!dto.professionalProfile) {
+                throw new common_1.BadRequestException('professionalProfile is required for PHARMACY registration');
+            }
+            const professionalProfile = dto.professionalProfile;
+            if (!professionalProfile.licenseNumber) {
+                throw new common_1.BadRequestException('professionalProfile.licenseNumber is required for PHARMACY registration');
+            }
+            if (!professionalProfile.pharmacyName) {
+                throw new common_1.BadRequestException('professionalProfile.pharmacyName is required for PHARMACY registration');
+            }
+            return;
+        }
+        if (dto.role === 'DIAGNOSTIC') {
+            if (!dto.professionalProfile) {
+                throw new common_1.BadRequestException('professionalProfile is required for DIAGNOSTIC registration');
+            }
+            const professionalProfile = dto.professionalProfile;
+            if (!professionalProfile.licenseNumber) {
+                throw new common_1.BadRequestException('professionalProfile.licenseNumber is required for DIAGNOSTIC registration');
+            }
+            if (!professionalProfile.labName) {
+                throw new common_1.BadRequestException('professionalProfile.labName is required for DIAGNOSTIC registration');
+            }
+        }
     }
 };
 exports.AuthService = AuthService;

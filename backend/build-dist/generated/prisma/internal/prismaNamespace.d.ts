@@ -159,6 +159,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export declare const ModelName: {
     readonly User: "User";
     readonly PatientProfile: "PatientProfile";
+    readonly ProfessionalProfile: "ProfessionalProfile";
     readonly Appointment: "Appointment";
     readonly LabOrder: "LabOrder";
     readonly LabResult: "LabResult";
@@ -177,7 +178,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         omit: GlobalOmitOptions;
     };
     meta: {
-        modelProps: "user" | "patientProfile" | "appointment" | "labOrder" | "labResult" | "prescription" | "notification" | "auditLog";
+        modelProps: "user" | "patientProfile" | "professionalProfile" | "appointment" | "labOrder" | "labResult" | "prescription" | "notification" | "auditLog";
         txIsolationLevel: TransactionIsolationLevel;
     };
     model: {
@@ -326,6 +327,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
                 count: {
                     args: Prisma.PatientProfileCountArgs<ExtArgs>;
                     result: runtime.Types.Utils.Optional<Prisma.PatientProfileCountAggregateOutputType> | number;
+                };
+            };
+        };
+        ProfessionalProfile: {
+            payload: Prisma.$ProfessionalProfilePayload<ExtArgs>;
+            fields: Prisma.ProfessionalProfileFieldRefs;
+            operations: {
+                findUnique: {
+                    args: Prisma.ProfessionalProfileFindUniqueArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload> | null;
+                };
+                findUniqueOrThrow: {
+                    args: Prisma.ProfessionalProfileFindUniqueOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>;
+                };
+                findFirst: {
+                    args: Prisma.ProfessionalProfileFindFirstArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload> | null;
+                };
+                findFirstOrThrow: {
+                    args: Prisma.ProfessionalProfileFindFirstOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>;
+                };
+                findMany: {
+                    args: Prisma.ProfessionalProfileFindManyArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>[];
+                };
+                create: {
+                    args: Prisma.ProfessionalProfileCreateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>;
+                };
+                createMany: {
+                    args: Prisma.ProfessionalProfileCreateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                createManyAndReturn: {
+                    args: Prisma.ProfessionalProfileCreateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>[];
+                };
+                delete: {
+                    args: Prisma.ProfessionalProfileDeleteArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>;
+                };
+                update: {
+                    args: Prisma.ProfessionalProfileUpdateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>;
+                };
+                deleteMany: {
+                    args: Prisma.ProfessionalProfileDeleteManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateMany: {
+                    args: Prisma.ProfessionalProfileUpdateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateManyAndReturn: {
+                    args: Prisma.ProfessionalProfileUpdateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>[];
+                };
+                upsert: {
+                    args: Prisma.ProfessionalProfileUpsertArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalProfilePayload>;
+                };
+                aggregate: {
+                    args: Prisma.ProfessionalProfileAggregateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.AggregateProfessionalProfile>;
+                };
+                groupBy: {
+                    args: Prisma.ProfessionalProfileGroupByArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.ProfessionalProfileGroupByOutputType>[];
+                };
+                count: {
+                    args: Prisma.ProfessionalProfileCountArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.ProfessionalProfileCountAggregateOutputType> | number;
                 };
             };
         };
@@ -808,6 +883,8 @@ export declare const UserScalarFieldEnum: {
     readonly id: "id";
     readonly fullName: "fullName";
     readonly email: "email";
+    readonly phone: "phone";
+    readonly address: "address";
     readonly passwordHash: "passwordHash";
     readonly role: "role";
     readonly createdAt: "createdAt";
@@ -831,6 +908,25 @@ export declare const PatientProfileScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type PatientProfileScalarFieldEnum = (typeof PatientProfileScalarFieldEnum)[keyof typeof PatientProfileScalarFieldEnum];
+export declare const ProfessionalProfileScalarFieldEnum: {
+    readonly id: "id";
+    readonly userId: "userId";
+    readonly licenseNumber: "licenseNumber";
+    readonly specialization: "specialization";
+    readonly pharmacyName: "pharmacyName";
+    readonly labName: "labName";
+    readonly gender: "gender";
+    readonly dateOfBirth: "dateOfBirth";
+    readonly degrees: "degrees";
+    readonly certifications: "certifications";
+    readonly yearsOfExperience: "yearsOfExperience";
+    readonly licenseAuthority: "licenseAuthority";
+    readonly accreditations: "accreditations";
+    readonly availableTests: "availableTests";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type ProfessionalProfileScalarFieldEnum = (typeof ProfessionalProfileScalarFieldEnum)[keyof typeof ProfessionalProfileScalarFieldEnum];
 export declare const AppointmentScalarFieldEnum: {
     readonly id: "id";
     readonly patientId: "patientId";
@@ -940,15 +1036,15 @@ export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
 export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>;
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>;
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>;
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>;
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>;
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>;
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>;
 export type EnumAppointmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AppointmentStatus'>;
 export type ListEnumAppointmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AppointmentStatus[]'>;
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>;
 export type EnumLabOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LabOrderStatus'>;
 export type ListEnumLabOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LabOrderStatus[]'>;
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>;
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>;
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>;
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>;
 export type EnumPrescriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrescriptionStatus'>;
 export type ListEnumPrescriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrescriptionStatus[]'>;
 export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType'>;
@@ -981,6 +1077,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
     user?: Prisma.UserOmit;
     patientProfile?: Prisma.PatientProfileOmit;
+    professionalProfile?: Prisma.ProfessionalProfileOmit;
     appointment?: Prisma.AppointmentOmit;
     labOrder?: Prisma.LabOrderOmit;
     labResult?: Prisma.LabResultOmit;

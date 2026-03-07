@@ -45,7 +45,12 @@ let AppointmentsService = class AppointmentsService {
         if (!doctor || doctor.role !== client_1.Role.DOCTOR) {
             throw new common_1.BadRequestException('doctorId must belong to a doctor');
         }
-        if (!dto.scheduledAt) {
+        const reason = dto.reason?.trim();
+        const preferredTimeNote = dto.preferredTimeNote?.trim();
+        if (preferredTimeNote && !reason) {
+            throw new common_1.BadRequestException('reason is required when preferredTimeNote is provided');
+        }
+        if (!dto.scheduledAt && dto.preferredDateFrom && dto.preferredDateTo) {
             const fromDate = new Date(dto.preferredDateFrom);
             const toDate = new Date(dto.preferredDateTo);
             if (toDate < fromDate) {
@@ -57,10 +62,10 @@ let AppointmentsService = class AppointmentsService {
                 patientId,
                 doctorId: dto.doctorId,
                 scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : null,
-                reason: dto.reason ?? null,
+                reason: reason ?? null,
                 preferredDateFrom: dto.preferredDateFrom ? new Date(dto.preferredDateFrom) : null,
                 preferredDateTo: dto.preferredDateTo ? new Date(dto.preferredDateTo) : null,
-                preferredTimeNote: dto.preferredTimeNote ?? null,
+                preferredTimeNote: preferredTimeNote ?? null,
             },
         });
         await this.auditService.record(patientId, 'APPOINTMENT_CREATED', 'Appointment', appointment.id, {
@@ -68,8 +73,8 @@ let AppointmentsService = class AppointmentsService {
             scheduledAt: dto.scheduledAt ?? null,
             preferredDateFrom: dto.preferredDateFrom ?? null,
             preferredDateTo: dto.preferredDateTo ?? null,
-            preferredTimeNote: dto.preferredTimeNote ?? null,
-            reason: dto.reason ?? null,
+            preferredTimeNote: preferredTimeNote ?? null,
+            reason: reason ?? null,
         });
         return appointment;
     }

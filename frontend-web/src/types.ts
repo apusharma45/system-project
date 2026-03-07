@@ -39,6 +39,7 @@ export type CurrentUser = {
   userId: string
   email: string
   role: Role
+  fullName?: string | null
 }
 
 export type Appointment = {
@@ -158,5 +159,18 @@ export type PatientProfileResponse = {
     appointments: Appointment[]
     labOrders: LabOrder[]
     prescriptions: Prescription[]
+  }
+}
+
+export type MyPatientProfileResponse = {
+  patient: {
+    id: string
+    fullName?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    joinedAt: string
+    profile?: PatientMedicalProfile | null
   }
 }

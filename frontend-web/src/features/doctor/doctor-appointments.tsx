@@ -7,6 +7,7 @@ import type { Appointment, AppointmentStatus } from '../../types'
 import { useDoctorAppointments } from './doctor-shared'
 
 const appointmentActions: Array<{ label: string; action: string; from: AppointmentStatus[] }> = [
+  { label: 'Approve Preferred', action: 'confirm', from: ['REQUESTED'] },
   { label: 'Call', action: 'call', from: ['CONFIRMED'] },
   { label: 'In Visit', action: 'in-visit', from: ['CONFIRMED', 'CALLED'] },
   { label: 'Exam Done', action: 'exam-done', from: ['IN_VISIT'] },
@@ -109,12 +110,16 @@ export function DoctorAppointmentsPage() {
                   <span className={statusClass(appointment.status)}>{appointment.status}</span> #{appointment.id}
                 </p>
                 {appointment.status === 'REQUESTED' ? (
-                  <p className="muted">
-                    Preferred window:{' '}
-                    {appointment.preferredDateFrom && appointment.preferredDateTo
-                      ? `${new Date(appointment.preferredDateFrom).toLocaleString()} - ${new Date(appointment.preferredDateTo).toLocaleString()}`
-                      : 'Not provided'}
-                  </p>
+                  <>
+                    <p className="muted">
+                      Preferred window:{' '}
+                      {appointment.preferredDateFrom && appointment.preferredDateTo
+                        ? `${new Date(appointment.preferredDateFrom).toLocaleString()} - ${new Date(appointment.preferredDateTo).toLocaleString()}`
+                        : 'Not provided'}
+                    </p>
+                    <p className="muted">Preferred time: {appointment.preferredTimeNote ?? 'Not provided'}</p>
+                    <p className="muted">Reason: {appointment.reason ?? 'Not provided'}</p>
+                  </>
                 ) : null}
                 <p className="muted">Patient ID: {appointment.patientId}</p>
                 <p className="muted row-meta">
@@ -145,7 +150,7 @@ export function DoctorAppointmentsPage() {
                         })
                       }
                     >
-                      Schedule
+                      Assign New Time
                     </button>
                   </>
                 ) : null}
