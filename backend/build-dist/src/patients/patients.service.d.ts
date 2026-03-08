@@ -18,8 +18,8 @@ export declare class PatientsService {
                 address: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                dateOfBirth: Date | null;
                 gender: string | null;
+                dateOfBirth: Date | null;
                 allergies: string | null;
                 chronicConditions: string | null;
                 currentMedications: string | null;
@@ -45,8 +45,8 @@ export declare class PatientsService {
                 address: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                dateOfBirth: Date | null;
                 gender: string | null;
+                dateOfBirth: Date | null;
                 allergies: string | null;
                 chronicConditions: string | null;
                 currentMedications: string | null;
@@ -69,8 +69,8 @@ export declare class PatientsService {
                 address: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                dateOfBirth: Date | null;
                 gender: string | null;
+                dateOfBirth: Date | null;
                 allergies: string | null;
                 chronicConditions: string | null;
                 currentMedications: string | null;

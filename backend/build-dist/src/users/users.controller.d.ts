@@ -8,20 +8,20 @@ export declare class UsersController {
     }): unknown;
     listDoctors(): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
         id: string;
-        email: string;
         fullName: string | null;
+        email: string;
         role: Role;
     }[]>;
     listPharmacies(): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
         id: string;
-        email: string;
         fullName: string | null;
+        email: string;
         role: Role;
     }[]>;
     listDiagnostics(): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
         id: string;
-        email: string;
         fullName: string | null;
+        email: string;
         role: Role;
     }[]>;
 }

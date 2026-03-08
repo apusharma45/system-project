@@ -6,8 +6,8 @@ export declare class UsersService {
     private static readonly REGISTER_SELECT;
     findByEmail(email: string): import("../../generated/prisma/models").Prisma__UserClient<{
         id: string;
-        email: string;
         fullName: string | null;
+        email: string;
         phone: string | null;
         address: string | null;
         passwordHash: string;
@@ -19,8 +19,8 @@ export declare class UsersService {
     }>;
     findById(id: string): import("../../generated/prisma/models").Prisma__UserClient<{
         id: string;
-        email: string;
         fullName: string | null;
+        email: string;
         phone: string | null;
         address: string | null;
         passwordHash: string;
@@ -70,8 +70,8 @@ export declare class UsersService {
     }>;
     listByRole(role: Role): import("../../generated/prisma/internal/prismaNamespace").PrismaPromise<{
         id: string;
-        email: string;
         fullName: string | null;
+        email: string;
         role: Role;
     }[]>;
 }

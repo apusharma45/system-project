@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppLayout } from '../../app/layout'
+import { DoctorAppointmentDetailsPage } from './doctor-appointment-details'
 import { DoctorAppointmentsPage } from './doctor-appointments'
 import { DoctorHome } from './doctor-home'
 import { DoctorLabOrdersPage } from './doctor-lab-orders'
@@ -12,6 +13,7 @@ import { DoctorPatientsPage } from './doctor-patients'
 import { DoctorPrescriptionsPage } from './doctor-prescriptions'
 
 const patchMock = vi.fn()
+const postMock = vi.fn()
 
 const authState = {
   user: { role: 'DOCTOR' as const },
@@ -36,6 +38,7 @@ const doctorData = {
       reason: 'Fever follow-up',
       requiresLab: true,
       labFlowLocked: false,
+      patientSnapshot: { id: 'patient-1', fullName: 'Alice Smith', email: 'alice@example.com' },
     },
     {
       id: 'apt-2',
@@ -45,6 +48,7 @@ const doctorData = {
       scheduledAt: '2026-02-27T09:00:00.000Z',
       requiresLab: false,
       labFlowLocked: false,
+      patientSnapshot: { id: 'patient-2', fullName: 'John Doe', email: 'john@example.com' },
     },
   ],
   prescriptions: [
@@ -96,6 +100,7 @@ vi.mock('../auth/auth-context', () => ({
 vi.mock('../../lib/api', () => ({
   api: {
     patch: (...args: unknown[]) => patchMock(...args),
+    post: (...args: unknown[]) => postMock(...args),
   },
   getApiErrorMessage: () => 'api-error',
 }))
@@ -124,6 +129,7 @@ function renderDoctorRoute(path: string, element: ReactNode) {
           <Route element={<AppLayout />}>
             <Route path="/doctor" element={<DoctorHome />} />
             <Route path="/doctor/appointments" element={<DoctorAppointmentsPage />} />
+            <Route path="/doctor/appointments/:appointmentId" element={<DoctorAppointmentDetailsPage />} />
             <Route path="/doctor/patients" element={<DoctorPatientsPage />} />
             <Route path="/doctor/prescriptions" element={<DoctorPrescriptionsPage />} />
             <Route path="/doctor/lab-orders" element={<DoctorLabOrdersPage />} />
@@ -139,7 +145,9 @@ function renderDoctorRoute(path: string, element: ReactNode) {
 describe('doctor UI regression', () => {
   beforeEach(() => {
     patchMock.mockReset()
+    postMock.mockReset()
     patchMock.mockResolvedValue({ data: {} })
+    postMock.mockResolvedValue({ data: {} })
   })
 
   it('renders doctor navigation labels in app layout', () => {
@@ -166,6 +174,7 @@ describe('doctor UI regression', () => {
 
   it.each([
     ['/doctor/appointments', 'Appointments'],
+    ['/doctor/appointments/apt-1', 'Appointment Details'],
     ['/doctor/patients', 'Patients'],
     ['/doctor/prescriptions', 'Prescriptions'],
     ['/doctor/lab-orders', 'Lab Orders'],
@@ -175,24 +184,44 @@ describe('doctor UI regression', () => {
     expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument()
   })
 
-  it('request cards show preferred time and reason; approve preferred hits confirm endpoint', async () => {
+  it('appointments list is patient-centric and links to details page', () => {
     renderDoctorRoute('/doctor/appointments', <div />)
 
-    expect(screen.getByText(/Preferred time: Evening/i)).toBeInTheDocument()
-    expect(screen.getByText(/Reason: Fever follow-up/i)).toBeInTheDocument()
+    expect(screen.getByText('Alice Smith')).toBeInTheDocument()
+    expect(screen.getByText('alice@example.com')).toBeInTheDocument()
+    expect(screen.queryByText('Patient ID: patient-1')).not.toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Search by patient name')).toBeInTheDocument()
+    const links = screen.getAllByRole('link', { name: 'View Details' })
+    expect(links[0]).toHaveAttribute('href', '/doctor/appointments/apt-1')
+  })
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Approve Preferred' })[0])
+  it('appointments search by patient name works with status filter', () => {
+    renderDoctorRoute('/doctor/appointments', <div />)
+
+    fireEvent.change(screen.getByPlaceholderText('Search by patient name'), {
+      target: { value: 'john' },
+    })
+    fireEvent.change(screen.getByDisplayValue('All Status'), {
+      target: { value: 'EXAM_DONE' },
+    })
+
+    expect(screen.getByText('John Doe')).toBeInTheDocument()
+    expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument()
+  })
+
+  it('appointment details workflow actions hit appointment endpoints', async () => {
+    renderDoctorRoute('/doctor/appointments/apt-1', <div />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Approve Preferred' }))
+
     await waitFor(() => {
       expect(patchMock).toHaveBeenCalledWith('/appointments/apt-1/confirm')
     })
-  })
 
-  it('assign new time hits schedule endpoint', async () => {
-    renderDoctorRoute('/doctor/appointments', <div />)
-
-    const requestItem = screen.getByText(/Reason: Fever follow-up/i).closest('li') as HTMLElement
-    const datetimeInput = within(requestItem).getByDisplayValue('') as HTMLInputElement
-    fireEvent.change(datetimeInput, { target: { value: '2026-03-01T10:30' } })
+    fireEvent.change(screen.getByLabelText('Assign New Time'), {
+      target: { value: '2026-03-01T10:30' },
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Assign New Time' }))
 
     await waitFor(() => {
@@ -202,10 +231,82 @@ describe('doctor UI regression', () => {
     })
   })
 
+  it('appointment details shows preferred context and lab state', () => {
+    renderDoctorRoute('/doctor/appointments/apt-1', <div />)
+
+    expect(screen.getByText('Preferred time: Evening')).toBeInTheDocument()
+    expect(screen.getByText('Reason: Fever follow-up')).toBeInTheDocument()
+    expect(screen.getByText('Requires lab: true')).toBeInTheDocument()
+  })
+
+  it('appointment details supports prescription create action', async () => {
+    renderDoctorRoute('/doctor/appointments/apt-1', <div />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Prescription' }))
+    expect(screen.getByText('Upload / Suggest')).toBeInTheDocument()
+    expect(screen.getByText('Given Prescriptions')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Create / Suggest / Upload' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'View Given Prescriptions' })).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Pharmacy'), { target: { value: 'pharmacy-1' } })
+    fireEvent.change(screen.getByLabelText(/^Notes$/), { target: { value: 'Take once daily' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Create Prescription' }))
+
+    await waitFor(() => {
+      expect(postMock).toHaveBeenCalledWith('/prescriptions', {
+        appointmentId: 'apt-1',
+        pharmacyId: 'pharmacy-1',
+        notes: 'Take once daily',
+        diagnosis: undefined,
+        instructions: undefined,
+      })
+    })
+  })
+
+  it('appointment details supports lab create action', async () => {
+    renderDoctorRoute('/doctor/appointments/apt-2', <div />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lab' }))
+    expect(screen.getByRole('button', { name: 'Create Lab Order' })).toBeInTheDocument()
+    expect(screen.getByText('No lab order exists for this appointment.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'View Lab Orders' })).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Diagnostic'), { target: { value: 'diag-1' } })
+    fireEvent.change(screen.getByLabelText('Requested Tests (one per line)'), {
+      target: { value: 'CBC\nESR' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Create Lab Order' }))
+
+    await waitFor(() => {
+      expect(postMock).toHaveBeenCalledWith('/labs/orders', {
+        appointmentId: 'apt-2',
+        diagnosticId: 'diag-1',
+        tests: [
+          { title: 'CBC', description: 'CBC' },
+          { title: 'ESR', description: 'ESR' },
+        ],
+      })
+    })
+  })
+
+  it('appointment details prescription and lab view panes are appointment-scoped', () => {
+    renderDoctorRoute('/doctor/appointments/apt-2', <div />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Prescription' }))
+    expect(screen.getByText('Given Prescriptions')).toBeInTheDocument()
+    expect(screen.getByText('Prescription Ref: rx-1')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'View Given Prescriptions' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lab' }))
+    expect(screen.getByText('No lab order exists for this appointment.')).toBeInTheDocument()
+    expect(screen.getByText('No lab order exists for this appointment.')).toBeInTheDocument()
+    expect(screen.queryByText('Lab Order ID: lab-1')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'View Lab Orders' })).not.toBeInTheDocument()
+  })
+
   it('lab orders page shows requested tests and readable patient identity', () => {
     renderDoctorRoute('/doctor/lab-orders', <div />)
     expect(screen.getByText('Tests: Test 1: Test 1')).toBeInTheDocument()
-    expect(screen.getByText('Patient: Alice Smith (alice@example.com) • #apt-1')).toBeInTheDocument()
+    expect(screen.getByText((text) => text.includes('Patient: Alice Smith (alice@example.com)'))).toBeInTheDocument()
+    expect(screen.getByText((text) => text.includes('#apt-1'))).toBeInTheDocument()
   })
 
   it('prescriptions page is upload-only and shows patient-readable label', () => {
@@ -219,3 +320,6 @@ describe('doctor UI regression', () => {
     expect(screen.getByRole('button', { name: 'Upload Document' })).toBeInTheDocument()
   })
 })
+
+
+
