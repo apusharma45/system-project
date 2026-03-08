@@ -53,12 +53,6 @@ let LabsService = class LabsService {
         if (!diagnostic || diagnostic.role !== client_1.Role.DIAGNOSTIC) {
             throw new common_1.BadRequestException('diagnosticId must belong to a diagnostic user');
         }
-        const existing = await db.labOrder.findUnique({
-            where: { appointmentId: dto.appointmentId },
-        });
-        if (existing) {
-            throw new common_1.BadRequestException('Lab order already exists for this appointment');
-        }
         await db.appointment.update({
             where: { id: dto.appointmentId },
             data: { requiresLab: true, labFlowLocked: true },
@@ -116,9 +110,16 @@ let LabsService = class LabsService {
                 fileSizeBytes: dto.fileSizeBytes ?? null,
             },
         });
+        const pendingOrder = await db.labOrder.findFirst({
+            where: {
+                appointmentId: order.appointmentId,
+                labResult: { is: null },
+            },
+            select: { id: true },
+        });
         await db.appointment.update({
             where: { id: order.appointmentId },
-            data: { labFlowLocked: false },
+            data: { labFlowLocked: Boolean(pendingOrder) },
         });
         const appointment = await this.prisma.appointment.findUnique({
             where: { id: order.appointmentId },

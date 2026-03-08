@@ -30,7 +30,7 @@ export function AppLayout() {
   }).format(new Date())
   const userLabel =
     user?.role === 'DOCTOR'
-      ? 'Dr. User'
+      ? user?.fullName?.trim() || user?.email || 'Doctor User'
       : user?.role === 'PHARMACY'
         ? 'Pharmacy User'
         : user?.role === 'DIAGNOSTIC'
@@ -64,6 +64,7 @@ export function AppLayout() {
         { label: 'Prescriptions', to: '/doctor/prescriptions', icon: FileText },
         { label: 'Lab Orders', to: '/doctor/lab-orders', icon: FlaskConical },
         { label: 'Notifications', to: '/doctor/notifications', icon: Bell, badge: unreadNotifications },
+        { label: 'Profile', to: '/doctor/profile', icon: User },
       ]
     }
     if (user.role === 'PHARMACY') {
@@ -119,6 +120,16 @@ export function AppLayout() {
           <div className="profile">
             {user?.role === 'PATIENT' ? (
               <Link to="/patient/profile" className="profile-card" aria-label="Open profile">
+                <div className="avatar">
+                  <span>{initials}</span>
+                </div>
+                <div>
+                  <strong>{userLabel}</strong>
+                  <p>{userSubtitle}</p>
+                </div>
+              </Link>
+            ) : user?.role === 'DOCTOR' ? (
+              <Link to="/doctor/profile" className="profile-card" aria-label="Open profile">
                 <div className="avatar">
                   <span>{initials}</span>
                 </div>

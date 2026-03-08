@@ -23,7 +23,9 @@ describe('LabsService', () => {
     },
     labOrder: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
+      count: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -72,7 +74,6 @@ describe('LabsService', () => {
       id: 'diag1',
       role: Role.DIAGNOSTIC,
     });
-    prismaMock.labOrder.findUnique.mockResolvedValueOnce(null);
     prismaMock.labOrder.create.mockResolvedValueOnce({
       id: 'o1',
       appointmentId: 'a1',
@@ -141,7 +142,7 @@ describe('LabsService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('createOrder rejects duplicate lab order for appointment', async () => {
+  it('createOrder allows multiple lab orders for the same appointment', async () => {
     prismaMock.appointment.findUnique.mockResolvedValueOnce({
       id: 'a1',
       doctorId: 'd1',
@@ -151,14 +152,27 @@ describe('LabsService', () => {
       id: 'diag1',
       role: Role.DIAGNOSTIC,
     });
-    prismaMock.labOrder.findUnique.mockResolvedValueOnce({
-      id: 'existing',
+    prismaMock.labOrder.create.mockResolvedValueOnce({
+      id: 'o2',
       appointmentId: 'a1',
+      diagnosticId: 'diag1',
+      status: 'CREATED',
     });
 
-    await expect(
-      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1', tests: sampleTests }),
-    ).rejects.toBeInstanceOf(BadRequestException);
+    const result = await service.createOrder('d1', {
+      appointmentId: 'a1',
+      diagnosticId: 'diag1',
+      tests: sampleTests,
+    });
+
+    expect(result.id).toBe('o2');
+    expect(prismaMock.labOrder.create).toHaveBeenCalledWith({
+      data: {
+        appointmentId: 'a1',
+        diagnosticId: 'diag1',
+        tests: sampleTests,
+      },
+    });
   });
 
   it('assignOrder enforces CREATED -> ASSIGNED', async () => {
@@ -211,6 +225,7 @@ describe('LabsService', () => {
       labOrderId: 'o1',
       fileUrl: 'https://file.test/result.pdf',
     });
+    prismaMock.labOrder.findFirst.mockResolvedValueOnce(null);
 
     const result = await service.uploadResult('diag1', 'o1', {
       fileUrl: 'https://file.test/result.pdf',
@@ -223,6 +238,40 @@ describe('LabsService', () => {
     expect(notificationsMock.createAndEmit).toHaveBeenCalledTimes(2);
     expect(auditMock.record).toHaveBeenCalled();
     expect(result.labOrderId).toBe('o1');
+  });
+
+  it('uploadResult keeps appointment locked when other lab orders are pending', async () => {
+    prismaMock.labOrder.findUnique.mockResolvedValueOnce({
+      id: 'o1',
+      appointmentId: 'a1',
+      diagnosticId: 'diag1',
+      status: 'SAMPLE_COLLECTED',
+    });
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      id: 'a1',
+      doctorId: 'doc1',
+      patientId: 'pat1',
+    });
+    prismaMock.labResult.findUnique.mockResolvedValueOnce(null);
+    prismaMock.labOrder.update.mockResolvedValueOnce({
+      id: 'o1',
+      status: 'RESULT_UPLOADED',
+    });
+    prismaMock.labResult.create.mockResolvedValueOnce({
+      id: 'r1',
+      labOrderId: 'o1',
+      fileUrl: 'https://file.test/result.pdf',
+    });
+    prismaMock.labOrder.findFirst.mockResolvedValueOnce({ id: 'o2' });
+
+    await service.uploadResult('diag1', 'o1', {
+      fileUrl: 'https://file.test/result.pdf',
+    });
+
+    expect(prismaMock.appointment.update).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      data: { labFlowLocked: true },
+    });
   });
 
   it('uploadResult rejects duplicate result upload', async () => {

@@ -497,40 +497,36 @@ export function DoctorAppointmentDetailsPage() {
           <div className="grid two-col">
             <div className="stack">
               <h4>Create Lab Order</h4>
-              {appointmentLabOrder ? (
-                <div className="stack">
-                  <p className="muted">Lab order already exists for this appointment.</p>
-                  <p>Lab Order ID: {appointmentLabOrder.id}</p>
-                  <p>Status: {appointmentLabOrder.status}</p>
-                </div>
-              ) : (
-                <form onSubmit={onCreateLabOrder} className="stack">
-                  <p className="muted">No lab order exists for this appointment yet.</p>
-                  <label htmlFor="diagnosticId">Diagnostic</label>
-                  <select
-                    id="diagnosticId"
-                    value={selectedDiagnosticId}
-                    onChange={(e) => setSelectedDiagnosticId(e.target.value)}
-                  >
-                    <option value="">Select diagnostic</option>
-                    {(diagnosticsQuery.data ?? []).map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.fullName ? `${item.fullName} (${item.email})` : item.email}
-                      </option>
-                    ))}
-                  </select>
-                  <label htmlFor="labTests">Requested Tests (one per line)</label>
-                  <textarea
-                    id="labTests"
-                    rows={5}
-                    value={labTestsText}
-                    onChange={(e) => setLabTestsText(e.target.value)}
-                  />
-                  <button type="submit" disabled={createLabOrderMutation.isPending}>
-                    Create Lab Order
-                  </button>
-                </form>
-              )}
+              <form onSubmit={onCreateLabOrder} className="stack">
+                <p className="muted">
+                  {appointmentLabOrder
+                    ? 'Additional lab orders are allowed for this appointment.'
+                    : 'No lab order exists for this appointment yet.'}
+                </p>
+                <label htmlFor="diagnosticId">Diagnostic</label>
+                <select
+                  id="diagnosticId"
+                  value={selectedDiagnosticId}
+                  onChange={(e) => setSelectedDiagnosticId(e.target.value)}
+                >
+                  <option value="">Select diagnostic</option>
+                  {(diagnosticsQuery.data ?? []).map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.fullName ? `${item.fullName} (${item.email})` : item.email}
+                    </option>
+                  ))}
+                </select>
+                <label htmlFor="labTests">Requested Tests (one per line)</label>
+                <textarea
+                  id="labTests"
+                  rows={5}
+                  value={labTestsText}
+                  onChange={(e) => setLabTestsText(e.target.value)}
+                />
+                <button type="submit" disabled={createLabOrderMutation.isPending}>
+                  Create Lab Order
+                </button>
+              </form>
             </div>
 
             <div className="stack">

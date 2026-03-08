@@ -136,7 +136,7 @@ model Appointment {
   labFlowLocked Boolean         @default(false)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  labOrder    LabOrder?
+  labOrders   LabOrder[]
   prescription Prescription?
 
   @@index([patientId])
@@ -149,7 +149,7 @@ model Appointment {
 model LabOrder {
   id String @id @default(uuid())
 
-  appointmentId String      @unique
+  appointmentId String
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
 
   diagnosticId String
@@ -163,6 +163,7 @@ model LabOrder {
   labResult LabResult?
 
   @@index([diagnosticId])
+  @@index([appointmentId])
 }
 
 model LabResult {
