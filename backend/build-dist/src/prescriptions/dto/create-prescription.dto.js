@@ -10,11 +10,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreatePrescriptionDto = void 0;
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+const prescription_medication_dto_1 = require("./prescription-medication.dto");
 class CreatePrescriptionDto {
     appointmentId;
     pharmacyId;
     notes;
+    diagnosis;
+    instructions;
+    medications;
 }
 exports.CreatePrescriptionDto = CreatePrescriptionDto;
 __decorate([
@@ -30,4 +35,21 @@ __decorate([
     (0, class_validator_1.MinLength)(1),
     __metadata("design:type", String)
 ], CreatePrescriptionDto.prototype, "notes", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreatePrescriptionDto.prototype, "diagnosis", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreatePrescriptionDto.prototype, "instructions", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => prescription_medication_dto_1.PrescriptionMedicationDto),
+    __metadata("design:type", Array)
+], CreatePrescriptionDto.prototype, "medications", void 0);
 //# sourceMappingURL=create-prescription.dto.js.map

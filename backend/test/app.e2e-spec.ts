@@ -13,6 +13,7 @@ describe('AppController (e2e)', () => {
   const PATIENT_ID = '22222222-2222-4222-8222-222222222222';
   const DIAGNOSTIC_ID = '33333333-3333-4333-8333-333333333333';
   const PHARMACY_ID = '55555555-5555-4555-8555-555555555555';
+  const ADMIN_ID = '66666666-6666-4666-8666-666666666666';
   const jwtService = new JwtService({ secret: process.env.JWT_SECRET || 'test-secret' });
   const authServiceMock = {
     register: jest.fn().mockResolvedValue({ access_token: 'register-token' }),
@@ -25,6 +26,27 @@ describe('AppController (e2e)', () => {
     const labOrders = new Map<string, any>();
     const labResults = new Map<string, any>();
     const prescriptions = new Map<string, any>();
+    const notifications = new Map<string, any>();
+    const auditLogs = new Map<string, any>();
+    const patientRecord = {
+      id: PATIENT_ID,
+      fullName: 'Patient Demo',
+      email: 'patient@example.com',
+      role: 'PATIENT',
+      phone: '+8801700000002',
+      address: 'Dhaka',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      patientProfile: {
+        gender: 'MALE',
+        dateOfBirth: new Date('1990-01-01T00:00:00.000Z'),
+        allergies: null,
+        chronicConditions: null,
+        currentMedications: null,
+        emergencyContactName: null,
+        emergencyContactPhone: null,
+        emergencyContactRelation: null,
+      },
+    };
     const prismaMock = {
       $connect: jest.fn(),
       $disconnect: jest.fn(),
@@ -32,18 +54,90 @@ describe('AppController (e2e)', () => {
       user: {
         findUnique: jest.fn(({ where }: { where: { id: string } }) => {
           if (where.id === DOCTOR_ID) {
-            return Promise.resolve({ id: DOCTOR_ID, role: 'DOCTOR' });
+            return Promise.resolve({
+              id: DOCTOR_ID,
+              fullName: 'Dr. Demo',
+              email: 'doctor@example.com',
+              role: 'DOCTOR',
+              phone: '+8801700000001',
+              address: 'Dhaka',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              patientProfile: null,
+            });
           }
           if (where.id === PATIENT_ID) {
-            return Promise.resolve({ id: PATIENT_ID, role: 'PATIENT' });
+            return Promise.resolve(patientRecord);
           }
           if (where.id === DIAGNOSTIC_ID) {
-            return Promise.resolve({ id: DIAGNOSTIC_ID, role: 'DIAGNOSTIC' });
+            return Promise.resolve({
+              id: DIAGNOSTIC_ID,
+              fullName: 'Diagnostic Demo',
+              email: 'diagnostic@example.com',
+              role: 'DIAGNOSTIC',
+              phone: '+8801700000003',
+              address: 'Dhaka',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              patientProfile: null,
+            });
           }
           if (where.id === PHARMACY_ID) {
-            return Promise.resolve({ id: PHARMACY_ID, role: 'PHARMACY' });
+            return Promise.resolve({
+              id: PHARMACY_ID,
+              fullName: 'Pharmacy Demo',
+              email: 'pharmacy@example.com',
+              role: 'PHARMACY',
+              phone: '+8801700000004',
+              address: 'Dhaka',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              patientProfile: null,
+            });
+          }
+          if (where.id === ADMIN_ID) {
+            return Promise.resolve({
+              id: ADMIN_ID,
+              fullName: 'Admin Demo',
+              email: 'admin@example.com',
+              role: 'ADMIN',
+              phone: '+8801700000005',
+              address: 'Dhaka',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              patientProfile: null,
+            });
           }
           return Promise.resolve(null);
+        }),
+        update: jest.fn(({ where, data }: any) => {
+          if (where.id !== PATIENT_ID) {
+            return Promise.resolve(null);
+          }
+          const next = {
+            ...patientRecord,
+            ...data,
+            patientProfile: data.patientProfile?.upsert?.update
+              ? {
+                  ...patientRecord.patientProfile,
+                  ...data.patientProfile.upsert.update,
+                }
+              : patientRecord.patientProfile,
+          };
+          Object.assign(patientRecord, next);
+          return Promise.resolve(patientRecord);
+        }),
+        findMany: jest.fn(({ where }: { where: { role: string } }) => {
+          if (where.role === 'DOCTOR') {
+            return Promise.resolve([{ id: DOCTOR_ID, email: 'doctor@example.com', role: 'DOCTOR' }]);
+          }
+          if (where.role === 'PHARMACY') {
+            return Promise.resolve([
+              { id: PHARMACY_ID, email: 'pharmacy@example.com', role: 'PHARMACY' },
+            ]);
+          }
+          if (where.role === 'DIAGNOSTIC') {
+            return Promise.resolve([
+              { id: DIAGNOSTIC_ID, email: 'diagnostic@example.com', role: 'DIAGNOSTIC' },
+            ]);
+          }
+          return Promise.resolve([]);
         }),
       },
       appointment: {
@@ -129,6 +223,7 @@ describe('AppController (e2e)', () => {
             id: randomUUID(),
             appointmentId: data.appointmentId,
             diagnosticId: data.diagnosticId,
+            tests: data.tests ?? null,
             status: 'CREATED',
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -241,6 +336,97 @@ describe('AppController (e2e)', () => {
           return Promise.resolve(next);
         }),
       },
+      notification: {
+        create: jest.fn(({ data }: any) => {
+          const item = {
+            id: randomUUID(),
+            userId: data.userId,
+            type: data.type,
+            message: data.message,
+            read: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          notifications.set(item.id, item);
+          return Promise.resolve(item);
+        }),
+        findMany: jest.fn(({ where }: any) => {
+          const list = [...notifications.values()]
+            .filter((n) => n.userId === where.userId)
+            .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+          return Promise.resolve(list);
+        }),
+        findUnique: jest.fn(({ where }: any) => {
+          return Promise.resolve(notifications.get(where.id) ?? null);
+        }),
+        update: jest.fn(({ where, data }: any) => {
+          const existing = notifications.get(where.id);
+          const next = {
+            ...existing,
+            ...data,
+            updatedAt: new Date(),
+          };
+          notifications.set(where.id, next);
+          return Promise.resolve(next);
+        }),
+        updateMany: jest.fn(({ where, data }: any) => {
+          let count = 0;
+          for (const [id, item] of notifications.entries()) {
+            if (item.userId !== where.userId) {
+              continue;
+            }
+            if (where.read !== undefined && item.read !== where.read) {
+              continue;
+            }
+            notifications.set(id, {
+              ...item,
+              ...data,
+              updatedAt: new Date(),
+            });
+            count += 1;
+          }
+          return Promise.resolve({ count });
+        }),
+      },
+      auditLog: {
+        create: jest.fn(({ data }: any) => {
+          const item = {
+            id: randomUUID(),
+            actorUserId: data.actorUserId ?? null,
+            action: data.action,
+            entityType: data.entityType,
+            entityId: data.entityId,
+            metadata: data.metadata ?? null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          auditLogs.set(item.id, item);
+          return Promise.resolve(item);
+        }),
+        findMany: jest.fn(({ where, take }: any) => {
+          let list = [...auditLogs.values()];
+          if (where?.actorUserId !== undefined) {
+            list = list.filter((i) => i.actorUserId === where.actorUserId);
+          }
+          if (where?.entityType) {
+            list = list.filter((i) => i.entityType === where.entityType);
+          }
+          if (where?.entityId) {
+            list = list.filter((i) => i.entityId === where.entityId);
+          }
+          if (where?.createdAt?.gte) {
+            list = list.filter((i) => i.createdAt >= where.createdAt.gte);
+          }
+          if (where?.createdAt?.lte) {
+            list = list.filter((i) => i.createdAt <= where.createdAt.lte);
+          }
+          list = list.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+          if (typeof take === 'number') {
+            list = list.slice(0, take);
+          }
+          return Promise.resolve(list);
+        }),
+      },
     };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -253,6 +439,11 @@ describe('AppController (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
+    const frontendOrigin = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+    app.enableCors({
+      origin: frontendOrigin.split(',').map((item) => item.trim()),
+      credentials: true,
+    });
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -276,13 +467,29 @@ describe('AppController (e2e)', () => {
     });
   });
 
+  it('CORS allows configured frontend origin', async () => {
+    await request(app.getHttpServer())
+      .get('/health/db')
+      .set('Origin', 'http://localhost:5173')
+      .expect(200)
+      .expect('access-control-allow-origin', 'http://localhost:5173')
+      .expect('access-control-allow-credentials', 'true');
+  });
+
   it('/auth/register (POST)', async () => {
     await request(app.getHttpServer())
       .post('/auth/register')
       .send({
+        fullName: 'Patient One',
         email: 'patient@example.com',
         password: 'secret123',
+        phone: '+8801700000000',
+        address: 'Dhaka',
         role: 'PATIENT',
+        patientProfile: {
+          gender: 'MALE',
+          dateOfBirth: '1990-01-01',
+        },
       })
       .expect(201)
       .expect({ access_token: 'register-token' });
@@ -303,9 +510,16 @@ describe('AppController (e2e)', () => {
     await request(app.getHttpServer())
       .post('/auth/register')
       .send({
+        fullName: 'Patient One',
         email: 'patient@example.com',
         password: 'secret123',
+        phone: '+8801700000000',
+        address: 'Dhaka',
         role: 'UNKNOWN',
+        patientProfile: {
+          gender: 'MALE',
+          dateOfBirth: '1990-01-01',
+        },
       })
       .expect(400);
   });
@@ -339,10 +553,11 @@ describe('AppController (e2e)', () => {
         userId: DOCTOR_ID,
         email: 'doctor@example.com',
         role: 'DOCTOR',
+        fullName: 'Dr. Demo',
       });
   });
 
-  it('/users/me (GET) rejects patient role', async () => {
+  it('/users/me (GET) allows patient token', async () => {
     const token = await jwtService.signAsync({
       sub: PATIENT_ID,
       email: 'patient@example.com',
@@ -352,7 +567,117 @@ describe('AppController (e2e)', () => {
     await request(app.getHttpServer())
       .get('/users/me')
       .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect({
+        userId: PATIENT_ID,
+        email: 'patient@example.com',
+        role: 'PATIENT',
+        fullName: 'Patient Demo',
+      });
+  });
+
+  it('/users/doctors (GET) allows patient role', async () => {
+    const token = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    await request(app.getHttpServer())
+      .get('/users/doctors')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect([{ id: DOCTOR_ID, email: 'doctor@example.com', role: 'DOCTOR' }]);
+  });
+
+  it('/patients/me/profile (GET) returns patient profile for patient token', async () => {
+    const token = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    await request(app.getHttpServer())
+      .get('/patients/me/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.patient.id).toBe(PATIENT_ID);
+        expect(res.body.patient.fullName).toBe('Patient Demo');
+        expect(res.body.patient.email).toBe('patient@example.com');
+        expect(res.body.patient.profile.gender).toBe('MALE');
+      });
+  });
+
+  it('/patients/me/profile (PATCH) updates allowed fields and blocks restricted fields', async () => {
+    const token = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    await request(app.getHttpServer())
+      .patch('/patients/me/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        fullName: 'Updated Patient',
+        phone: '+8801700009999',
+        allergies: 'Dust',
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.patient.fullName).toBe('Updated Patient');
+      });
+
+    await request(app.getHttpServer())
+      .patch('/patients/me/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: 'hacker@example.com',
+      })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .patch('/patients/me/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        dateOfBirth: '2000-01-01',
+        gender: 'OTHER',
+      })
+      .expect(400);
+  });
+
+  it('/users/doctors (GET) rejects diagnostic role', async () => {
+    const token = await jwtService.signAsync({
+      sub: DIAGNOSTIC_ID,
+      email: 'diagnostic@example.com',
+      role: 'DIAGNOSTIC',
+    });
+
+    await request(app.getHttpServer())
+      .get('/users/doctors')
+      .set('Authorization', `Bearer ${token}`)
       .expect(403);
+  });
+
+  it('/users/pharmacies and /users/diagnostics (GET) allow doctor role', async () => {
+    const token = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+
+    await request(app.getHttpServer())
+      .get('/users/pharmacies')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect([{ id: PHARMACY_ID, email: 'pharmacy@example.com', role: 'PHARMACY' }]);
+
+    await request(app.getHttpServer())
+      .get('/users/diagnostics')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect([{ id: DIAGNOSTIC_ID, email: 'diagnostic@example.com', role: 'DIAGNOSTIC' }]);
   });
 
   it('appointment flow reaches CLOSED through valid transitions', async () => {
@@ -441,6 +766,33 @@ describe('AppController (e2e)', () => {
       .patch(`/appointments/${create.body.id}/exam-done`)
       .set('Authorization', `Bearer ${doctorToken}`)
       .expect(400);
+  });
+
+  it('enforces reason when preferred time note is provided', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        preferredTimeNote: 'Evening preferred',
+      })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        preferredTimeNote: 'Evening preferred',
+        reason: 'Follow-up visit',
+      })
+      .expect(201);
   });
 
   it('rejects patient calling doctor-only endpoint', async () => {
@@ -632,6 +984,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -703,6 +1056,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(403);
 
@@ -712,6 +1066,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -784,6 +1139,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -947,6 +1303,7 @@ describe('AppController (e2e)', () => {
       .send({
         appointmentId,
         diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
       })
       .expect(201);
 
@@ -1075,5 +1432,474 @@ describe('AppController (e2e)', () => {
       .patch(`/prescriptions/${prescription.body.id}/send-patient`)
       .set('Authorization', `Bearer ${pharmacyToken}`)
       .expect(403);
+  });
+
+  it('appointment call creates persistent patient notification', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${create.body.id}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${create.body.id}/call`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get('/notifications/me')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toHaveLength(1);
+        expect(res.body[0].type).toBe('APPOINTMENT_CALLED');
+      });
+  });
+
+  it('lab result upload creates notifications for doctor and patient', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const diagnosticToken = await jwtService.signAsync({
+      sub: DIAGNOSTIC_ID,
+      email: 'diagnostic@example.com',
+      role: 'DIAGNOSTIC',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+    const appointmentId = create.body.id;
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/in-visit`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/exam-done`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    const order = await request(app.getHttpServer())
+      .post('/labs/orders')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/assign`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/sample-collected`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/result-uploaded`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .send({ fileUrl: 'https://files.test/result.pdf' })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get('/notifications/me')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.some((n: any) => n.type === 'LAB_RESULT_UPLOADED')).toBe(true);
+      });
+
+    await request(app.getHttpServer())
+      .get('/notifications/me')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.some((n: any) => n.type === 'LAB_RESULT_UPLOADED')).toBe(true);
+      });
+  });
+
+  it('prescription send creates notifications for patient and pharmacy', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const pharmacyToken = await jwtService.signAsync({
+      sub: PHARMACY_ID,
+      email: 'pharmacy@example.com',
+      role: 'PHARMACY',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+    const appointmentId = create.body.id;
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/in-visit`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/exam-done`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    const prescription = await request(app.getHttpServer())
+      .post('/prescriptions')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        pharmacyId: PHARMACY_ID,
+        notes: 'Take once daily',
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/prescriptions/${prescription.body.id}/sign`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/prescriptions/${prescription.body.id}/send-patient`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/prescriptions/${prescription.body.id}/send-pharmacy`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get('/notifications/me')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.some((n: any) => n.type === 'PRESCRIPTION_READY')).toBe(true);
+      });
+    await request(app.getHttpServer())
+      .get('/notifications/me')
+      .set('Authorization', `Bearer ${pharmacyToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.some((n: any) => n.type === 'PRESCRIPTION_READY')).toBe(true);
+      });
+  });
+
+  it('notification read endpoints enforce ownership and update read state', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${create.body.id}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${create.body.id}/call`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    const list = await request(app.getHttpServer())
+      .get('/notifications/me')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .expect(200);
+    const notificationId = list.body[0].id;
+
+    await request(app.getHttpServer())
+      .patch(`/notifications/${notificationId}/read`)
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({ read: true })
+      .expect(200)
+      .expect((res) => expect(res.body.read).toBe(true));
+
+    await request(app.getHttpServer())
+      .patch(`/notifications/${notificationId}/read`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({ read: true })
+      .expect(403);
+
+    await request(app.getHttpServer())
+      .patch('/notifications/read-all')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .expect(200)
+      .expect((res) => expect(res.body).toHaveProperty('count'));
+  });
+
+  it('audit logs are created across appointment, lab, and prescription workflow', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const diagnosticToken = await jwtService.signAsync({
+      sub: DIAGNOSTIC_ID,
+      email: 'diagnostic@example.com',
+      role: 'DIAGNOSTIC',
+    });
+    const pharmacyToken = await jwtService.signAsync({
+      sub: PHARMACY_ID,
+      email: 'pharmacy@example.com',
+      role: 'PHARMACY',
+    });
+    const adminToken = await jwtService.signAsync({
+      sub: ADMIN_ID,
+      email: 'admin@example.com',
+      role: 'ADMIN',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+    const appointmentId = create.body.id;
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/call`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/in-visit`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/exam-done`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    const order = await request(app.getHttpServer())
+      .post('/labs/orders')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'Test 1', description: 'CBC panel' }],
+      })
+      .expect(201);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/assign`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/sample-collected`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${order.body.id}/result-uploaded`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .send({ fileUrl: 'https://files.test/result.pdf' })
+      .expect(200);
+
+    const rx = await request(app.getHttpServer())
+      .post('/prescriptions')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        pharmacyId: PHARMACY_ID,
+        notes: 'Take once daily',
+      })
+      .expect(201);
+    await request(app.getHttpServer())
+      .patch(`/prescriptions/${rx.body.id}/sign`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/prescriptions/${rx.body.id}/send-patient`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/prescriptions/${rx.body.id}/send-pharmacy`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/prescriptions/${rx.body.id}/dispense`)
+      .set('Authorization', `Bearer ${pharmacyToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get('/audit')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.some((a: any) => a.action === 'APPOINTMENT_CALLED')).toBe(true);
+        expect(res.body.some((a: any) => a.action === 'LAB_RESULT_UPLOADED')).toBe(true);
+        expect(res.body.some((a: any) => a.action === 'PRESCRIPTION_DISPENSED')).toBe(true);
+      });
+  });
+
+  it('/audit/me returns actor-scoped logs', async () => {
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${create.body.id}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get('/audit/me')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.every((a: any) => a.actorUserId === DOCTOR_ID)).toBe(true);
+      });
+  });
+
+  it('/audit rejects non-admin and allows admin', async () => {
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const adminToken = await jwtService.signAsync({
+      sub: ADMIN_ID,
+      email: 'admin@example.com',
+      role: 'ADMIN',
+    });
+
+    await request(app.getHttpServer())
+      .get('/audit')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(403);
+    await request(app.getHttpServer())
+      .get('/audit')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+  });
+
+  it('/audit/entity filters logs by entity', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const adminToken = await jwtService.signAsync({
+      sub: ADMIN_ID,
+      email: 'admin@example.com',
+      role: 'ADMIN',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${create.body.id}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get(`/audit/entity/Appointment/${create.body.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.length).toBeGreaterThan(0);
+        expect(
+          res.body.every((a: any) => a.entityType === 'Appointment' && a.entityId === create.body.id),
+        ).toBe(true);
+      });
   });
 });

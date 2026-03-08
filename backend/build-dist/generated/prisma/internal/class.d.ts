@@ -31,6 +31,12 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
     get user(): Prisma.UserDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
+    get patientProfile(): Prisma.PatientProfileDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    get professionalProfile(): Prisma.ProfessionalProfileDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
     get appointment(): Prisma.AppointmentDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
@@ -41,6 +47,12 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
         omit: OmitOpts;
     }>;
     get prescription(): Prisma.PrescriptionDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    get notification(): Prisma.NotificationDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    get auditLog(): Prisma.AuditLogDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
 }

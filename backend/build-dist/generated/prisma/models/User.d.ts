@@ -9,7 +9,10 @@ export type AggregateUser = {
 };
 export type UserMinAggregateOutputType = {
     id: string | null;
+    fullName: string | null;
     email: string | null;
+    phone: string | null;
+    address: string | null;
     passwordHash: string | null;
     role: $Enums.Role | null;
     createdAt: Date | null;
@@ -17,7 +20,10 @@ export type UserMinAggregateOutputType = {
 };
 export type UserMaxAggregateOutputType = {
     id: string | null;
+    fullName: string | null;
     email: string | null;
+    phone: string | null;
+    address: string | null;
     passwordHash: string | null;
     role: $Enums.Role | null;
     createdAt: Date | null;
@@ -25,7 +31,10 @@ export type UserMaxAggregateOutputType = {
 };
 export type UserCountAggregateOutputType = {
     id: number;
+    fullName: number;
     email: number;
+    phone: number;
+    address: number;
     passwordHash: number;
     role: number;
     createdAt: number;
@@ -34,7 +43,10 @@ export type UserCountAggregateOutputType = {
 };
 export type UserMinAggregateInputType = {
     id?: true;
+    fullName?: true;
     email?: true;
+    phone?: true;
+    address?: true;
     passwordHash?: true;
     role?: true;
     createdAt?: true;
@@ -42,7 +54,10 @@ export type UserMinAggregateInputType = {
 };
 export type UserMaxAggregateInputType = {
     id?: true;
+    fullName?: true;
     email?: true;
+    phone?: true;
+    address?: true;
     passwordHash?: true;
     role?: true;
     createdAt?: true;
@@ -50,7 +65,10 @@ export type UserMaxAggregateInputType = {
 };
 export type UserCountAggregateInputType = {
     id?: true;
+    fullName?: true;
     email?: true;
+    phone?: true;
+    address?: true;
     passwordHash?: true;
     role?: true;
     createdAt?: true;
@@ -83,7 +101,10 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 };
 export type UserGroupByOutputType = {
     id: string;
+    fullName: string | null;
     email: string;
+    phone: string | null;
+    address: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt: Date;
@@ -100,7 +121,10 @@ export type UserWhereInput = {
     OR?: Prisma.UserWhereInput[];
     NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
     id?: Prisma.StringFilter<"User"> | string;
+    fullName?: Prisma.StringNullableFilter<"User"> | string | null;
     email?: Prisma.StringFilter<"User"> | string;
+    phone?: Prisma.StringNullableFilter<"User"> | string | null;
+    address?: Prisma.StringNullableFilter<"User"> | string | null;
     passwordHash?: Prisma.StringFilter<"User"> | string;
     role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role;
     createdAt?: Prisma.DateTimeFilter<"User"> | Date | string;
@@ -110,10 +134,17 @@ export type UserWhereInput = {
     diagnosticLabOrders?: Prisma.LabOrderListRelationFilter;
     doctorPrescriptions?: Prisma.PrescriptionListRelationFilter;
     pharmacyPrescriptions?: Prisma.PrescriptionListRelationFilter;
+    notifications?: Prisma.NotificationListRelationFilter;
+    auditLogs?: Prisma.AuditLogListRelationFilter;
+    patientProfile?: Prisma.XOR<Prisma.PatientProfileNullableScalarRelationFilter, Prisma.PatientProfileWhereInput> | null;
+    professionalProfile?: Prisma.XOR<Prisma.ProfessionalProfileNullableScalarRelationFilter, Prisma.ProfessionalProfileWhereInput> | null;
 };
 export type UserOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
+    fullName?: Prisma.SortOrderInput | Prisma.SortOrder;
     email?: Prisma.SortOrder;
+    phone?: Prisma.SortOrderInput | Prisma.SortOrder;
+    address?: Prisma.SortOrderInput | Prisma.SortOrder;
     passwordHash?: Prisma.SortOrder;
     role?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -123,6 +154,10 @@ export type UserOrderByWithRelationInput = {
     diagnosticLabOrders?: Prisma.LabOrderOrderByRelationAggregateInput;
     doctorPrescriptions?: Prisma.PrescriptionOrderByRelationAggregateInput;
     pharmacyPrescriptions?: Prisma.PrescriptionOrderByRelationAggregateInput;
+    notifications?: Prisma.NotificationOrderByRelationAggregateInput;
+    auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput;
+    patientProfile?: Prisma.PatientProfileOrderByWithRelationInput;
+    professionalProfile?: Prisma.ProfessionalProfileOrderByWithRelationInput;
 };
 export type UserWhereUniqueInput = Prisma.AtLeast<{
     id?: string;
@@ -130,6 +165,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
     AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
     OR?: Prisma.UserWhereInput[];
     NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
+    fullName?: Prisma.StringNullableFilter<"User"> | string | null;
+    phone?: Prisma.StringNullableFilter<"User"> | string | null;
+    address?: Prisma.StringNullableFilter<"User"> | string | null;
     passwordHash?: Prisma.StringFilter<"User"> | string;
     role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role;
     createdAt?: Prisma.DateTimeFilter<"User"> | Date | string;
@@ -139,10 +177,17 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
     diagnosticLabOrders?: Prisma.LabOrderListRelationFilter;
     doctorPrescriptions?: Prisma.PrescriptionListRelationFilter;
     pharmacyPrescriptions?: Prisma.PrescriptionListRelationFilter;
+    notifications?: Prisma.NotificationListRelationFilter;
+    auditLogs?: Prisma.AuditLogListRelationFilter;
+    patientProfile?: Prisma.XOR<Prisma.PatientProfileNullableScalarRelationFilter, Prisma.PatientProfileWhereInput> | null;
+    professionalProfile?: Prisma.XOR<Prisma.ProfessionalProfileNullableScalarRelationFilter, Prisma.ProfessionalProfileWhereInput> | null;
 }, "id" | "email">;
 export type UserOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
+    fullName?: Prisma.SortOrderInput | Prisma.SortOrder;
     email?: Prisma.SortOrder;
+    phone?: Prisma.SortOrderInput | Prisma.SortOrder;
+    address?: Prisma.SortOrderInput | Prisma.SortOrder;
     passwordHash?: Prisma.SortOrder;
     role?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -156,7 +201,10 @@ export type UserScalarWhereWithAggregatesInput = {
     OR?: Prisma.UserScalarWhereWithAggregatesInput[];
     NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[];
     id?: Prisma.StringWithAggregatesFilter<"User"> | string;
+    fullName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
     email?: Prisma.StringWithAggregatesFilter<"User"> | string;
+    phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    address?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
     passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string;
     role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role;
     createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string;
@@ -164,7 +212,10 @@ export type UserScalarWhereWithAggregatesInput = {
 };
 export type UserCreateInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -174,10 +225,17 @@ export type UserCreateInput = {
     diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
     doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
     pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
 };
 export type UserUncheckedCreateInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -187,10 +245,17 @@ export type UserUncheckedCreateInput = {
     diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
 };
 export type UserUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -200,10 +265,17 @@ export type UserUpdateInput = {
     diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -213,10 +285,17 @@ export type UserUncheckedUpdateInput = {
     diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
 };
 export type UserCreateManyInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -224,7 +303,10 @@ export type UserCreateManyInput = {
 };
 export type UserUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -232,7 +314,10 @@ export type UserUpdateManyMutationInput = {
 };
 export type UserUncheckedUpdateManyInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -240,7 +325,10 @@ export type UserUncheckedUpdateManyInput = {
 };
 export type UserCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
+    fullName?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
+    phone?: Prisma.SortOrder;
+    address?: Prisma.SortOrder;
     passwordHash?: Prisma.SortOrder;
     role?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -248,7 +336,10 @@ export type UserCountOrderByAggregateInput = {
 };
 export type UserMaxOrderByAggregateInput = {
     id?: Prisma.SortOrder;
+    fullName?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
+    phone?: Prisma.SortOrder;
+    address?: Prisma.SortOrder;
     passwordHash?: Prisma.SortOrder;
     role?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -256,7 +347,10 @@ export type UserMaxOrderByAggregateInput = {
 };
 export type UserMinOrderByAggregateInput = {
     id?: Prisma.SortOrder;
+    fullName?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
+    phone?: Prisma.SortOrder;
+    address?: Prisma.SortOrder;
     passwordHash?: Prisma.SortOrder;
     role?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
@@ -266,14 +360,45 @@ export type UserScalarRelationFilter = {
     is?: Prisma.UserWhereInput;
     isNot?: Prisma.UserWhereInput;
 };
+export type UserNullableScalarRelationFilter = {
+    is?: Prisma.UserWhereInput | null;
+    isNot?: Prisma.UserWhereInput | null;
+};
 export type StringFieldUpdateOperationsInput = {
     set?: string;
+};
+export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null;
 };
 export type EnumRoleFieldUpdateOperationsInput = {
     set?: $Enums.Role;
 };
 export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string;
+};
+export type UserCreateNestedOneWithoutPatientProfileInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutPatientProfileInput, Prisma.UserUncheckedCreateWithoutPatientProfileInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutPatientProfileInput;
+    connect?: Prisma.UserWhereUniqueInput;
+};
+export type UserUpdateOneRequiredWithoutPatientProfileNestedInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutPatientProfileInput, Prisma.UserUncheckedCreateWithoutPatientProfileInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutPatientProfileInput;
+    upsert?: Prisma.UserUpsertWithoutPatientProfileInput;
+    connect?: Prisma.UserWhereUniqueInput;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPatientProfileInput, Prisma.UserUpdateWithoutPatientProfileInput>, Prisma.UserUncheckedUpdateWithoutPatientProfileInput>;
+};
+export type UserCreateNestedOneWithoutProfessionalProfileInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutProfessionalProfileInput, Prisma.UserUncheckedCreateWithoutProfessionalProfileInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutProfessionalProfileInput;
+    connect?: Prisma.UserWhereUniqueInput;
+};
+export type UserUpdateOneRequiredWithoutProfessionalProfileNestedInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutProfessionalProfileInput, Prisma.UserUncheckedCreateWithoutProfessionalProfileInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutProfessionalProfileInput;
+    upsert?: Prisma.UserUpsertWithoutProfessionalProfileInput;
+    connect?: Prisma.UserWhereUniqueInput;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProfessionalProfileInput, Prisma.UserUpdateWithoutProfessionalProfileInput>, Prisma.UserUncheckedUpdateWithoutProfessionalProfileInput>;
 };
 export type UserCreateNestedOneWithoutPatientAppointmentsInput = {
     create?: Prisma.XOR<Prisma.UserCreateWithoutPatientAppointmentsInput, Prisma.UserUncheckedCreateWithoutPatientAppointmentsInput>;
@@ -335,9 +460,216 @@ export type UserUpdateOneRequiredWithoutPharmacyPrescriptionsNestedInput = {
     connect?: Prisma.UserWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPharmacyPrescriptionsInput, Prisma.UserUpdateWithoutPharmacyPrescriptionsInput>, Prisma.UserUncheckedUpdateWithoutPharmacyPrescriptionsInput>;
 };
+export type UserCreateNestedOneWithoutNotificationsInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput;
+    connect?: Prisma.UserWhereUniqueInput;
+};
+export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput;
+    upsert?: Prisma.UserUpsertWithoutNotificationsInput;
+    connect?: Prisma.UserWhereUniqueInput;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>;
+};
+export type UserCreateNestedOneWithoutAuditLogsInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput;
+    connect?: Prisma.UserWhereUniqueInput;
+};
+export type UserUpdateOneWithoutAuditLogsNestedInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput;
+    upsert?: Prisma.UserUpsertWithoutAuditLogsInput;
+    disconnect?: Prisma.UserWhereInput | boolean;
+    delete?: Prisma.UserWhereInput | boolean;
+    connect?: Prisma.UserWhereUniqueInput;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>;
+};
+export type UserCreateWithoutPatientProfileInput = {
+    id?: string;
+    fullName?: string | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+};
+export type UserUncheckedCreateWithoutPatientProfileInput = {
+    id?: string;
+    fullName?: string | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+};
+export type UserCreateOrConnectWithoutPatientProfileInput = {
+    where: Prisma.UserWhereUniqueInput;
+    create: Prisma.XOR<Prisma.UserCreateWithoutPatientProfileInput, Prisma.UserUncheckedCreateWithoutPatientProfileInput>;
+};
+export type UserUpsertWithoutPatientProfileInput = {
+    update: Prisma.XOR<Prisma.UserUpdateWithoutPatientProfileInput, Prisma.UserUncheckedUpdateWithoutPatientProfileInput>;
+    create: Prisma.XOR<Prisma.UserCreateWithoutPatientProfileInput, Prisma.UserUncheckedCreateWithoutPatientProfileInput>;
+    where?: Prisma.UserWhereInput;
+};
+export type UserUpdateToOneWithWhereWithoutPatientProfileInput = {
+    where?: Prisma.UserWhereInput;
+    data: Prisma.XOR<Prisma.UserUpdateWithoutPatientProfileInput, Prisma.UserUncheckedUpdateWithoutPatientProfileInput>;
+};
+export type UserUpdateWithoutPatientProfileInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+};
+export type UserUncheckedUpdateWithoutPatientProfileInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+};
+export type UserCreateWithoutProfessionalProfileInput = {
+    id?: string;
+    fullName?: string | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+};
+export type UserUncheckedCreateWithoutProfessionalProfileInput = {
+    id?: string;
+    fullName?: string | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+};
+export type UserCreateOrConnectWithoutProfessionalProfileInput = {
+    where: Prisma.UserWhereUniqueInput;
+    create: Prisma.XOR<Prisma.UserCreateWithoutProfessionalProfileInput, Prisma.UserUncheckedCreateWithoutProfessionalProfileInput>;
+};
+export type UserUpsertWithoutProfessionalProfileInput = {
+    update: Prisma.XOR<Prisma.UserUpdateWithoutProfessionalProfileInput, Prisma.UserUncheckedUpdateWithoutProfessionalProfileInput>;
+    create: Prisma.XOR<Prisma.UserCreateWithoutProfessionalProfileInput, Prisma.UserUncheckedCreateWithoutProfessionalProfileInput>;
+    where?: Prisma.UserWhereInput;
+};
+export type UserUpdateToOneWithWhereWithoutProfessionalProfileInput = {
+    where?: Prisma.UserWhereInput;
+    data: Prisma.XOR<Prisma.UserUpdateWithoutProfessionalProfileInput, Prisma.UserUncheckedUpdateWithoutProfessionalProfileInput>;
+};
+export type UserUpdateWithoutProfessionalProfileInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+};
+export type UserUncheckedUpdateWithoutProfessionalProfileInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+};
 export type UserCreateWithoutPatientAppointmentsInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -346,10 +678,17 @@ export type UserCreateWithoutPatientAppointmentsInput = {
     diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
     doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
     pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutPatientAppointmentsInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -358,6 +697,10 @@ export type UserUncheckedCreateWithoutPatientAppointmentsInput = {
     diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutPatientAppointmentsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -365,7 +708,10 @@ export type UserCreateOrConnectWithoutPatientAppointmentsInput = {
 };
 export type UserCreateWithoutDoctorAppointmentsInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -374,10 +720,17 @@ export type UserCreateWithoutDoctorAppointmentsInput = {
     diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
     doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
     pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutDoctorAppointmentsInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -386,6 +739,10 @@ export type UserUncheckedCreateWithoutDoctorAppointmentsInput = {
     diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutDoctorAppointmentsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -402,7 +759,10 @@ export type UserUpdateToOneWithWhereWithoutPatientAppointmentsInput = {
 };
 export type UserUpdateWithoutPatientAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -411,10 +771,17 @@ export type UserUpdateWithoutPatientAppointmentsInput = {
     diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutPatientAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -423,6 +790,10 @@ export type UserUncheckedUpdateWithoutPatientAppointmentsInput = {
     diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
 };
 export type UserUpsertWithoutDoctorAppointmentsInput = {
     update: Prisma.XOR<Prisma.UserUpdateWithoutDoctorAppointmentsInput, Prisma.UserUncheckedUpdateWithoutDoctorAppointmentsInput>;
@@ -435,7 +806,10 @@ export type UserUpdateToOneWithWhereWithoutDoctorAppointmentsInput = {
 };
 export type UserUpdateWithoutDoctorAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -444,10 +818,17 @@ export type UserUpdateWithoutDoctorAppointmentsInput = {
     diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutDoctorAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -456,10 +837,17 @@ export type UserUncheckedUpdateWithoutDoctorAppointmentsInput = {
     diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
 };
 export type UserCreateWithoutDiagnosticLabOrdersInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -468,10 +856,17 @@ export type UserCreateWithoutDiagnosticLabOrdersInput = {
     doctorAppointments?: Prisma.AppointmentCreateNestedManyWithoutDoctorInput;
     doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
     pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutDiagnosticLabOrdersInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -480,6 +875,10 @@ export type UserUncheckedCreateWithoutDiagnosticLabOrdersInput = {
     doctorAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutDoctorInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutDiagnosticLabOrdersInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -496,7 +895,10 @@ export type UserUpdateToOneWithWhereWithoutDiagnosticLabOrdersInput = {
 };
 export type UserUpdateWithoutDiagnosticLabOrdersInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -505,10 +907,17 @@ export type UserUpdateWithoutDiagnosticLabOrdersInput = {
     doctorAppointments?: Prisma.AppointmentUpdateManyWithoutDoctorNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutDiagnosticLabOrdersInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -517,10 +926,17 @@ export type UserUncheckedUpdateWithoutDiagnosticLabOrdersInput = {
     doctorAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutDoctorNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
 };
 export type UserCreateWithoutDoctorPrescriptionsInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -529,10 +945,17 @@ export type UserCreateWithoutDoctorPrescriptionsInput = {
     doctorAppointments?: Prisma.AppointmentCreateNestedManyWithoutDoctorInput;
     diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
     pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutDoctorPrescriptionsInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -541,6 +964,10 @@ export type UserUncheckedCreateWithoutDoctorPrescriptionsInput = {
     doctorAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutDoctorInput;
     diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutDoctorPrescriptionsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -548,7 +975,10 @@ export type UserCreateOrConnectWithoutDoctorPrescriptionsInput = {
 };
 export type UserCreateWithoutPharmacyPrescriptionsInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -557,10 +987,17 @@ export type UserCreateWithoutPharmacyPrescriptionsInput = {
     doctorAppointments?: Prisma.AppointmentCreateNestedManyWithoutDoctorInput;
     diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
     doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutPharmacyPrescriptionsInput = {
     id?: string;
+    fullName?: string | null;
     email: string;
+    phone?: string | null;
+    address?: string | null;
     passwordHash: string;
     role: $Enums.Role;
     createdAt?: Date | string;
@@ -569,6 +1006,10 @@ export type UserUncheckedCreateWithoutPharmacyPrescriptionsInput = {
     doctorAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutDoctorInput;
     diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutPharmacyPrescriptionsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -585,7 +1026,10 @@ export type UserUpdateToOneWithWhereWithoutDoctorPrescriptionsInput = {
 };
 export type UserUpdateWithoutDoctorPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -594,10 +1038,17 @@ export type UserUpdateWithoutDoctorPrescriptionsInput = {
     doctorAppointments?: Prisma.AppointmentUpdateManyWithoutDoctorNestedInput;
     diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutDoctorPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -606,6 +1057,10 @@ export type UserUncheckedUpdateWithoutDoctorPrescriptionsInput = {
     doctorAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutDoctorNestedInput;
     diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
     pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
 };
 export type UserUpsertWithoutPharmacyPrescriptionsInput = {
     update: Prisma.XOR<Prisma.UserUpdateWithoutPharmacyPrescriptionsInput, Prisma.UserUncheckedUpdateWithoutPharmacyPrescriptionsInput>;
@@ -618,7 +1073,10 @@ export type UserUpdateToOneWithWhereWithoutPharmacyPrescriptionsInput = {
 };
 export type UserUpdateWithoutPharmacyPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -627,10 +1085,17 @@ export type UserUpdateWithoutPharmacyPrescriptionsInput = {
     doctorAppointments?: Prisma.AppointmentUpdateManyWithoutDoctorNestedInput;
     diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutPharmacyPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
     role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -639,6 +1104,188 @@ export type UserUncheckedUpdateWithoutPharmacyPrescriptionsInput = {
     doctorAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutDoctorNestedInput;
     diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
     doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+};
+export type UserCreateWithoutNotificationsInput = {
+    id?: string;
+    fullName?: string | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+};
+export type UserUncheckedCreateWithoutNotificationsInput = {
+    id?: string;
+    fullName?: string | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+};
+export type UserCreateOrConnectWithoutNotificationsInput = {
+    where: Prisma.UserWhereUniqueInput;
+    create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>;
+};
+export type UserUpsertWithoutNotificationsInput = {
+    update: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsInput, Prisma.UserUncheckedUpdateWithoutNotificationsInput>;
+    create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>;
+    where?: Prisma.UserWhereInput;
+};
+export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
+    where?: Prisma.UserWhereInput;
+    data: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsInput, Prisma.UserUncheckedUpdateWithoutNotificationsInput>;
+};
+export type UserUpdateWithoutNotificationsInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+};
+export type UserUncheckedUpdateWithoutNotificationsInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+};
+export type UserCreateWithoutAuditLogsInput = {
+    id?: string;
+    fullName?: string | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+};
+export type UserUncheckedCreateWithoutAuditLogsInput = {
+    id?: string;
+    fullName?: string | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+};
+export type UserCreateOrConnectWithoutAuditLogsInput = {
+    where: Prisma.UserWhereUniqueInput;
+    create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>;
+};
+export type UserUpsertWithoutAuditLogsInput = {
+    update: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>;
+    create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>;
+    where?: Prisma.UserWhereInput;
+};
+export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+    where?: Prisma.UserWhereInput;
+    data: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>;
+};
+export type UserUpdateWithoutAuditLogsInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+};
+export type UserUncheckedUpdateWithoutAuditLogsInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
 };
 export type UserCountOutputType = {
     patientAppointments: number;
@@ -646,6 +1293,8 @@ export type UserCountOutputType = {
     diagnosticLabOrders: number;
     doctorPrescriptions: number;
     pharmacyPrescriptions: number;
+    notifications: number;
+    auditLogs: number;
 };
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     patientAppointments?: boolean | UserCountOutputTypeCountPatientAppointmentsArgs;
@@ -653,6 +1302,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
     diagnosticLabOrders?: boolean | UserCountOutputTypeCountDiagnosticLabOrdersArgs;
     doctorPrescriptions?: boolean | UserCountOutputTypeCountDoctorPrescriptionsArgs;
     pharmacyPrescriptions?: boolean | UserCountOutputTypeCountPharmacyPrescriptionsArgs;
+    notifications?: boolean | UserCountOutputTypeCountNotificationsArgs;
+    auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs;
 };
 export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null;
@@ -672,9 +1323,18 @@ export type UserCountOutputTypeCountDoctorPrescriptionsArgs<ExtArgs extends runt
 export type UserCountOutputTypeCountPharmacyPrescriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     where?: Prisma.PrescriptionWhereInput;
 };
+export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    where?: Prisma.NotificationWhereInput;
+};
+export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    where?: Prisma.AuditLogWhereInput;
+};
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
+    fullName?: boolean;
     email?: boolean;
+    phone?: boolean;
+    address?: boolean;
     passwordHash?: boolean;
     role?: boolean;
     createdAt?: boolean;
@@ -684,11 +1344,18 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
     diagnosticLabOrders?: boolean | Prisma.User$diagnosticLabOrdersArgs<ExtArgs>;
     doctorPrescriptions?: boolean | Prisma.User$doctorPrescriptionsArgs<ExtArgs>;
     pharmacyPrescriptions?: boolean | Prisma.User$pharmacyPrescriptionsArgs<ExtArgs>;
+    notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>;
+    auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>;
+    patientProfile?: boolean | Prisma.User$patientProfileArgs<ExtArgs>;
+    professionalProfile?: boolean | Prisma.User$professionalProfileArgs<ExtArgs>;
     _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["user"]>;
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
+    fullName?: boolean;
     email?: boolean;
+    phone?: boolean;
+    address?: boolean;
     passwordHash?: boolean;
     role?: boolean;
     createdAt?: boolean;
@@ -696,7 +1363,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 }, ExtArgs["result"]["user"]>;
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
+    fullName?: boolean;
     email?: boolean;
+    phone?: boolean;
+    address?: boolean;
     passwordHash?: boolean;
     role?: boolean;
     createdAt?: boolean;
@@ -704,19 +1374,26 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 }, ExtArgs["result"]["user"]>;
 export type UserSelectScalar = {
     id?: boolean;
+    fullName?: boolean;
     email?: boolean;
+    phone?: boolean;
+    address?: boolean;
     passwordHash?: boolean;
     role?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>;
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "address" | "passwordHash" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>;
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     patientAppointments?: boolean | Prisma.User$patientAppointmentsArgs<ExtArgs>;
     doctorAppointments?: boolean | Prisma.User$doctorAppointmentsArgs<ExtArgs>;
     diagnosticLabOrders?: boolean | Prisma.User$diagnosticLabOrdersArgs<ExtArgs>;
     doctorPrescriptions?: boolean | Prisma.User$doctorPrescriptionsArgs<ExtArgs>;
     pharmacyPrescriptions?: boolean | Prisma.User$pharmacyPrescriptionsArgs<ExtArgs>;
+    notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>;
+    auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>;
+    patientProfile?: boolean | Prisma.User$patientProfileArgs<ExtArgs>;
+    professionalProfile?: boolean | Prisma.User$professionalProfileArgs<ExtArgs>;
     _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {};
@@ -729,10 +1406,17 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
         diagnosticLabOrders: Prisma.$LabOrderPayload<ExtArgs>[];
         doctorPrescriptions: Prisma.$PrescriptionPayload<ExtArgs>[];
         pharmacyPrescriptions: Prisma.$PrescriptionPayload<ExtArgs>[];
+        notifications: Prisma.$NotificationPayload<ExtArgs>[];
+        auditLogs: Prisma.$AuditLogPayload<ExtArgs>[];
+        patientProfile: Prisma.$PatientProfilePayload<ExtArgs> | null;
+        professionalProfile: Prisma.$ProfessionalProfilePayload<ExtArgs> | null;
     };
     scalars: runtime.Types.Extensions.GetPayloadResult<{
         id: string;
+        fullName: string | null;
         email: string;
+        phone: string | null;
+        address: string | null;
         passwordHash: string;
         role: $Enums.Role;
         createdAt: Date;
@@ -794,13 +1478,20 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
     diagnosticLabOrders<T extends Prisma.User$diagnosticLabOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$diagnosticLabOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     doctorPrescriptions<T extends Prisma.User$doctorPrescriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$doctorPrescriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PrescriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     pharmacyPrescriptions<T extends Prisma.User$pharmacyPrescriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pharmacyPrescriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PrescriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
+    notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
+    auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
+    patientProfile<T extends Prisma.User$patientProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$patientProfileArgs<ExtArgs>>): Prisma.Prisma__PatientProfileClient<runtime.Types.Result.GetResult<Prisma.$PatientProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>;
+    professionalProfile<T extends Prisma.User$professionalProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$professionalProfileArgs<ExtArgs>>): Prisma.Prisma__ProfessionalProfileClient<runtime.Types.Result.GetResult<Prisma.$ProfessionalProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>;
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): runtime.Types.Utils.JsPromise<TResult1 | TResult2>;
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): runtime.Types.Utils.JsPromise<T | TResult>;
     finally(onfinally?: (() => void) | undefined | null): runtime.Types.Utils.JsPromise<T>;
 }
 export interface UserFieldRefs {
     readonly id: Prisma.FieldRef<"User", 'String'>;
+    readonly fullName: Prisma.FieldRef<"User", 'String'>;
     readonly email: Prisma.FieldRef<"User", 'String'>;
+    readonly phone: Prisma.FieldRef<"User", 'String'>;
+    readonly address: Prisma.FieldRef<"User", 'String'>;
     readonly passwordHash: Prisma.FieldRef<"User", 'String'>;
     readonly role: Prisma.FieldRef<"User", 'Role'>;
     readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>;
@@ -958,6 +1649,40 @@ export type User$pharmacyPrescriptionsArgs<ExtArgs extends runtime.Types.Extensi
     take?: number;
     skip?: number;
     distinct?: Prisma.PrescriptionScalarFieldEnum | Prisma.PrescriptionScalarFieldEnum[];
+};
+export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    select?: Prisma.NotificationSelect<ExtArgs> | null;
+    omit?: Prisma.NotificationOmit<ExtArgs> | null;
+    include?: Prisma.NotificationInclude<ExtArgs> | null;
+    where?: Prisma.NotificationWhereInput;
+    orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[];
+    cursor?: Prisma.NotificationWhereUniqueInput;
+    take?: number;
+    skip?: number;
+    distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[];
+};
+export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    select?: Prisma.AuditLogSelect<ExtArgs> | null;
+    omit?: Prisma.AuditLogOmit<ExtArgs> | null;
+    include?: Prisma.AuditLogInclude<ExtArgs> | null;
+    where?: Prisma.AuditLogWhereInput;
+    orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[];
+    cursor?: Prisma.AuditLogWhereUniqueInput;
+    take?: number;
+    skip?: number;
+    distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[];
+};
+export type User$patientProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    select?: Prisma.PatientProfileSelect<ExtArgs> | null;
+    omit?: Prisma.PatientProfileOmit<ExtArgs> | null;
+    include?: Prisma.PatientProfileInclude<ExtArgs> | null;
+    where?: Prisma.PatientProfileWhereInput;
+};
+export type User$professionalProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    select?: Prisma.ProfessionalProfileSelect<ExtArgs> | null;
+    omit?: Prisma.ProfessionalProfileOmit<ExtArgs> | null;
+    include?: Prisma.ProfessionalProfileInclude<ExtArgs> | null;
+    where?: Prisma.ProfessionalProfileWhereInput;
 };
 export type UserDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     select?: Prisma.UserSelect<ExtArgs> | null;

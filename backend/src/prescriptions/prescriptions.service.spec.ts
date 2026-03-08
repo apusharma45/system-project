@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentStatus, PrescriptionStatus, Role } from '../../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { PrescriptionsService } from './prescriptions.service';
 
 describe('PrescriptionsService', () => {
@@ -27,6 +30,16 @@ describe('PrescriptionsService', () => {
       findFirst: jest.fn(),
     },
   };
+  const notificationsMock = {
+    createAndEmit: jest.fn(),
+  };
+  const auditMock = {
+    record: jest.fn(),
+  };
+  const cloudinaryMock = {
+    uploadBuffer: jest.fn(),
+    destroy: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -37,10 +50,65 @@ describe('PrescriptionsService', () => {
           provide: PrismaService,
           useValue: prismaMock,
         },
+        {
+          provide: NotificationsService,
+          useValue: notificationsMock,
+        },
+        {
+          provide: AuditService,
+          useValue: auditMock,
+        },
+        {
+          provide: CloudinaryService,
+          useValue: cloudinaryMock,
+        },
       ],
     }).compile();
 
     service = module.get<PrescriptionsService>(PrescriptionsService);
+  });
+
+  it('uploadDocumentByDoctor uploads document and stores metadata', async () => {
+    prismaMock.prescription.findUnique.mockResolvedValueOnce({
+      id: 'rx1',
+      appointmentId: 'a1',
+      doctorId: 'd1',
+      documentVersion: 0,
+      documentPublicId: null,
+      appointment: { patientId: 'pt1' },
+    });
+    cloudinaryMock.uploadBuffer.mockResolvedValueOnce({
+      url: 'https://example.com/rx1.png',
+      publicId: 'prescriptions/rx1',
+      version: 2,
+      mimeType: 'image/png',
+      bytes: 2000,
+    });
+    prismaMock.prescription.update.mockResolvedValueOnce({
+      id: 'rx1',
+      documentUrl: 'https://example.com/rx1.png',
+      documentPublicId: 'prescriptions/rx1',
+      documentVersion: 1,
+    });
+
+    const result = await service.uploadDocumentByDoctor('d1', 'rx1', {
+      buffer: Buffer.from('abc'),
+      mimetype: 'image/png',
+      originalname: 'rx.png',
+      size: 3,
+    } as any);
+
+    expect(cloudinaryMock.uploadBuffer).toHaveBeenCalledTimes(1);
+    expect(prismaMock.prescription.update).toHaveBeenCalledWith({
+      where: { id: 'rx1' },
+      data: {
+        documentUrl: 'https://example.com/rx1.png',
+        documentPublicId: 'prescriptions/rx1',
+        documentMimeType: 'image/png',
+        documentVersion: 1,
+      },
+    });
+    expect(result.documentPublicId).toBe('prescriptions/rx1');
   });
 
   it('createDraft creates a draft for valid doctor appointment and pharmacy', async () => {
@@ -228,6 +296,8 @@ describe('PrescriptionsService', () => {
     const two = await service.sendToPharmacyByDoctor('d1', 'rx1');
     expect(one.status).toBe(PrescriptionStatus.SENT_TO_PATIENT);
     expect(two.status).toBe(PrescriptionStatus.SENT_TO_PHARMACY);
+    expect(notificationsMock.createAndEmit).toHaveBeenCalledTimes(2);
+    expect(auditMock.record).toHaveBeenCalled();
   });
 
   it('dispenseByPharmacy allows assigned pharmacy and rejects others/invalid state', async () => {
@@ -275,6 +345,23 @@ describe('PrescriptionsService', () => {
     await service.listMine('p1', Role.PHARMACY);
     await service.listMine('u1', Role.PATIENT);
     expect(prismaMock.prescription.findMany).toHaveBeenCalledTimes(3);
+    expect(prismaMock.prescription.findMany).toHaveBeenNthCalledWith(1, {
+      where: { doctorId: 'd1' },
+      include: {
+        appointment: {
+          include: {
+            patient: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
     expect(() => service.listMine('u1', Role.ADMIN)).toThrow(ForbiddenException);
 
     prismaMock.prescription.findUnique

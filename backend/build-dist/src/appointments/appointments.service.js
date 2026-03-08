@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppointmentsService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("../../generated/prisma/client");
+const audit_service_1 = require("../audit/audit.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const TRANSITIONS = {
     REQUESTED: [client_1.AppointmentStatus.CONFIRMED, client_1.AppointmentStatus.CANCELLED],
@@ -28,8 +30,12 @@ const TRANSITIONS = {
 };
 let AppointmentsService = class AppointmentsService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    auditService;
+    constructor(prisma, notificationsService, auditService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
+        this.auditService = auditService;
     }
     async createForPatient(patientId, dto) {
         const doctor = await this.prisma.user.findUnique({
@@ -39,15 +45,40 @@ let AppointmentsService = class AppointmentsService {
         if (!doctor || doctor.role !== client_1.Role.DOCTOR) {
             throw new common_1.BadRequestException('doctorId must belong to a doctor');
         }
-        return this.prisma.appointment.create({
+        const reason = dto.reason?.trim();
+        const preferredTimeNote = dto.preferredTimeNote?.trim();
+        if (preferredTimeNote && !reason) {
+            throw new common_1.BadRequestException('reason is required when preferredTimeNote is provided');
+        }
+        if (!dto.scheduledAt && dto.preferredDateFrom && dto.preferredDateTo) {
+            const fromDate = new Date(dto.preferredDateFrom);
+            const toDate = new Date(dto.preferredDateTo);
+            if (toDate < fromDate) {
+                throw new common_1.BadRequestException('preferredDateTo must be greater than or equal to preferredDateFrom');
+            }
+        }
+        const appointment = await this.prisma.appointment.create({
             data: {
                 patientId,
                 doctorId: dto.doctorId,
-                scheduledAt: new Date(dto.scheduledAt),
+                scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : null,
+                reason: reason ?? null,
+                preferredDateFrom: dto.preferredDateFrom ? new Date(dto.preferredDateFrom) : null,
+                preferredDateTo: dto.preferredDateTo ? new Date(dto.preferredDateTo) : null,
+                preferredTimeNote: preferredTimeNote ?? null,
             },
         });
+        await this.auditService.record(patientId, 'APPOINTMENT_CREATED', 'Appointment', appointment.id, {
+            doctorId: dto.doctorId,
+            scheduledAt: dto.scheduledAt ?? null,
+            preferredDateFrom: dto.preferredDateFrom ?? null,
+            preferredDateTo: dto.preferredDateTo ?? null,
+            preferredTimeNote: preferredTimeNote ?? null,
+            reason: reason ?? null,
+        });
+        return appointment;
     }
-    listMine(userId, role) {
+    async listMine(userId, role) {
         if (role === client_1.Role.PATIENT) {
             return this.prisma.appointment.findMany({
                 where: { patientId: userId },
@@ -55,27 +86,120 @@ let AppointmentsService = class AppointmentsService {
             });
         }
         if (role === client_1.Role.DOCTOR) {
-            return this.prisma.appointment.findMany({
+            const appointments = await this.prisma.appointment.findMany({
                 where: { doctorId: userId },
-                orderBy: { scheduledAt: 'asc' },
+                include: {
+                    patient: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            email: true,
+                            patientProfile: true,
+                        },
+                    },
+                },
+                orderBy: [{ scheduledAt: 'asc' }, { createdAt: 'desc' }],
             });
+            const patientIds = [...new Set(appointments.map((item) => item.patientId))];
+            const historyByPatient = new Map();
+            await Promise.all(patientIds.map(async (patientId) => {
+                const [appointmentCount, labOrderCount, prescriptionCount, latestAppointment, latestLab, latestPrescription] = await Promise.all([
+                    this.prisma.appointment.count({ where: { patientId } }),
+                    this.prisma.labOrder.count({ where: { appointment: { patientId } } }),
+                    this.prisma.prescription.count({ where: { appointment: { patientId } } }),
+                    this.prisma.appointment.findFirst({
+                        where: { patientId, scheduledAt: { not: null } },
+                        orderBy: { scheduledAt: 'desc' },
+                        select: { scheduledAt: true },
+                    }),
+                    this.prisma.labResult.findFirst({
+                        where: { labOrder: { appointment: { patientId } } },
+                        orderBy: { uploadedAt: 'desc' },
+                        select: { uploadedAt: true },
+                    }),
+                    this.prisma.prescription.findFirst({
+                        where: { appointment: { patientId } },
+                        orderBy: { createdAt: 'desc' },
+                        select: { createdAt: true },
+                    }),
+                ]);
+                historyByPatient.set(patientId, {
+                    appointmentCount,
+                    labOrderCount,
+                    prescriptionCount,
+                    latestAppointmentAt: latestAppointment?.scheduledAt ?? null,
+                    latestLabResultAt: latestLab?.uploadedAt ?? null,
+                    latestPrescriptionAt: latestPrescription?.createdAt ?? null,
+                });
+            }));
+            return appointments.map(({ patient, ...appointment }) => ({
+                ...appointment,
+                patientSnapshot: {
+                    id: patient.id,
+                    fullName: patient.fullName,
+                    email: patient.email,
+                    profile: patient.patientProfile,
+                },
+                patientHistorySummary: historyByPatient.get(appointment.patientId) ?? {
+                    appointmentCount: 0,
+                    labOrderCount: 0,
+                    prescriptionCount: 0,
+                    latestAppointmentAt: null,
+                    latestLabResultAt: null,
+                    latestPrescriptionAt: null,
+                },
+            }));
         }
         throw new common_1.ForbiddenException('Only doctor and patient roles can view appointments');
     }
     async confirmByDoctor(doctorId, appointmentId) {
-        return this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.CONFIRMED);
+        const appointment = await this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.CONFIRMED);
+        await this.auditService.record(doctorId, 'APPOINTMENT_CONFIRMED', 'Appointment', appointment.id);
+        return appointment;
+    }
+    async scheduleByDoctor(doctorId, appointmentId, scheduledAt) {
+        const appointment = await this.getAppointmentOrThrow(appointmentId);
+        this.assertDoctorOwnership(appointment.doctorId, doctorId);
+        if (appointment.status !== client_1.AppointmentStatus.REQUESTED) {
+            throw new common_1.BadRequestException('Only REQUESTED appointments can be scheduled');
+        }
+        const scheduledDate = new Date(scheduledAt);
+        if (Number.isNaN(scheduledDate.getTime())) {
+            throw new common_1.BadRequestException('scheduledAt must be a valid ISO date');
+        }
+        const updated = await this.prisma.appointment.update({
+            where: { id: appointmentId },
+            data: {
+                scheduledAt: scheduledDate,
+                status: client_1.AppointmentStatus.CONFIRMED,
+            },
+        });
+        await this.notificationsService.createAndEmit(updated.patientId, client_1.NotificationType.APPOINTMENT_CALLED, `Your appointment has been scheduled for ${scheduledDate.toLocaleString()}.`, { appointmentId: updated.id, scheduledAt: updated.scheduledAt }, doctorId);
+        await this.auditService.record(doctorId, 'APPOINTMENT_SCHEDULED', 'Appointment', updated.id, {
+            scheduledAt: updated.scheduledAt,
+        });
+        return updated;
     }
     async callByDoctor(doctorId, appointmentId) {
-        return this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.CALLED);
+        const appointment = await this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.CALLED);
+        await this.notificationsService.createAndEmit(appointment.patientId, client_1.NotificationType.APPOINTMENT_CALLED, 'Your appointment has been called by the doctor.', { appointmentId: appointment.id }, doctorId);
+        await this.auditService.record(doctorId, 'APPOINTMENT_CALLED', 'Appointment', appointment.id);
+        return appointment;
     }
     async markInVisitByDoctor(doctorId, appointmentId) {
-        return this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.IN_VISIT);
+        const appointment = await this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.IN_VISIT);
+        await this.auditService.record(doctorId, 'APPOINTMENT_IN_VISIT', 'Appointment', appointment.id);
+        return appointment;
     }
     async markExamDoneByDoctor(doctorId, appointmentId) {
-        return this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.EXAM_DONE);
+        const appointment = await this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.EXAM_DONE);
+        await this.auditService.record(doctorId, 'APPOINTMENT_EXAM_DONE', 'Appointment', appointment.id);
+        return appointment;
     }
     async closeByDoctor(doctorId, appointmentId) {
-        return this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.CLOSED);
+        const appointment = await this.updateByDoctorTransition(doctorId, appointmentId, client_1.AppointmentStatus.CLOSED);
+        await this.auditService.record(doctorId, 'APPOINTMENT_CLOSED', 'Appointment', appointment.id);
+        return appointment;
     }
     async cancelByDoctor(doctorId, appointmentId) {
         const appointment = await this.getAppointmentOrThrow(appointmentId);
@@ -89,10 +213,12 @@ let AppointmentsService = class AppointmentsService {
         if (!doctorCancellable.includes(appointment.status)) {
             throw new common_1.BadRequestException('Doctor can cancel only REQUESTED, CONFIRMED, CALLED, or IN_VISIT appointments');
         }
-        return this.prisma.appointment.update({
+        const updatedAppointment = await this.prisma.appointment.update({
             where: { id: appointmentId },
             data: { status: client_1.AppointmentStatus.CANCELLED },
         });
+        await this.auditService.record(doctorId, 'APPOINTMENT_CANCELLED_BY_DOCTOR', 'Appointment', updatedAppointment.id);
+        return updatedAppointment;
     }
     async cancelByPatient(patientId, appointmentId) {
         const appointment = await this.getAppointmentOrThrow(appointmentId);
@@ -106,10 +232,12 @@ let AppointmentsService = class AppointmentsService {
         if (!patientCancellable.includes(appointment.status)) {
             throw new common_1.BadRequestException('Patient can cancel only REQUESTED or CONFIRMED appointments');
         }
-        return this.prisma.appointment.update({
+        const updatedAppointment = await this.prisma.appointment.update({
             where: { id: appointmentId },
             data: { status: client_1.AppointmentStatus.CANCELLED },
         });
+        await this.auditService.record(patientId, 'APPOINTMENT_CANCELLED_BY_PATIENT', 'Appointment', updatedAppointment.id);
+        return updatedAppointment;
     }
     async updateByDoctorTransition(doctorId, appointmentId, nextStatus) {
         const appointment = await this.getAppointmentOrThrow(appointmentId);
@@ -168,6 +296,8 @@ let AppointmentsService = class AppointmentsService {
 exports.AppointmentsService = AppointmentsService;
 exports.AppointmentsService = AppointmentsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService,
+        audit_service_1.AuditService])
 ], AppointmentsService);
 //# sourceMappingURL=appointments.service.js.map

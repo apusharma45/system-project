@@ -13,6 +13,9 @@ exports.UploadLabResultDto = void 0;
 const class_validator_1 = require("class-validator");
 class UploadLabResultDto {
     fileUrl;
+    filePublicId;
+    fileMimeType;
+    fileSizeBytes;
 }
 exports.UploadLabResultDto = UploadLabResultDto;
 __decorate([
@@ -20,4 +23,22 @@ __decorate([
     (0, class_validator_1.MinLength)(5),
     __metadata("design:type", String)
 ], UploadLabResultDto.prototype, "fileUrl", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(255),
+    __metadata("design:type", String)
+], UploadLabResultDto.prototype, "filePublicId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(100),
+    __metadata("design:type", String)
+], UploadLabResultDto.prototype, "fileMimeType", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], UploadLabResultDto.prototype, "fileSizeBytes", void 0);
 //# sourceMappingURL=upload-lab-result.dto.js.map

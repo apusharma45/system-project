@@ -1,4 +1,4 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -48,11 +48,66 @@ describe('AuthService', () => {
 
     await expect(
       service.register({
+        fullName: 'Used Account',
         email: 'used@example.com',
         password: 'secret123',
+        phone: '+8801700000000',
+        address: 'Dhaka',
         role: 'PATIENT',
+        patientProfile: {
+          gender: 'MALE',
+          dateOfBirth: '1990-01-01',
+        },
       }),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('creates PATIENT user with patient profile data', async () => {
+    usersService.createUser.mockResolvedValueOnce({
+      id: 'u3',
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+
+    await service.register({
+      fullName: 'Patient One',
+      email: 'patient@example.com',
+      password: 'secret123',
+      phone: '+8801700000000',
+      address: 'Dhaka',
+      role: 'PATIENT',
+      patientProfile: {
+        gender: 'FEMALE',
+        dateOfBirth: '1998-07-11',
+      },
+    });
+
+    expect(usersService.createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: 'PATIENT',
+        phone: '+8801700000000',
+        address: 'Dhaka',
+        patientProfile: expect.objectContaining({
+          gender: 'FEMALE',
+        }),
+      }),
+    );
+  });
+
+  it('throws BadRequestException when doctor required fields are missing', async () => {
+    await expect(
+      service.register({
+        fullName: 'Doctor One',
+        email: 'doctor@example.com',
+        password: 'secret123',
+        phone: '+8801700000000',
+        address: 'Dhaka',
+        role: 'DOCTOR',
+        professionalProfile: {
+          licenseNumber: 'DOC-123',
+        },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('throws UnauthorizedException when password is invalid', async () => {

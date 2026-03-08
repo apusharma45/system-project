@@ -7,8 +7,11 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from '../../generated/prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -20,6 +23,13 @@ import { PrescriptionsService } from './prescriptions.service';
 type RequestUser = {
   userId: string;
   role: Role;
+};
+
+type UploadedPrescriptionFile = {
+  originalname: string;
+  mimetype: string;
+  size: number;
+  buffer: Buffer;
 };
 
 @Controller('prescriptions')
@@ -53,6 +63,17 @@ export class PrescriptionsController {
   @Roles(Role.DOCTOR)
   sendPharmacy(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
     return this.prescriptionsService.sendToPharmacyByDoctor(req.user.userId, id);
+  }
+
+  @Patch(':id/upload-document')
+  @Roles(Role.DOCTOR)
+  @UseInterceptors(FileInterceptor('file'))
+  uploadDocument(
+    @Req() req: { user: RequestUser },
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() file: UploadedPrescriptionFile | undefined,
+  ) {
+    return this.prescriptionsService.uploadDocumentByDoctor(req.user.userId, id, file);
   }
 
   @Patch(':id/dispense')

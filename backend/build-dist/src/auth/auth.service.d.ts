@@ -13,4 +13,5 @@ export declare class AuthService {
         access_token: string;
     }>;
     private signToken;
+    private assertRequiredRoleFields;
 }

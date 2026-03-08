@@ -4,7 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AppointmentStatus, Role } from '../../generated/prisma/client';
+import { AppointmentStatus, NotificationType, Role } from '../../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLabOrderDto } from './dto/create-lab-order.dto';
 import { UploadLabResultDto } from './dto/upload-lab-result.dto';
@@ -26,7 +28,11 @@ const TRANSITIONS: Record<LabOrderStatus, LabOrderStatus[]> = {
 
 @Injectable()
 export class LabsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async createOrder(doctorId: string, dto: CreateLabOrderDto) {
     const db = this.prisma as any;
@@ -66,20 +72,34 @@ export class LabsService {
       data: { requiresLab: true, labFlowLocked: true },
     });
 
-    return db.labOrder.create({
+    const order = await db.labOrder.create({
       data: {
         appointmentId: dto.appointmentId,
         diagnosticId: dto.diagnosticId,
+        tests: dto.tests as any,
       },
     });
+    await this.auditService.record(doctorId, 'LAB_ORDER_CREATED', 'LabOrder', order.id, {
+      appointmentId: dto.appointmentId,
+      diagnosticId: dto.diagnosticId,
+    });
+    return order;
   }
 
   async assignOrder(diagnosticId: string, orderId: string) {
-    return this.updateByDiagnosticTransition(diagnosticId, orderId, 'ASSIGNED');
+    const order = await this.updateByDiagnosticTransition(diagnosticId, orderId, 'ASSIGNED');
+    await this.auditService.record(diagnosticId, 'LAB_ORDER_ASSIGNED', 'LabOrder', order.id);
+    return order;
   }
 
   async collectSample(diagnosticId: string, orderId: string) {
-    return this.updateByDiagnosticTransition(diagnosticId, orderId, 'SAMPLE_COLLECTED');
+    const order = await this.updateByDiagnosticTransition(
+      diagnosticId,
+      orderId,
+      'SAMPLE_COLLECTED',
+    );
+    await this.auditService.record(diagnosticId, 'LAB_SAMPLE_COLLECTED', 'LabOrder', order.id);
+    return order;
   }
 
   async uploadResult(diagnosticId: string, orderId: string, dto: UploadLabResultDto) {
@@ -87,6 +107,12 @@ export class LabsService {
     const order = await this.getOrderOrThrow(orderId);
     this.assertDiagnosticOwnership(order.diagnosticId, diagnosticId);
     this.transitionOrThrow(order.status, 'RESULT_UPLOADED');
+    if (dto.fileMimeType && !/^application\/pdf$|^image\/(png|jpeg|jpg|webp)$/i.test(dto.fileMimeType)) {
+      throw new BadRequestException('Only PDF and image lab result MIME types are allowed');
+    }
+    if (dto.fileSizeBytes && dto.fileSizeBytes > 10 * 1024 * 1024) {
+      throw new BadRequestException('Lab result file size exceeds 10MB limit');
+    }
 
     const existingResult = await db.labResult.findUnique({
       where: { labOrderId: orderId },
@@ -104,6 +130,9 @@ export class LabsService {
       data: {
         labOrderId: orderId,
         fileUrl: dto.fileUrl,
+        filePublicId: dto.filePublicId ?? null,
+        fileMimeType: dto.fileMimeType ?? null,
+        fileSizeBytes: dto.fileSizeBytes ?? null,
       },
     });
 
@@ -112,11 +141,37 @@ export class LabsService {
       data: { labFlowLocked: false },
     });
 
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: order.appointmentId },
+      select: { id: true, doctorId: true, patientId: true },
+    });
+    if (appointment) {
+      await this.notificationsService.createAndEmit(
+        appointment.doctorId,
+        NotificationType.LAB_RESULT_UPLOADED,
+        'Lab result uploaded for your appointment.',
+        { appointmentId: appointment.id, labOrderId: orderId },
+        diagnosticId,
+      );
+      await this.notificationsService.createAndEmit(
+        appointment.patientId,
+        NotificationType.LAB_RESULT_UPLOADED,
+        'Lab result uploaded for your appointment.',
+        { appointmentId: appointment.id, labOrderId: orderId },
+        diagnosticId,
+      );
+    }
+    await this.auditService.record(diagnosticId, 'LAB_RESULT_UPLOADED', 'LabOrder', order.id, {
+      appointmentId: order.appointmentId,
+    });
+
     return result;
   }
 
   async markSent(diagnosticId: string, orderId: string) {
-    return this.updateByDiagnosticTransition(diagnosticId, orderId, 'SENT');
+    const order = await this.updateByDiagnosticTransition(diagnosticId, orderId, 'SENT');
+    await this.auditService.record(diagnosticId, 'LAB_ORDER_SENT', 'LabOrder', order.id);
+    return order;
   }
 
   listMine(userId: string, role: Role) {
@@ -129,7 +184,17 @@ export class LabsService {
           },
         },
         include: {
-          appointment: true,
+          appointment: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
           labResult: true,
         },
         orderBy: { createdAt: 'desc' },
@@ -153,7 +218,17 @@ export class LabsService {
       return db.labOrder.findMany({
         where: { diagnosticId: userId },
         include: {
-          appointment: true,
+          appointment: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
           labResult: true,
         },
         orderBy: { createdAt: 'desc' },

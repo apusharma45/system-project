@@ -17,6 +17,10 @@ const auth_module_1 = require("./auth/auth.module");
 const appointments_module_1 = require("./appointments/appointments.module");
 const labs_module_1 = require("./labs/labs.module");
 const prescriptions_module_1 = require("./prescriptions/prescriptions.module");
+const notifications_module_1 = require("./notifications/notifications.module");
+const audit_module_1 = require("./audit/audit.module");
+const patients_module_1 = require("./patients/patients.module");
+const cloudinary_module_1 = require("./cloudinary/cloudinary.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -24,12 +28,16 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             prisma_module_1.PrismaModule,
+            cloudinary_module_1.CloudinaryModule,
             health_module_1.HealthModule,
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
             appointments_module_1.AppointmentsModule,
             labs_module_1.LabsModule,
             prescriptions_module_1.PrescriptionsModule,
+            notifications_module_1.NotificationsModule,
+            audit_module_1.AuditModule,
+            patients_module_1.PatientsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

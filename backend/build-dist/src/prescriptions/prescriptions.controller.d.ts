@@ -6,6 +6,12 @@ type RequestUser = {
     userId: string;
     role: Role;
 };
+type UploadedPrescriptionFile = {
+    originalname: string;
+    mimetype: string;
+    size: number;
+    buffer: Buffer;
+};
 export declare class PrescriptionsController {
     private readonly prescriptionsService;
     constructor(prescriptionsService: PrescriptionsService);
@@ -21,6 +27,9 @@ export declare class PrescriptionsController {
     sendPharmacy(req: {
         user: RequestUser;
     }, id: string): Promise<any>;
+    uploadDocument(req: {
+        user: RequestUser;
+    }, id: string, file: UploadedPrescriptionFile | undefined): Promise<any>;
     dispense(req: {
         user: RequestUser;
     }, id: string): Promise<any>;

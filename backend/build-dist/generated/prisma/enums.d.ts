@@ -32,3 +32,9 @@ export declare const PrescriptionStatus: {
     readonly DISPENSED: "DISPENSED";
 };
 export type PrescriptionStatus = (typeof PrescriptionStatus)[keyof typeof PrescriptionStatus];
+export declare const NotificationType: {
+    readonly APPOINTMENT_CALLED: "APPOINTMENT_CALLED";
+    readonly LAB_RESULT_UPLOADED: "LAB_RESULT_UPLOADED";
+    readonly PRESCRIPTION_READY: "PRESCRIPTION_READY";
+};
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];

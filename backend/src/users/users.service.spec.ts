@@ -41,16 +41,29 @@ describe('UsersService', () => {
     prismaMock.user.create.mockResolvedValue({ id: 'u2', email: 'new@x.com' });
 
     const user = await service.createUser({
+      fullName: 'New User',
       email: 'new@x.com',
       passwordHash: 'hash',
       role: Role.PATIENT,
+      phone: '+8801700000000',
+      address: 'Dhaka',
     });
 
     expect(prismaMock.user.create).toHaveBeenCalledWith({
       data: {
+        fullName: 'New User',
         email: 'new@x.com',
         passwordHash: 'hash',
         role: Role.PATIENT,
+        phone: '+8801700000000',
+        address: 'Dhaka',
+        patientProfile: undefined,
+        professionalProfile: undefined,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
       },
     });
     expect(user).toEqual({ id: 'u2', email: 'new@x.com' });

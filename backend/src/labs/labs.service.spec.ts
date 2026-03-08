@@ -5,11 +5,14 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentStatus, Role } from '../../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LabsService } from './labs.service';
 
 describe('LabsService', () => {
   let service: LabsService;
+  const sampleTests = [{ title: 'Test 1', description: 'CBC panel' }];
   const prismaMock = {
     user: {
       findUnique: jest.fn(),
@@ -29,6 +32,12 @@ describe('LabsService', () => {
       create: jest.fn(),
     },
   };
+  const notificationsMock = {
+    createAndEmit: jest.fn(),
+  };
+  const auditMock = {
+    record: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -38,6 +47,14 @@ describe('LabsService', () => {
         {
           provide: PrismaService,
           useValue: prismaMock,
+        },
+        {
+          provide: NotificationsService,
+          useValue: notificationsMock,
+        },
+        {
+          provide: AuditService,
+          useValue: auditMock,
         },
       ],
     }).compile();
@@ -66,6 +83,15 @@ describe('LabsService', () => {
     const result = await service.createOrder('d1', {
       appointmentId: 'a1',
       diagnosticId: 'diag1',
+      tests: sampleTests,
+    });
+
+    expect(prismaMock.labOrder.create).toHaveBeenCalledWith({
+      data: {
+        appointmentId: 'a1',
+        diagnosticId: 'diag1',
+        tests: sampleTests,
+      },
     });
 
     expect(prismaMock.appointment.update).toHaveBeenCalledWith({
@@ -83,7 +109,7 @@ describe('LabsService', () => {
     });
 
     await expect(
-      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1' }),
+      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1', tests: sampleTests }),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
@@ -95,7 +121,7 @@ describe('LabsService', () => {
     });
 
     await expect(
-      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1' }),
+      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1', tests: sampleTests }),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
@@ -111,7 +137,7 @@ describe('LabsService', () => {
     });
 
     await expect(
-      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1' }),
+      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1', tests: sampleTests }),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
@@ -131,7 +157,7 @@ describe('LabsService', () => {
     });
 
     await expect(
-      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1' }),
+      service.createOrder('d1', { appointmentId: 'a1', diagnosticId: 'diag1', tests: sampleTests }),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
@@ -170,6 +196,11 @@ describe('LabsService', () => {
       diagnosticId: 'diag1',
       status: 'SAMPLE_COLLECTED',
     });
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      id: 'a1',
+      doctorId: 'doc1',
+      patientId: 'pat1',
+    });
     prismaMock.labResult.findUnique.mockResolvedValueOnce(null);
     prismaMock.labOrder.update.mockResolvedValueOnce({
       id: 'o1',
@@ -189,6 +220,8 @@ describe('LabsService', () => {
       where: { id: 'a1' },
       data: { labFlowLocked: false },
     });
+    expect(notificationsMock.createAndEmit).toHaveBeenCalledTimes(2);
+    expect(auditMock.record).toHaveBeenCalled();
     expect(result.labOrderId).toBe('o1');
   });
 
@@ -242,6 +275,46 @@ describe('LabsService', () => {
 
     expect(() => service.listMine('u1', Role.ADMIN)).toThrow(ForbiddenException);
     expect(prismaMock.labOrder.findMany).toHaveBeenCalledTimes(3);
+    expect(prismaMock.labOrder.findMany).toHaveBeenNthCalledWith(1, {
+      where: {
+        appointment: {
+          doctorId: 'u1',
+        },
+      },
+      include: {
+        appointment: {
+          include: {
+            patient: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        labResult: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(prismaMock.labOrder.findMany).toHaveBeenNthCalledWith(3, {
+      where: { diagnosticId: 'u1' },
+      include: {
+        appointment: {
+          include: {
+            patient: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        labResult: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   });
 
   it('getResult enforces role-based access', async () => {

@@ -4,10 +4,25 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AppointmentStatus, PrescriptionStatus, Role } from '../../generated/prisma/client';
+import {
+  AppointmentStatus,
+  NotificationType,
+  PrescriptionStatus,
+  Role,
+} from '../../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionNotesDto } from './dto/update-prescription-notes.dto';
+
+type UploadedPrescriptionFile = {
+  originalname: string;
+  mimetype: string;
+  size: number;
+  buffer: Buffer;
+};
 
 const TRANSITIONS: Record<PrescriptionStatus, PrescriptionStatus[]> = {
   DRAFT: [PrescriptionStatus.SIGNED],
@@ -19,7 +34,12 @@ const TRANSITIONS: Record<PrescriptionStatus, PrescriptionStatus[]> = {
 
 @Injectable()
 export class PrescriptionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+    private readonly auditService: AuditService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async createDraft(doctorId: string, dto: CreatePrescriptionDto) {
     const db = this.prisma as any;
@@ -56,14 +76,25 @@ export class PrescriptionsService {
       throw new BadRequestException('Prescription already exists for this appointment');
     }
 
-    return db.prescription.create({
+    const prescription = await db.prescription.create({
       data: {
         appointmentId: dto.appointmentId,
         doctorId,
         pharmacyId: dto.pharmacyId,
         notes: dto.notes,
+        diagnosis: dto.diagnosis ?? null,
+        instructions: dto.instructions ?? null,
+        medications: dto.medications ?? null,
       },
     });
+    await this.auditService.record(
+      doctorId,
+      'PRESCRIPTION_CREATED',
+      'Prescription',
+      prescription.id,
+      { appointmentId: dto.appointmentId, pharmacyId: dto.pharmacyId },
+    );
+    return prescription;
   }
 
   async signByDoctor(doctorId: string, prescriptionId: string, dto?: UpdatePrescriptionNotesDto) {
@@ -73,29 +104,75 @@ export class PrescriptionsService {
     this.transitionOrThrow(prescription.status, PrescriptionStatus.SIGNED);
     await this.assertLabDependencySatisfied(prescription.appointment);
 
-    return db.prescription.update({
+    const prescriptionUpdated = await db.prescription.update({
       where: { id: prescriptionId },
       data: {
         status: PrescriptionStatus.SIGNED,
         ...(dto?.notes ? { notes: dto.notes } : {}),
+        ...(dto?.diagnosis !== undefined ? { diagnosis: dto.diagnosis } : {}),
+        ...(dto?.instructions !== undefined ? { instructions: dto.instructions } : {}),
+        ...(dto?.medications !== undefined ? { medications: dto.medications } : {}),
       },
     });
+    await this.auditService.record(
+      doctorId,
+      'PRESCRIPTION_SIGNED',
+      'Prescription',
+      prescriptionId,
+    );
+    return prescriptionUpdated;
   }
 
   async sendToPatientByDoctor(doctorId: string, prescriptionId: string) {
-    return this.updateByDoctorTransition(
+    const db = this.prisma as any;
+    const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
+    this.assertDoctorOwnership(prescription.doctorId, doctorId);
+    this.transitionOrThrow(prescription.status, PrescriptionStatus.SENT_TO_PATIENT);
+
+    const updated = await db.prescription.update({
+      where: { id: prescriptionId },
+      data: { status: PrescriptionStatus.SENT_TO_PATIENT },
+    });
+    await this.notificationsService.createAndEmit(
+      prescription.appointment.patientId,
+      NotificationType.PRESCRIPTION_READY,
+      'Your prescription is ready.',
+      { prescriptionId },
       doctorId,
-      prescriptionId,
-      PrescriptionStatus.SENT_TO_PATIENT,
     );
+    await this.auditService.record(
+      doctorId,
+      'PRESCRIPTION_SENT_TO_PATIENT',
+      'Prescription',
+      prescriptionId,
+    );
+    return updated;
   }
 
   async sendToPharmacyByDoctor(doctorId: string, prescriptionId: string) {
-    return this.updateByDoctorTransition(
+    const db = this.prisma as any;
+    const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
+    this.assertDoctorOwnership(prescription.doctorId, doctorId);
+    this.transitionOrThrow(prescription.status, PrescriptionStatus.SENT_TO_PHARMACY);
+
+    const updated = await db.prescription.update({
+      where: { id: prescriptionId },
+      data: { status: PrescriptionStatus.SENT_TO_PHARMACY },
+    });
+    await this.notificationsService.createAndEmit(
+      prescription.pharmacyId,
+      NotificationType.PRESCRIPTION_READY,
+      'A prescription is ready for fulfillment.',
+      { prescriptionId },
       doctorId,
-      prescriptionId,
-      PrescriptionStatus.SENT_TO_PHARMACY,
     );
+    await this.auditService.record(
+      doctorId,
+      'PRESCRIPTION_SENT_TO_PHARMACY',
+      'Prescription',
+      prescriptionId,
+    );
+    return updated;
   }
 
   async dispenseByPharmacy(pharmacyId: string, prescriptionId: string) {
@@ -108,10 +185,75 @@ export class PrescriptionsService {
     }
     this.transitionOrThrow(prescription.status, PrescriptionStatus.DISPENSED);
 
-    return db.prescription.update({
+    const dispensed = await db.prescription.update({
       where: { id: prescriptionId },
       data: { status: PrescriptionStatus.DISPENSED },
     });
+    await this.auditService.record(
+      pharmacyId,
+      'PRESCRIPTION_DISPENSED',
+      'Prescription',
+      prescriptionId,
+    );
+    return dispensed;
+  }
+
+  async uploadDocumentByDoctor(
+    doctorId: string,
+    prescriptionId: string,
+    file: UploadedPrescriptionFile | undefined,
+  ) {
+    const db = this.prisma as any;
+    const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
+    this.assertDoctorOwnership(prescription.doctorId, doctorId);
+
+    if (!file) {
+      throw new BadRequestException('Prescription document file is required');
+    }
+    const allowedMime = /^application\/pdf$|^image\/(png|jpeg|jpg|webp)$/i.test(file.mimetype);
+    if (!allowedMime) {
+      throw new BadRequestException('Supported formats are PDF, PNG, JPG, or WEBP');
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      throw new BadRequestException('Prescription document must be 10MB or less');
+    }
+
+    const upload = await this.cloudinaryService.uploadBuffer({
+      buffer: file.buffer,
+      fileName: file.originalname || `prescription-${prescription.id}`,
+      folder: 'prescriptions',
+      contentType: file.mimetype,
+      resourceType: file.mimetype === 'application/pdf' ? 'raw' : 'image',
+    });
+
+    if (prescription.documentPublicId) {
+      await this.cloudinaryService.destroy(
+        prescription.documentPublicId,
+        prescription.documentMimeType?.startsWith('image/') ? 'image' : 'raw',
+      );
+    }
+
+    const updated = await db.prescription.update({
+      where: { id: prescriptionId },
+      data: {
+        documentUrl: upload.url,
+        documentPublicId: upload.publicId,
+        documentMimeType: upload.mimeType,
+        documentVersion: (prescription.documentVersion ?? 0) + 1,
+      },
+    });
+
+    await this.auditService.record(
+      doctorId,
+      'PRESCRIPTION_DOCUMENT_UPLOADED',
+      'Prescription',
+      prescriptionId,
+      {
+        documentPublicId: updated.documentPublicId,
+        documentVersion: updated.documentVersion,
+      },
+    );
+    return updated;
   }
 
   listMine(userId: string, role: Role) {
@@ -119,7 +261,19 @@ export class PrescriptionsService {
     if (role === Role.DOCTOR) {
       return db.prescription.findMany({
         where: { doctorId: userId },
-        include: { appointment: true },
+        include: {
+          appointment: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
     }
@@ -166,23 +320,9 @@ export class PrescriptionsService {
     throw new ForbiddenException('You are not allowed to access this prescription');
   }
 
-  private async updateByDoctorTransition(
-    doctorId: string,
+  private async getPrescriptionWithAppointmentOrThrow(
     prescriptionId: string,
-    nextStatus: PrescriptionStatus,
-  ) {
-    const db = this.prisma as any;
-    const prescription = await this.getPrescriptionWithAppointmentOrThrow(prescriptionId);
-    this.assertDoctorOwnership(prescription.doctorId, doctorId);
-    this.transitionOrThrow(prescription.status, nextStatus);
-
-    return db.prescription.update({
-      where: { id: prescriptionId },
-      data: { status: nextStatus },
-    });
-  }
-
-  private async getPrescriptionWithAppointmentOrThrow(prescriptionId: string) {
+  ): Promise<any> {
     const db = this.prisma as any;
     const prescription = await db.prescription.findUnique({
       where: { id: prescriptionId },
