@@ -12,6 +12,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
 import { PatientsModule } from './patients/patients.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { DoctorsModule } from './doctors/doctors.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     NotificationsModule,
     AuditModule,
     PatientsModule,
+    DoctorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

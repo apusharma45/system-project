@@ -60,13 +60,6 @@ export class LabsService {
       throw new BadRequestException('diagnosticId must belong to a diagnostic user');
     }
 
-    const existing = await db.labOrder.findUnique({
-      where: { appointmentId: dto.appointmentId },
-    });
-    if (existing) {
-      throw new BadRequestException('Lab order already exists for this appointment');
-    }
-
     await db.appointment.update({
       where: { id: dto.appointmentId },
       data: { requiresLab: true, labFlowLocked: true },
@@ -136,9 +129,17 @@ export class LabsService {
       },
     });
 
+    const pendingOrder = await db.labOrder.findFirst({
+      where: {
+        appointmentId: order.appointmentId,
+        labResult: { is: null },
+      },
+      select: { id: true },
+    });
+
     await db.appointment.update({
       where: { id: order.appointmentId },
-      data: { labFlowLocked: false },
+      data: { labFlowLocked: Boolean(pendingOrder) },
     });
 
     const appointment = await this.prisma.appointment.findUnique({

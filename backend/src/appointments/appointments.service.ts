@@ -390,15 +390,24 @@ export class AppointmentsService {
     }
 
     const db = this.prisma as any;
-    const result = await db.labResult.findFirst({
+    const labOrderCount = await db.labOrder.count({
       where: {
-        labOrder: {
-          appointmentId: appointment.id,
-        },
+        appointmentId: appointment.id,
       },
     });
-    if (!result) {
-      throw new BadRequestException('Cannot close appointment before lab result is uploaded');
+    if (labOrderCount === 0) {
+      throw new BadRequestException('Cannot close appointment before creating a lab order');
+    }
+
+    const pendingOrder = await db.labOrder.findFirst({
+      where: {
+        appointmentId: appointment.id,
+        labResult: { is: null },
+      },
+      select: { id: true },
+    });
+    if (pendingOrder) {
+      throw new BadRequestException('Cannot close appointment before all lab results are uploaded');
     }
   }
 }

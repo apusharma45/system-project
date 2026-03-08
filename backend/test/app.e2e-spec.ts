@@ -47,6 +47,19 @@ describe('AppController (e2e)', () => {
         emergencyContactRelation: null,
       },
     };
+    const doctorRecord = {
+      id: DOCTOR_ID,
+      fullName: 'Dr. Demo',
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+      phone: '+8801700000001',
+      address: 'Dhaka',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      professionalProfile: {
+        specialization: 'General Medicine',
+        licenseNumber: 'DOC-1001',
+      },
+    };
     const prismaMock = {
       $connect: jest.fn(),
       $disconnect: jest.fn(),
@@ -54,16 +67,7 @@ describe('AppController (e2e)', () => {
       user: {
         findUnique: jest.fn(({ where }: { where: { id: string } }) => {
           if (where.id === DOCTOR_ID) {
-            return Promise.resolve({
-              id: DOCTOR_ID,
-              fullName: 'Dr. Demo',
-              email: 'doctor@example.com',
-              role: 'DOCTOR',
-              phone: '+8801700000001',
-              address: 'Dhaka',
-              createdAt: new Date('2026-01-01T00:00:00.000Z'),
-              patientProfile: null,
-            });
+            return Promise.resolve(doctorRecord);
           }
           if (where.id === PATIENT_ID) {
             return Promise.resolve(patientRecord);
@@ -107,21 +111,29 @@ describe('AppController (e2e)', () => {
           return Promise.resolve(null);
         }),
         update: jest.fn(({ where, data }: any) => {
-          if (where.id !== PATIENT_ID) {
+          if (where.id !== PATIENT_ID && where.id !== DOCTOR_ID) {
             return Promise.resolve(null);
           }
-          const next = {
-            ...patientRecord,
+          if (where.id === PATIENT_ID) {
+            const next = {
+              ...patientRecord,
+              ...data,
+              patientProfile: data.patientProfile?.upsert?.update
+                ? {
+                    ...patientRecord.patientProfile,
+                    ...data.patientProfile.upsert.update,
+                  }
+                : patientRecord.patientProfile,
+            };
+            Object.assign(patientRecord, next);
+            return Promise.resolve(patientRecord);
+          }
+          const nextDoctor = {
+            ...doctorRecord,
             ...data,
-            patientProfile: data.patientProfile?.upsert?.update
-              ? {
-                  ...patientRecord.patientProfile,
-                  ...data.patientProfile.upsert.update,
-                }
-              : patientRecord.patientProfile,
           };
-          Object.assign(patientRecord, next);
-          return Promise.resolve(patientRecord);
+          Object.assign(doctorRecord, nextDoctor);
+          return Promise.resolve(doctorRecord);
         }),
         findMany: jest.fn(({ where }: { where: { role: string } }) => {
           if (where.role === 'DOCTOR') {
@@ -194,6 +206,31 @@ describe('AppController (e2e)', () => {
           const appointment = appointments.get(item.appointmentId);
           const labResult = [...labResults.values()].find((r) => r.labOrderId === item.id) ?? null;
           return Promise.resolve({ ...item, appointment, labResult });
+        }),
+        findFirst: jest.fn(({ where }: any) => {
+          const list = [...labOrders.values()].filter((order) => {
+            if (where?.appointmentId && order.appointmentId !== where.appointmentId) {
+              return false;
+            }
+            if (where?.id?.not && order.id === where.id.not) {
+              return false;
+            }
+            if (where?.labResult?.is === null) {
+              const hasResult = [...labResults.values()].some((r) => r.labOrderId === order.id);
+              return !hasResult;
+            }
+            return true;
+          });
+          return Promise.resolve(list[0] ?? null);
+        }),
+        count: jest.fn(({ where }: any) => {
+          const count = [...labOrders.values()].filter((order) => {
+            if (where?.appointmentId) {
+              return order.appointmentId === where.appointmentId;
+            }
+            return true;
+          }).length;
+          return Promise.resolve(count);
         }),
         findMany: jest.fn(({ where }: any) => {
           const list = [...labOrders.values()].filter((order) => {
@@ -1014,6 +1051,105 @@ describe('AppController (e2e)', () => {
       .expect((res) => expect(res.body.status).toBe('CLOSED'));
   });
 
+  it('multiple lab orders require all results before close', async () => {
+    const patientToken = await jwtService.signAsync({
+      sub: PATIENT_ID,
+      email: 'patient@example.com',
+      role: 'PATIENT',
+    });
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+    const diagnosticToken = await jwtService.signAsync({
+      sub: DIAGNOSTIC_ID,
+      email: 'diagnostic@example.com',
+      role: 'DIAGNOSTIC',
+    });
+
+    const create = await request(app.getHttpServer())
+      .post('/appointments')
+      .set('Authorization', `Bearer ${patientToken}`)
+      .send({
+        doctorId: DOCTOR_ID,
+        scheduledAt: new Date().toISOString(),
+      })
+      .expect(201);
+
+    const appointmentId = create.body.id;
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/confirm`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/in-visit`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/exam-done`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200);
+
+    const orderOne = await request(app.getHttpServer())
+      .post('/labs/orders')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'CBC', description: 'CBC' }],
+      })
+      .expect(201);
+    const orderTwo = await request(app.getHttpServer())
+      .post('/labs/orders')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        appointmentId,
+        diagnosticId: DIAGNOSTIC_ID,
+        tests: [{ title: 'ESR', description: 'ESR' }],
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${orderOne.body.id}/assign`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${orderOne.body.id}/sample-collected`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${orderOne.body.id}/result-uploaded`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .send({ fileUrl: 'https://files.test/order-one.pdf' })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/close`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${orderTwo.body.id}/assign`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${orderTwo.body.id}/sample-collected`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/labs/orders/${orderTwo.body.id}/result-uploaded`)
+      .set('Authorization', `Bearer ${diagnosticToken}`)
+      .send({ fileUrl: 'https://files.test/order-two.pdf' })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .patch(`/appointments/${appointmentId}/close`)
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200)
+      .expect((res) => expect(res.body.status).toBe('CLOSED'));
+  });
+
   it('labs endpoints enforce role guard and role-scoped list visibility', async () => {
     const patientToken = await jwtService.signAsync({
       sub: PATIENT_ID,
@@ -1471,6 +1607,42 @@ describe('AppController (e2e)', () => {
       .expect((res) => {
         expect(res.body).toHaveLength(1);
         expect(res.body[0].type).toBe('APPOINTMENT_CALLED');
+      });
+  });
+
+  it('/doctors/me/profile (GET/PATCH) supports editable whitelist and blocks restricted fields', async () => {
+    const doctorToken = await jwtService.signAsync({
+      sub: DOCTOR_ID,
+      email: 'doctor@example.com',
+      role: 'DOCTOR',
+    });
+
+    await request(app.getHttpServer())
+      .get('/doctors/me/profile')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.doctor.id).toBe(DOCTOR_ID);
+        expect(res.body.doctor.profile.specialization).toBe('General Medicine');
+      });
+
+    await request(app.getHttpServer())
+      .patch('/doctors/me/profile')
+      .set('Authorization', `Bearer ${doctorToken}`)
+      .send({
+        fullName: 'Dr. Updated',
+        phone: '+8801700000099',
+        address: 'Updated Clinic',
+        email: 'should-not-change@example.com',
+        role: 'PATIENT',
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.doctor.fullName).toBe('Dr. Updated');
+        expect(res.body.doctor.phone).toBe('+8801700000099');
+        expect(res.body.doctor.address).toBe('Updated Clinic');
+        expect(res.body.doctor.email).toBe('doctor@example.com');
+        expect(res.body.doctor.role).toBe('DOCTOR');
       });
   });
 

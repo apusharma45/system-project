@@ -11,6 +11,7 @@ import { DoctorLabOrdersPage } from '../features/doctor/doctor-lab-orders'
 import { DoctorNotificationsPage } from '../features/doctor/doctor-notifications'
 import { DoctorPatientProfilePage } from '../features/doctor/doctor-patient-profile'
 import { DoctorAppointmentDetailsPage } from '../features/doctor/doctor-appointment-details'
+import { DoctorProfilePage } from '../features/doctor/doctor-profile'
 import { PatientAppointmentsPage } from '../features/patient/patient-appointments'
 import { PatientNotificationsPage } from '../features/patient/patient-notifications'
 import { PatientProfilePage } from '../features/patient/patient-profile'
@@ -109,6 +110,10 @@ export const router = createBrowserRouter([
               {
                 path: '/doctor/notifications',
                 element: <DoctorNotificationsPage />,
+              },
+              {
+                path: '/doctor/profile',
+                element: <DoctorProfilePage />,
               },
             ],
           },

@@ -10,13 +10,14 @@ import { DoctorHome } from './doctor-home'
 import { DoctorLabOrdersPage } from './doctor-lab-orders'
 import { DoctorNotificationsPage } from './doctor-notifications'
 import { DoctorPatientsPage } from './doctor-patients'
+import { DoctorProfilePage } from './doctor-profile'
 import { DoctorPrescriptionsPage } from './doctor-prescriptions'
 
 const patchMock = vi.fn()
 const postMock = vi.fn()
 
 const authState = {
-  user: { role: 'DOCTOR' as const },
+  user: { role: 'DOCTOR' as const, fullName: 'Dr. Demo', email: 'doctor@example.com' },
   loading: false,
   token: null,
   logout: vi.fn(),
@@ -91,6 +92,23 @@ const doctorData = {
   ],
   diagnostics: [{ id: 'diag-1', email: 'diag@test.com', role: 'DIAGNOSTIC' as const }],
   pharmacies: [{ id: 'pharmacy-1', email: 'pharm@test.com', role: 'PHARMACY' as const }],
+  profile: {
+    doctor: {
+      id: 'doctor-1',
+      fullName: 'Dr. Demo',
+      email: 'doctor@example.com',
+      role: 'DOCTOR' as const,
+      phone: '+8801700000001',
+      address: 'Dhaka',
+      joinedAt: '2026-02-20T00:00:00.000Z',
+      profile: {
+        specialization: 'Cardiology',
+        licenseNumber: 'DOC-1001',
+        gender: 'MALE',
+        dateOfBirth: '1988-01-01T00:00:00.000Z',
+      },
+    },
+  },
 }
 
 vi.mock('../auth/auth-context', () => ({
@@ -112,6 +130,7 @@ vi.mock('./doctor-shared', () => ({
   useDoctorNotifications: () => ({ data: doctorData.notifications }),
   useDoctorDiagnostics: () => ({ data: doctorData.diagnostics }),
   useDoctorPharmacies: () => ({ data: doctorData.pharmacies }),
+  useDoctorMyProfile: () => ({ data: doctorData.profile, isLoading: false, isError: false }),
 }))
 
 function renderDoctorRoute(path: string, element: ReactNode) {
@@ -134,6 +153,7 @@ function renderDoctorRoute(path: string, element: ReactNode) {
             <Route path="/doctor/prescriptions" element={<DoctorPrescriptionsPage />} />
             <Route path="/doctor/lab-orders" element={<DoctorLabOrdersPage />} />
             <Route path="/doctor/notifications" element={<DoctorNotificationsPage />} />
+            <Route path="/doctor/profile" element={<DoctorProfilePage />} />
             <Route path="/doctor/test" element={element} />
           </Route>
         </Routes>
@@ -160,6 +180,9 @@ describe('doctor UI regression', () => {
     expect(screen.getByText('Prescriptions')).toBeInTheDocument()
     expect(screen.getByText('Lab Orders')).toBeInTheDocument()
     expect(screen.getByText('Notifications')).toBeInTheDocument()
+    expect(screen.getByText('Profile')).toBeInTheDocument()
+    expect(screen.getByText('Dr. Demo')).toBeInTheDocument()
+    expect(screen.getByLabelText('Open profile')).toHaveAttribute('href', '/doctor/profile')
   })
 
   it('renders dashboard stats and chart sections', () => {
@@ -176,6 +199,7 @@ describe('doctor UI regression', () => {
     ['/doctor/appointments', 'Appointments'],
     ['/doctor/appointments/apt-1', 'Appointment Details'],
     ['/doctor/patients', 'Patients'],
+    ['/doctor/profile', 'Profile'],
     ['/doctor/prescriptions', 'Prescriptions'],
     ['/doctor/lab-orders', 'Lab Orders'],
     ['/doctor/notifications', 'Notification Center'],
@@ -203,6 +227,24 @@ describe('doctor UI regression', () => {
     })
     fireEvent.change(screen.getByDisplayValue('All Status'), {
       target: { value: 'EXAM_DONE' },
+    })
+
+    expect(screen.getByText('John Doe')).toBeInTheDocument()
+    expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument()
+  })
+
+  it('patients page is identity-first and searchable by name/email', () => {
+    renderDoctorRoute('/doctor/patients', <div />)
+
+    expect(document.querySelector('.doctor-patients-page')).toBeTruthy()
+    expect(document.querySelector('.patient-card')).toBeTruthy()
+    expect(screen.getByPlaceholderText('Search by patient name or email')).toBeInTheDocument()
+    expect(screen.getByText('Alice Smith')).toBeInTheDocument()
+    expect(screen.getByText('alice@example.com')).toBeInTheDocument()
+    expect(screen.queryByText('Patient ID: patient-1')).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByPlaceholderText('Search by patient name or email'), {
+      target: { value: 'john@example.com' },
     })
 
     expect(screen.getByText('John Doe')).toBeInTheDocument()
@@ -287,6 +329,26 @@ describe('doctor UI regression', () => {
     })
   })
 
+  it('appointment details allows creating additional lab orders for same appointment', async () => {
+    renderDoctorRoute('/doctor/appointments/apt-1', <div />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lab' }))
+    expect(screen.getByText('Additional lab orders are allowed for this appointment.')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Diagnostic'), { target: { value: 'diag-1' } })
+    fireEvent.change(screen.getByLabelText('Requested Tests (one per line)'), {
+      target: { value: 'LFT' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Create Lab Order' }))
+
+    await waitFor(() => {
+      expect(postMock).toHaveBeenCalledWith('/labs/orders', {
+        appointmentId: 'apt-1',
+        diagnosticId: 'diag-1',
+        tests: [{ title: 'LFT', description: 'LFT' }],
+      })
+    })
+  })
+
   it('appointment details prescription and lab view panes are appointment-scoped', () => {
     renderDoctorRoute('/doctor/appointments/apt-2', <div />)
 
@@ -318,6 +380,29 @@ describe('doctor UI regression', () => {
     expect(screen.queryByRole('button', { name: 'Send Pharmacy' })).not.toBeInTheDocument()
     expect(screen.getByText('Patient: John Doe (john@example.com)')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Upload Document' })).toBeInTheDocument()
+  })
+
+  it('doctor profile page renders read-only identity fields and updates editable contact fields', async () => {
+    renderDoctorRoute('/doctor/profile', <div />)
+
+    expect(screen.getByLabelText('Email')).toBeDisabled()
+    expect(screen.getByLabelText('Role')).toBeDisabled()
+    expect(screen.getByLabelText('Doctor ID')).toBeDisabled()
+    expect(screen.getByLabelText('Specialization')).toBeDisabled()
+    expect(screen.getByLabelText('License Number')).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('Full Name'), { target: { value: 'Dr. Updated' } })
+    fireEvent.change(screen.getByLabelText('Phone'), { target: { value: '+8801700000011' } })
+    fireEvent.change(screen.getByLabelText('Address'), { target: { value: 'Updated Clinic' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save Profile' }))
+
+    await waitFor(() => {
+      expect(patchMock).toHaveBeenCalledWith('/doctors/me/profile', {
+        fullName: 'Dr. Updated',
+        phone: '+8801700000011',
+        address: 'Updated Clinic',
+      })
+    })
   })
 })
 

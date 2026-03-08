@@ -174,3 +174,26 @@ export type MyPatientProfileResponse = {
     profile?: PatientMedicalProfile | null
   }
 }
+
+export type DoctorProfessionalProfile = {
+  licenseNumber?: string | null
+  specialization?: string | null
+  dateOfBirth?: string | null
+  gender?: string | null
+  degrees?: string[] | null
+  certifications?: string[] | null
+  yearsOfExperience?: number | null
+}
+
+export type MyDoctorProfileResponse = {
+  doctor: {
+    id: string
+    fullName?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    joinedAt: string
+    profile?: DoctorProfessionalProfile | null
+  }
+}

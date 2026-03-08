@@ -577,9 +577,86 @@ textarea:focus {
   text-decoration: underline;
 }
 
+.doctor-patients-page .two-col {
+  gap: 0.8rem;
+}
+
+.doctor-patients-page .patient-card {
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.72rem;
+}
+
+.doctor-patients-page .patient-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.doctor-patients-page .patient-avatar {
+  width: 42px;
+  height: 42px;
+  font-size: 0.8rem;
+}
+
+.doctor-patients-page .patient-identity {
+  min-width: 0;
+}
+
+.doctor-patients-page .patient-identity h3 {
+  margin: 0;
+  font-size: 1.03rem;
+  line-height: 1.2;
+}
+
+.doctor-patients-page .patient-email {
+  margin: 0.15rem 0 0;
+}
+
+.doctor-patients-page .patient-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.doctor-patients-page .patient-metric {
+  border: 1px solid rgba(16, 185, 129, 0.16);
+  border-radius: 10px;
+  background: #f8fffb;
+  padding: 0.45rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.doctor-patients-page .patient-metric .status {
+  margin-right: 0;
+  padding: 0.14rem 0.42rem;
+}
+
+.doctor-patients-page .patient-metric strong {
+  font-size: 1.02rem;
+  color: #0f172a;
+}
+
+.doctor-patients-page .patient-meta {
+  margin: 0;
+  padding-top: 0.45rem;
+  border-top: 1px dashed rgba(16, 185, 129, 0.22);
+}
+
+.doctor-patients-page .patient-empty {
+  font-style: normal;
+}
+
 @media (max-width: 1024px) {
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .doctor-patients-page .patient-metrics {
+    grid-template-columns: 1fr;
   }
 }
 
