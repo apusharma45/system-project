@@ -21,7 +21,6 @@ exports.LabOrderStatus = {
     CREATED: 'CREATED',
     ASSIGNED: 'ASSIGNED',
     SAMPLE_COLLECTED: 'SAMPLE_COLLECTED',
-    RESULT_UPLOADED: 'RESULT_UPLOADED',
     SENT: 'SENT'
 };
 exports.PrescriptionStatus = {
@@ -33,6 +32,7 @@ exports.PrescriptionStatus = {
 };
 exports.NotificationType = {
     APPOINTMENT_CALLED: 'APPOINTMENT_CALLED',
+    LAB_ASSIGNED: 'LAB_ASSIGNED',
     LAB_RESULT_UPLOADED: 'LAB_RESULT_UPLOADED',
     PRESCRIPTION_READY: 'PRESCRIPTION_READY'
 };

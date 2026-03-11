@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { api, getApiErrorMessage } from '../../lib/api'
 import type { Appointment, UserSummary } from '../../types'
 
@@ -161,6 +162,15 @@ export function PatientAppointmentsPage() {
                     </strong>
                     <p>Status: {appointment.status}</p>
                     <p className="muted">
+                      Doctor:{' '}
+                      {appointment.doctorSnapshot?.fullName?.trim() ||
+                        appointment.doctorSnapshot?.email?.trim() ||
+                        'Not provided'}
+                    </p>
+                    {appointment.doctorSnapshot?.email ? (
+                      <p className="muted">Email: {appointment.doctorSnapshot.email}</p>
+                    ) : null}
+                    <p className="muted">
                       {appointment.requiresLab
                         ? appointment.labFlowLocked
                           ? 'Result pending'
@@ -184,6 +194,11 @@ export function PatientAppointmentsPage() {
                         ) : null}
                       </>
                     ) : null}
+                    <p>
+                      <Link to={`/patient/appointments/${appointment.id}`} className="quick-link">
+                        View Details
+                      </Link>
+                    </p>
                   </div>
                   {cancellableStatuses.has(appointment.status) ? (
                     <button

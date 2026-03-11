@@ -1,10 +1,17 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../../lib/api'
-import type { LabOrder, Prescription } from '../../types'
+import type { LabOrder, LabReport, Prescription } from '../../types'
 
 type RecordsTab = 'prescriptions' | 'labs' | 'reports'
+
+function getOrderReports(order: LabOrder): LabReport[] {
+  if (order.labReports?.length) return order.labReports
+  if (order.latestReport) return [order.latestReport]
+  if (order.labResult) return [order.labResult]
+  return []
+}
 
 function getInitialTab(value: string | null): RecordsTab {
   if (value === 'labs' || value === 'reports') return value
@@ -24,9 +31,17 @@ export function PatientRecordsPage() {
     queryFn: async () => (await api.get<LabOrder[]>('/labs/orders/me')).data,
   })
 
-  const reports = useMemo(
-    () => (labsQuery.data ?? []).filter((item) => item.labResult?.fileUrl),
-    [labsQuery.data],
+  const reports = useMemo(() => {
+    return (labsQuery.data ?? [])
+      .map((item) => ({
+        order: item,
+        reports: getOrderReports(item),
+      }))
+      .filter((item) => item.reports.length > 0)
+  }, [labsQuery.data])
+  const totalReportCount = useMemo(
+    () => reports.reduce((sum, item) => sum + item.reports.length, 0),
+    [reports],
   )
   const loading = prescriptionsQuery.isLoading || labsQuery.isLoading
 
@@ -58,7 +73,7 @@ export function PatientRecordsPage() {
             className={activeTab === 'reports' ? 'tab active' : 'tab'}
             onClick={() => setActiveTab('reports')}
           >
-            Reports ({reports.length})
+            Reports ({totalReportCount})
           </button>
         </div>
       </section>
@@ -75,6 +90,9 @@ export function PatientRecordsPage() {
                   <strong>Prescription #{item.id}</strong>
                   <p>Status: {item.status}</p>
                   <p className="muted">Appointment: #{item.appointmentId}</p>
+                  <Link to={`/patient/appointments/${item.appointmentId}`} className="quick-link">
+                    Open Appointment
+                  </Link>
                   <p className="muted">Notes: {item.notes || 'Not provided'}</p>
                   <p className="muted">Diagnosis: {item.diagnosis || 'Not provided'}</p>
                   <p className="muted">Instructions: {item.instructions || 'Not provided'}</p>
@@ -108,19 +126,43 @@ export function PatientRecordsPage() {
                   <p>Status: {item.status}</p>
                   <p className="muted">Appointment: #{item.appointmentId}</p>
                   <p className="muted">
-                    Tests:{' '}
-                    {item.tests?.length
-                      ? item.tests.map((test) => test.title).join(', ')
-                      : 'No tests listed'}
+                    Lab: {item.diagnosticSnapshot?.name || 'Not provided'}
                   </p>
+                  <p className="muted">
+                    Address: {item.diagnosticSnapshot?.address?.trim() || 'Not provided'}
+                  </p>
+                  <p className="muted">
+                    Phone: {item.diagnosticSnapshot?.phone?.trim() || 'Not provided'}
+                  </p>
+                  <div className="muted">
+                    <strong>Tests</strong>
+                    {item.tests?.length ? (
+                      <ul>
+                        {item.tests.map((test, index) => (
+                          <li key={`${item.id}-test-${index}`}>
+                            {test.title}: {test.description?.trim() || 'Not specified'}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No tests listed</p>
+                    )}
+                  </div>
                 </div>
-                {item.labResult?.fileUrl ? (
-                  <a href={item.labResult.fileUrl} target="_blank" rel="noreferrer">
-                    View Report
-                  </a>
-                ) : (
-                  <span className="muted">Report pending</span>
-                )}
+                <div className="stack">
+                  <Link to={`/patient/appointments/${item.appointmentId}`} className="quick-link">
+                    Open Appointment
+                  </Link>
+                  {getOrderReports(item).length > 0 ? (
+                    getOrderReports(item).map((report, index) => (
+                      <a key={report.id} href={report.fileUrl} target="_blank" rel="noreferrer">
+                        View Report {index + 1}
+                      </a>
+                    ))
+                  ) : (
+                    <span className="muted">Report pending</span>
+                  )}
+                </div>
               </li>
             ))}
             {(labsQuery.data ?? []).length === 0 ? (
@@ -134,15 +176,22 @@ export function PatientRecordsPage() {
         <section className="card">
           <h3>Reports</h3>
           <ul className="list">
-            {reports.map((item) => (
-              <li key={item.id}>
+            {reports.map(({ order, reports: orderReports }) => (
+              <li key={order.id}>
                 <div>
-                  <strong>Report for Lab Order #{item.id}</strong>
-                  <p className="muted">Appointment: #{item.appointmentId}</p>
+                  <strong>Reports for Lab Order #{order.id}</strong>
+                  <p className="muted">Appointment: #{order.appointmentId}</p>
                 </div>
-                <a href={item.labResult!.fileUrl} target="_blank" rel="noreferrer">
-                  Open Report
-                </a>
+                <div className="stack">
+                  <Link to={`/patient/appointments/${order.appointmentId}`} className="quick-link">
+                    Open Appointment
+                  </Link>
+                  {orderReports.map((report, index) => (
+                    <a key={report.id} href={report.fileUrl} target="_blank" rel="noreferrer">
+                      Open Report {index + 1}
+                    </a>
+                  ))}
+                </div>
               </li>
             ))}
             {reports.length === 0 ? <li className="empty">No reports uploaded yet.</li> : null}

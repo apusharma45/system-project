@@ -650,6 +650,82 @@ textarea:focus {
   font-style: normal;
 }
 
+.diagnostic-lab-orders-page .diagnostic-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.diagnostic-lab-orders-page .diagnostic-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 1px solid rgba(16, 185, 129, 0.24);
+  border-radius: 10px;
+  background: #f0fdf4;
+  padding: 0.6rem 0.75rem;
+}
+
+.diagnostic-lab-orders-page .diagnostic-search-wrap input {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  min-width: 0;
+}
+
+.diagnostic-lab-orders-page .diagnostic-search-wrap input:focus {
+  outline: none;
+}
+
+.diagnostic-lab-orders-page .diagnostic-filter-wrap {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.diagnostic-lab-orders-page .diagnostic-filter-wrap label {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.diagnostic-lab-orders-page .diagnostic-file-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.diagnostic-lab-orders-page .diagnostic-file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  max-width: 100%;
+}
+
+.diagnostic-lab-orders-page .diagnostic-file-chip span {
+  font-size: 0.78rem;
+}
+
+.diagnostic-lab-orders-page .chip-remove {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  padding: 0;
+  background: #dbeafe;
+  color: #1e3a8a;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.diagnostic-lab-orders-page .chip-remove:hover:not(:disabled) {
+  background: #bfdbfe;
+}
+
 @media (max-width: 1024px) {
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -657,6 +733,11 @@ textarea:focus {
 
   .doctor-patients-page .patient-metrics {
     grid-template-columns: 1fr;
+  }
+
+  .diagnostic-lab-orders-page .diagnostic-toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 }
 

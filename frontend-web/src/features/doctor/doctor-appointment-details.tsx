@@ -13,6 +13,15 @@ import {
 } from './doctor-shared'
 
 type DetailsTab = 'overview' | 'actions' | 'prescription' | 'lab' | 'report'
+type LabTestDraft = {
+  title: string
+  description: string
+}
+
+const emptyLabTestDraft = (index: number): LabTestDraft => ({
+  title: `Test ${index + 1}`,
+  description: '',
+})
 
 const appointmentActions: Array<{ label: string; action: string; from: AppointmentStatus[] }> = [
   { label: 'Approve Preferred', action: 'confirm', from: ['REQUESTED'] },
@@ -41,7 +50,7 @@ export function DoctorAppointmentDetailsPage() {
   const [prescriptionNotes, setPrescriptionNotes] = useState('')
   const [prescriptionDiagnosis, setPrescriptionDiagnosis] = useState('')
   const [prescriptionInstructions, setPrescriptionInstructions] = useState('')
-  const [labTestsText, setLabTestsText] = useState('')
+  const [labTests, setLabTests] = useState<LabTestDraft[]>([emptyLabTestDraft(0)])
   const [documentFile, setDocumentFile] = useState<File | null>(null)
 
   const appointment = useMemo(
@@ -56,13 +65,19 @@ export function DoctorAppointmentDetailsPage() {
     () => (prescriptionsQuery.data ?? []).filter((item) => item.appointmentId === appointmentId),
     [prescriptionsQuery.data, appointmentId],
   )
-  const appointmentLabOrder = useMemo(
-    () => (labsQuery.data ?? []).find((item) => item.appointmentId === appointmentId),
-    [labsQuery.data, appointmentId],
-  )
   const appointmentLabOrders = useMemo(
     () => (labsQuery.data ?? []).filter((item) => item.appointmentId === appointmentId),
     [labsQuery.data, appointmentId],
+  )
+  const appointmentLabOrdersWithReports = useMemo(
+    () =>
+      appointmentLabOrders
+        .map((item) => ({
+          ...item,
+          reports: getReports(item),
+        }))
+        .filter((item) => item.reports.length > 0),
+    [appointmentLabOrders],
   )
 
   const invalidateDoctorData = async () => {
@@ -157,11 +172,10 @@ export function DoctorAppointmentDetailsPage() {
 
   const createLabOrderMutation = useMutation({
     mutationFn: async () => {
-      const tests = labTestsText
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((title) => ({ title, description: title }))
+      const tests = labTests.map((test, index) => ({
+        title: test.title.trim() || `Test ${index + 1}`,
+        description: test.description.trim(),
+      }))
       return (
         await api.post<LabOrder>('/labs/orders', {
           appointmentId,
@@ -172,7 +186,7 @@ export function DoctorAppointmentDetailsPage() {
     },
     onSuccess: async () => {
       setError(null)
-      setLabTestsText('')
+      setLabTests([emptyLabTestDraft(0)])
       await invalidateDoctorData()
     },
     onError: (err) => setError(getApiErrorMessage(err)),
@@ -223,8 +237,15 @@ export function DoctorAppointmentDetailsPage() {
   const onCreateLabOrder = (event: FormEvent) => {
     event.preventDefault()
     setError(null)
-    if (!selectedDiagnosticId || !labTestsText.trim()) {
-      setError('Select diagnostic and provide at least one test (one per line).')
+    if (!selectedDiagnosticId) {
+      setError('Select diagnostic user.')
+      return
+    }
+    if (
+      !labTests.length ||
+      labTests.some((test) => !test.title.trim() || !test.description.trim())
+    ) {
+      setError('Provide title and description for each requested test.')
       return
     }
     createLabOrderMutation.mutate()
@@ -499,7 +520,7 @@ export function DoctorAppointmentDetailsPage() {
               <h4>Create Lab Order</h4>
               <form onSubmit={onCreateLabOrder} className="stack">
                 <p className="muted">
-                  {appointmentLabOrder
+                  {appointmentLabOrders.length > 0
                     ? 'Additional lab orders are allowed for this appointment.'
                     : 'No lab order exists for this appointment yet.'}
                 </p>
@@ -516,13 +537,61 @@ export function DoctorAppointmentDetailsPage() {
                     </option>
                   ))}
                 </select>
-                <label htmlFor="labTests">Requested Tests (one per line)</label>
-                <textarea
-                  id="labTests"
-                  rows={5}
-                  value={labTestsText}
-                  onChange={(e) => setLabTestsText(e.target.value)}
-                />
+                <section className="stack" aria-label="appointment-lab-test-builder">
+                  <strong>Requested Tests</strong>
+                  {labTests.map((test, index) => (
+                    <div key={`appointment-lab-test-${index}`} className="grid two-col">
+                      <input
+                        aria-label={`Test ${index + 1} Title`}
+                        value={test.title}
+                        placeholder={`Test ${index + 1}`}
+                        onChange={(e) =>
+                          setLabTests((current) =>
+                            current.map((item, idx) =>
+                              idx === index ? { ...item, title: e.target.value } : item,
+                            ),
+                          )
+                        }
+                      />
+                      <div className="actions">
+                        <input
+                          aria-label={`Test ${index + 1} Description`}
+                          value={test.description}
+                          placeholder={`Description for Test ${index + 1}`}
+                          onChange={(e) =>
+                            setLabTests((current) =>
+                              current.map((item, idx) =>
+                                idx === index ? { ...item, description: e.target.value } : item,
+                              ),
+                            )
+                          }
+                        />
+                        <button
+                          type="button"
+                          disabled={labTests.length === 1}
+                          onClick={() =>
+                            setLabTests((current) =>
+                              current
+                                .filter((_, idx) => idx !== index)
+                                .map((item, idx) => ({
+                                  ...item,
+                                  title: item.title || `Test ${idx + 1}`,
+                                })),
+                            )
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setLabTests((current) => [...current, emptyLabTestDraft(current.length)])}
+                  >
+                    Add Test
+                  </button>
+                </section>
                 <button type="submit" disabled={createLabOrderMutation.isPending}>
                   Create Lab Order
                 </button>
@@ -540,14 +609,35 @@ export function DoctorAppointmentDetailsPage() {
                           <span className={labStatusClass(item.status)}>{item.status}</span>
                         </p>
                         <p className="muted">Lab Order Ref: {item.id}</p>
-                        <p>
-                          <strong>Tests:</strong>{' '}
-                          {item.tests?.length ? item.tests.map((test) => test.title).join(', ') : 'No tests listed'}
-                        </p>
-                        {item.labResult?.fileUrl ? (
-                          <a href={item.labResult.fileUrl} target="_blank" rel="noreferrer" className="quick-link">
-                            Open Report
-                          </a>
+                        <div>
+                          <strong>Tests</strong>
+                          {item.tests?.length ? (
+                            <ul>
+                              {item.tests.map((test, index) => (
+                                <li key={`${item.id}-test-${index}`}>
+                                  {test.title}: {test.description?.trim() || 'Not specified'}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="muted">No tests listed</p>
+                          )}
+                        </div>
+                        {getReports(item).length > 0 ? (
+                          <div className="stack">
+                            <strong>Reports</strong>
+                            {getReports(item).map((report, index) => (
+                              <a
+                                key={report.id}
+                                href={report.fileUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="quick-link"
+                              >
+                                Open Report {index + 1}
+                              </a>
+                            ))}
+                          </div>
                         ) : (
                           <p className="muted">Report pending</p>
                         )}
@@ -566,12 +656,20 @@ export function DoctorAppointmentDetailsPage() {
       {activeTab === 'report' ? (
         <section className="card">
           <h3>Lab Report</h3>
-          {appointmentLabOrder?.labResult?.fileUrl ? (
+          {appointmentLabOrdersWithReports.length > 0 ? (
             <div className="stack">
-              <p>Report available for this appointment.</p>
-              <a href={appointmentLabOrder.labResult.fileUrl} target="_blank" rel="noreferrer">
-                Open Lab Report
-              </a>
+              {appointmentLabOrdersWithReports.map((item) => (
+                <section key={item.id} className="stack">
+                  <p className="muted">Lab Order Ref: {item.id}</p>
+                  <div className="stack">
+                    {item.reports.map((report, index) => (
+                      <a key={report.id} href={report.fileUrl} target="_blank" rel="noreferrer">
+                        Open Report {index + 1}
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              ))}
             </div>
           ) : (
             <p className="muted">No lab report uploaded yet.</p>
@@ -590,8 +688,15 @@ const prescriptionStatusClass = (status: Prescription['status']) => {
 }
 
 const labStatusClass = (status: LabOrder['status']) => {
-  if (status === 'SENT' || status === 'RESULT_UPLOADED') return 'status status-green'
+  if (status === 'SENT') return 'status status-green'
   if (status === 'ASSIGNED' || status === 'SAMPLE_COLLECTED') return 'status status-blue'
   if (status === 'CREATED') return 'status status-yellow'
   return 'status status-gray'
+}
+
+function getReports(order: LabOrder) {
+  if (order.labReports?.length) {
+    return order.labReports
+  }
+  return order.latestReport ? [order.latestReport] : order.labResult ? [order.labResult] : []
 }

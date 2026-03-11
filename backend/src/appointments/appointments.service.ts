@@ -81,10 +81,27 @@ export class AppointmentsService {
 
   async listMine(userId: string, role: Role) {
     if (role === Role.PATIENT) {
-      return this.prisma.appointment.findMany({
+      const appointments = await this.prisma.appointment.findMany({
         where: { patientId: userId },
+        include: {
+          doctor: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+            },
+          },
+        },
         orderBy: { scheduledAt: 'asc' },
       });
+      return appointments.map(({ doctor, ...appointment }) => ({
+        ...appointment,
+        doctorSnapshot: {
+          id: doctor.id,
+          fullName: doctor.fullName,
+          email: doctor.email,
+        },
+      }));
     }
     if (role === Role.DOCTOR) {
       const appointments = await this.prisma.appointment.findMany({
@@ -402,7 +419,7 @@ export class AppointmentsService {
     const pendingOrder = await db.labOrder.findFirst({
       where: {
         appointmentId: appointment.id,
-        labResult: { is: null },
+        labReports: { none: {} },
       },
       select: { id: true },
     });

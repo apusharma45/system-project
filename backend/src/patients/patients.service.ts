@@ -126,7 +126,7 @@ export class PatientsService {
         },
         include: {
           appointment: true,
-          labResult: true,
+          labReports: { orderBy: { uploadedAt: 'desc' } },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -158,7 +158,11 @@ export class PatientsService {
       },
       history: {
         appointments,
-        labOrders,
+        labOrders: labOrders.map((item: any) => ({
+          ...item,
+          latestReport: item.labReports?.[0] ?? null,
+          labResult: item.labReports?.[0] ?? null,
+        })),
         prescriptions,
       },
     };

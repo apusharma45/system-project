@@ -16,6 +16,7 @@ const prisma_service_1 = require("../prisma/prisma.service");
 const notifications_gateway_1 = require("./notifications.gateway");
 const EVENT_BY_TYPE = {
     APPOINTMENT_CALLED: 'appointment.called',
+    LAB_ASSIGNED: 'lab.assigned',
     LAB_RESULT_UPLOADED: 'lab.result_uploaded',
     PRESCRIPTION_READY: 'prescription.ready',
 };

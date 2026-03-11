@@ -29,7 +29,6 @@ enum LabOrderStatus {
   CREATED
   ASSIGNED
   SAMPLE_COLLECTED
-  RESULT_UPLOADED
   SENT
 }
 
@@ -43,6 +42,7 @@ enum PrescriptionStatus {
 
 enum NotificationType {
   APPOINTMENT_CALLED
+  LAB_ASSIGNED
   LAB_RESULT_UPLOADED
   PRESCRIPTION_READY
 }
@@ -160,7 +160,7 @@ model LabOrder {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
-  labResult LabResult?
+  labReports LabResult[]
 
   @@index([diagnosticId])
   @@index([appointmentId])
@@ -180,7 +180,8 @@ model LabResult {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@unique([labOrderId])
+  @@index([labOrderId])
+  @@index([uploadedAt])
 }
 
 model Prescription {

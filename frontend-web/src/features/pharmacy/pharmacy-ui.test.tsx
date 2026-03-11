@@ -80,6 +80,10 @@ vi.mock('../doctor/doctor-shared', () => ({
   useDoctorNotifications: () => ({ data: [] }),
 }))
 
+vi.mock('../diagnostic/diagnostic-shared', () => ({
+  useDiagnosticNotifications: () => ({ data: [] }),
+}))
+
 vi.mock('./pharmacy-shared', () => ({
   pharmacyInvalidateKeys: {
     prescriptions: ['prescriptions'],

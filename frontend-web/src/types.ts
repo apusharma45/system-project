@@ -13,7 +13,6 @@ export type LabOrderStatus =
   | 'CREATED'
   | 'ASSIGNED'
   | 'SAMPLE_COLLECTED'
-  | 'RESULT_UPLOADED'
   | 'SENT'
 
 export type PrescriptionStatus =
@@ -25,6 +24,7 @@ export type PrescriptionStatus =
 
 export type NotificationType =
   | 'APPOINTMENT_CALLED'
+  | 'LAB_ASSIGNED'
   | 'LAB_RESULT_UPLOADED'
   | 'PRESCRIPTION_READY'
 
@@ -73,12 +73,20 @@ export type Appointment = {
     latestLabResultAt: string | null
     latestPrescriptionAt: string | null
   }
+  doctorSnapshot?: {
+    id: string
+    fullName?: string | null
+    email?: string | null
+  }
 }
 
-export type LabResult = {
+export type LabReport = {
   id: string
   labOrderId: string
   fileUrl: string
+  filePublicId?: string | null
+  fileMimeType?: string | null
+  fileSizeBytes?: number | null
   uploadedAt: string
 }
 
@@ -94,7 +102,22 @@ export type LabOrder = {
   status: LabOrderStatus
   tests?: LabTestItem[] | null
   appointment?: Appointment
-  labResult?: LabResult | null
+  patientClinicalSnapshot?: {
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    gender?: string | null
+    ageYears?: number | null
+  }
+  diagnosticSnapshot?: {
+    name: string
+    address?: string | null
+    phone?: string | null
+  }
+  labReports?: LabReport[]
+  latestReport?: LabReport | null
+  // compatibility field during migration to multi-report UI
+  labResult?: LabReport | null
 }
 
 export type Prescription = {
@@ -195,5 +218,27 @@ export type MyDoctorProfileResponse = {
     address?: string | null
     joinedAt: string
     profile?: DoctorProfessionalProfile | null
+  }
+}
+
+export type DiagnosticProfessionalProfile = {
+  labName?: string | null
+  licenseNumber?: string | null
+  dateOfBirth?: string | null
+  gender?: string | null
+  accreditations?: string[] | null
+  availableTests?: string[] | null
+}
+
+export type MyDiagnosticProfileResponse = {
+  diagnostic: {
+    id: string
+    fullName?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    joinedAt: string
+    profile?: DiagnosticProfessionalProfile | null
   }
 }

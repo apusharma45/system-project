@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LabsModule = void 0;
 const common_1 = require("@nestjs/common");
 const audit_module_1 = require("../audit/audit.module");
+const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
 const notifications_module_1 = require("../notifications/notifications.module");
 const labs_controller_1 = require("./labs.controller");
 const labs_service_1 = require("./labs.service");
@@ -17,7 +18,7 @@ let LabsModule = class LabsModule {
 exports.LabsModule = LabsModule;
 exports.LabsModule = LabsModule = __decorate([
     (0, common_1.Module)({
-        imports: [notifications_module_1.NotificationsModule, audit_module_1.AuditModule],
+        imports: [notifications_module_1.NotificationsModule, audit_module_1.AuditModule, cloudinary_module_1.CloudinaryModule],
         controllers: [labs_controller_1.LabsController],
         providers: [labs_service_1.LabsService],
     })

@@ -13,6 +13,7 @@ import { AuditModule } from './audit/audit.module';
 import { PatientsModule } from './patients/patients.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { DoctorsModule } from './doctors/doctors.module';
+import { DiagnosticModule } from './diagnostic/diagnostic.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { DoctorsModule } from './doctors/doctors.module';
     AuditModule,
     PatientsModule,
     DoctorsModule,
+    DiagnosticModule,
   ],
   controllers: [AppController],
   providers: [AppService],

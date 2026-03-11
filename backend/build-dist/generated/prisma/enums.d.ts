@@ -20,7 +20,6 @@ export declare const LabOrderStatus: {
     readonly CREATED: "CREATED";
     readonly ASSIGNED: "ASSIGNED";
     readonly SAMPLE_COLLECTED: "SAMPLE_COLLECTED";
-    readonly RESULT_UPLOADED: "RESULT_UPLOADED";
     readonly SENT: "SENT";
 };
 export type LabOrderStatus = (typeof LabOrderStatus)[keyof typeof LabOrderStatus];
@@ -34,6 +33,7 @@ export declare const PrescriptionStatus: {
 export type PrescriptionStatus = (typeof PrescriptionStatus)[keyof typeof PrescriptionStatus];
 export declare const NotificationType: {
     readonly APPOINTMENT_CALLED: "APPOINTMENT_CALLED";
+    readonly LAB_ASSIGNED: "LAB_ASSIGNED";
     readonly LAB_RESULT_UPLOADED: "LAB_RESULT_UPLOADED";
     readonly PRESCRIPTION_READY: "PRESCRIPTION_READY";
 };

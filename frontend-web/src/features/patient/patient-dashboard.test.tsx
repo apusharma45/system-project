@@ -171,4 +171,36 @@ describe('PatientAppointmentsPage', () => {
     expect(screen.getByText('Test required')).toBeInTheDocument()
     expect(screen.getByText('No test required')).toBeInTheDocument()
   })
+
+  it('shows doctor identity in appointment list and details link', async () => {
+    getMock.mockImplementation((url: string) => {
+      if (url === '/users/doctors') return Promise.resolve({ data: [] })
+      if (url === '/appointments/me') {
+        return Promise.resolve({
+          data: [
+            {
+              id: 'a1',
+              status: 'REQUESTED',
+              doctorId: 'd1',
+              patientId: 'p1',
+              scheduledAt: null,
+              requiresLab: false,
+              labFlowLocked: false,
+              doctorSnapshot: { id: 'd1', fullName: 'Dr. Alice', email: 'alice@example.com' },
+            },
+          ],
+        })
+      }
+      return Promise.resolve({ data: [] })
+    })
+
+    renderAppointmentsPage()
+
+    expect(await screen.findByText('Doctor: Dr. Alice')).toBeInTheDocument()
+    expect(screen.getByText('Email: alice@example.com')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'View Details' })).toHaveAttribute(
+      'href',
+      '/patient/appointments/a1',
+    )
+  })
 })

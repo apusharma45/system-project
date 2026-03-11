@@ -1,10 +1,15 @@
 import { Role } from '../../generated/prisma/client';
 import { CreateLabOrderDto } from './dto/create-lab-order.dto';
-import { UploadLabResultDto } from './dto/upload-lab-result.dto';
 import { LabsService } from './labs.service';
 type RequestUser = {
     userId: string;
     role: Role;
+};
+type UploadedLabFile = {
+    originalname: string;
+    mimetype: string;
+    size: number;
+    buffer: Buffer;
 };
 export declare class LabsController {
     private readonly labsService;
@@ -20,13 +25,25 @@ export declare class LabsController {
     }, id: string): Promise<any>;
     resultUploaded(req: {
         user: RequestUser;
-    }, id: string, dto: UploadLabResultDto): Promise<any>;
+    }, id: string, files: UploadedLabFile[] | undefined): Promise<{
+        labOrderId: string;
+        uploadedCount: number;
+        reports: {
+            id: string;
+            labOrderId: string;
+            fileUrl: string;
+            filePublicId?: string | null;
+            fileMimeType?: string | null;
+            fileSizeBytes?: number | null;
+            uploadedAt: Date;
+        }[];
+    }>;
     sent(req: {
         user: RequestUser;
     }, id: string): Promise<any>;
     listMine(req: {
         user: RequestUser;
-    }): any;
+    }): Promise<any>;
     getResult(req: {
         user: RequestUser;
     }, id: string): Promise<any>;

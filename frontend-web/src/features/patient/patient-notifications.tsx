@@ -28,6 +28,7 @@ export function PatientNotificationsPage() {
       void queryClient.invalidateQueries({ queryKey: ['notifications'] })
     }
     socket.on('appointment.called', () => onEvent('appointment.called'))
+    socket.on('lab.assigned', () => onEvent('lab.assigned'))
     socket.on('lab.result_uploaded', () => onEvent('lab.result_uploaded'))
     socket.on('prescription.ready', () => onEvent('prescription.ready'))
     return () => {
@@ -50,7 +51,7 @@ export function PatientNotificationsPage() {
       total: list.length,
       unread: list.filter((item) => !item.read).length,
       appointment: list.filter((item) => item.type === 'APPOINTMENT_CALLED').length,
-      lab: list.filter((item) => item.type === 'LAB_RESULT_UPLOADED').length,
+      lab: list.filter((item) => item.type === 'LAB_RESULT_UPLOADED' || item.type === 'LAB_ASSIGNED').length,
       prescription: list.filter((item) => item.type === 'PRESCRIPTION_READY').length,
     }
   }, [notificationsQuery.data])
@@ -131,7 +132,7 @@ export function PatientNotificationsPage() {
                     className={`icon-chip ${
                       item.type === 'APPOINTMENT_CALLED'
                         ? 'blue'
-                        : item.type === 'LAB_RESULT_UPLOADED'
+                        : item.type === 'LAB_RESULT_UPLOADED' || item.type === 'LAB_ASSIGNED'
                           ? 'purple'
                           : item.type === 'PRESCRIPTION_READY'
                             ? 'green'
@@ -140,7 +141,7 @@ export function PatientNotificationsPage() {
                   >
                     {item.type === 'APPOINTMENT_CALLED' ? (
                       <Calendar size={18} />
-                    ) : item.type === 'LAB_RESULT_UPLOADED' ? (
+                    ) : item.type === 'LAB_RESULT_UPLOADED' || item.type === 'LAB_ASSIGNED' ? (
                       <FlaskConical size={18} />
                     ) : item.type === 'PRESCRIPTION_READY' ? (
                       <FileText size={18} />
@@ -166,6 +167,9 @@ export function PatientNotificationsPage() {
                 ) : null}
                 {item.type === 'LAB_RESULT_UPLOADED' ? (
                   <Link to="/patient/records?tab=reports">View Report</Link>
+                ) : null}
+                {item.type === 'LAB_ASSIGNED' ? (
+                  <Link to="/patient/records?tab=labs">View Lab Order</Link>
                 ) : null}
               </li>
             ))}
