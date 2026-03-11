@@ -14,12 +14,12 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LabsController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
 const client_1 = require("../../generated/prisma/client");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const roles_guard_1 = require("../auth/roles.guard");
 const create_lab_order_dto_1 = require("./dto/create-lab-order.dto");
-const upload_lab_result_dto_1 = require("./dto/upload-lab-result.dto");
 const labs_service_1 = require("./labs.service");
 let LabsController = class LabsController {
     labsService;
@@ -35,8 +35,8 @@ let LabsController = class LabsController {
     sampleCollected(req, id) {
         return this.labsService.collectSample(req.user.userId, id);
     }
-    resultUploaded(req, id, dto) {
-        return this.labsService.uploadResult(req.user.userId, id, dto);
+    resultUploaded(req, id, files) {
+        return this.labsService.uploadResult(req.user.userId, id, files);
     }
     sent(req, id) {
         return this.labsService.markSent(req.user.userId, id);
@@ -79,11 +79,12 @@ __decorate([
 __decorate([
     (0, common_1.Patch)('orders/:id/result-uploaded'),
     (0, roles_decorator_1.Roles)(client_1.Role.DIAGNOSTIC),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files', 10)),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
-    __param(2, (0, common_1.Body)()),
+    __param(2, (0, common_1.UploadedFiles)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, upload_lab_result_dto_1.UploadLabResultDto]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
 ], LabsController.prototype, "resultUploaded", null);
 __decorate([

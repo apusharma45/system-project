@@ -92,7 +92,7 @@ export function DoctorHome() {
     },
     {
       label: 'Lab Reports',
-      value: String(labOrders.filter((item) => item.status === 'SENT' || item.status === 'RESULT_UPLOADED').length),
+      value: String(labOrders.filter((item) => item.status === 'SENT').length),
       icon: FlaskConical,
       accent: 'orange',
     },

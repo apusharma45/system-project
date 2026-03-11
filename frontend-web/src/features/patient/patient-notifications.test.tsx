@@ -64,6 +64,13 @@ describe('PatientNotificationsPage', () => {
           read: false,
           createdAt: '2026-03-07T00:00:00.000Z',
         },
+        {
+          id: 'n3',
+          type: 'LAB_ASSIGNED',
+          message: 'Lab assigned',
+          read: false,
+          createdAt: '2026-03-07T00:00:00.000Z',
+        },
       ],
     })
   })
@@ -78,6 +85,10 @@ describe('PatientNotificationsPage', () => {
     expect(screen.getByRole('link', { name: 'View Report' })).toHaveAttribute(
       'href',
       '/patient/records?tab=reports',
+    )
+    expect(screen.getByRole('link', { name: 'View Lab Order' })).toHaveAttribute(
+      'href',
+      '/patient/records?tab=labs',
     )
   })
 })

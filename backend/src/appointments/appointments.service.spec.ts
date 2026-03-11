@@ -425,4 +425,41 @@ describe('AppointmentsService', () => {
     });
     await expect(service.cancelByDoctor('d1', 'a1')).rejects.toBeInstanceOf(ForbiddenException);
   });
+
+  it('listMine for patient returns doctorSnapshot', async () => {
+    prismaMock.appointment.findMany.mockResolvedValueOnce([
+      {
+        id: 'a1',
+        patientId: 'p1',
+        doctorId: 'd1',
+        status: AppointmentStatus.REQUESTED,
+        scheduledAt: null,
+        doctor: {
+          id: 'd1',
+          fullName: 'Dr. Alice',
+          email: 'alice@example.com',
+        },
+      },
+    ]);
+
+    const result = await service.listMine('p1', Role.PATIENT);
+    expect(prismaMock.appointment.findMany).toHaveBeenCalledWith({
+      where: { patientId: 'p1' },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { scheduledAt: 'asc' },
+    });
+    expect((result as any)[0].doctorSnapshot).toEqual({
+      id: 'd1',
+      fullName: 'Dr. Alice',
+      email: 'alice@example.com',
+    });
+  });
 });

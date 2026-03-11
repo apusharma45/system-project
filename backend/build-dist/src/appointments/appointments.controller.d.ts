@@ -29,6 +29,54 @@ export declare class AppointmentsController {
     listMine(req: {
         user: RequestUser;
     }): Promise<{
+        doctorSnapshot: {
+            id: string;
+            fullName: string | null;
+            email: string;
+        };
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        doctorId: string;
+        preferredDateFrom: Date | null;
+        preferredDateTo: Date | null;
+        reason: string | null;
+        preferredTimeNote: string | null;
+        scheduledAt: Date | null;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        requiresLab: boolean;
+        labFlowLocked: boolean;
+        patientId: string;
+    }[] | {
+        patientSnapshot: {
+            id: string;
+            fullName: string | null;
+            email: string;
+            profile: {
+                id: string;
+                phone: string | null;
+                address: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                gender: string | null;
+                dateOfBirth: Date | null;
+                allergies: string | null;
+                chronicConditions: string | null;
+                currentMedications: string | null;
+                emergencyContactName: string | null;
+                emergencyContactPhone: string | null;
+                emergencyContactRelation: string | null;
+                patientId: string;
+            } | null;
+        };
+        patientHistorySummary: {
+            appointmentCount: number;
+            labOrderCount: number;
+            prescriptionCount: number;
+            latestAppointmentAt: Date | null;
+            latestLabResultAt: Date | null;
+            latestPrescriptionAt: Date | null;
+        };
         id: string;
         createdAt: Date;
         updatedAt: Date;

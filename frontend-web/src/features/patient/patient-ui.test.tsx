@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AppLayout } from '../../app/layout'
 import { PatientAppointmentsPage } from './patient-appointments'
+import { PatientAppointmentDetailsPage } from './patient-appointment-details'
 import { PatientNotificationsPage } from './patient-notifications'
 import { PatientProfilePage } from './patient-profile'
 import { PatientRecordsPage } from './patient-records'
@@ -23,6 +24,10 @@ vi.mock('../auth/auth-context', () => ({
 
 vi.mock('../doctor/doctor-shared', () => ({
   useDoctorNotifications: () => ({ data: [] }),
+}))
+
+vi.mock('../diagnostic/diagnostic-shared', () => ({
+  useDiagnosticNotifications: () => ({ data: [] }),
 }))
 
 vi.mock('../pharmacy/pharmacy-shared', () => ({
@@ -82,6 +87,7 @@ function renderPatientRoute(path: string, element: ReactNode) {
           <Route element={<AppLayout />}>
             <Route path="/patient" element={<PatientAppointmentsPage />} />
             <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
+            <Route path="/patient/appointments/:appointmentId" element={<PatientAppointmentDetailsPage />} />
             <Route path="/patient/records" element={<PatientRecordsPage />} />
             <Route path="/patient/notifications" element={<PatientNotificationsPage />} />
             <Route path="/patient/profile" element={<PatientProfilePage />} />
@@ -160,5 +166,10 @@ describe('patient navigation', () => {
   it('dashboard route renders appointments content', async () => {
     renderPatientRoute('/patient', <div />)
     expect(await screen.findByRole('heading', { name: 'Appointments' })).toBeInTheDocument()
+  })
+
+  it('patient appointment details route is guarded and renders details page', async () => {
+    renderPatientRoute('/patient/appointments/missing', <div />)
+    expect(await screen.findByRole('heading', { name: 'Appointment Details' })).toBeInTheDocument()
   })
 })

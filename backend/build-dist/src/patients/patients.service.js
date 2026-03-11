@@ -126,7 +126,7 @@ let PatientsService = class PatientsService {
                 },
                 include: {
                     appointment: true,
-                    labResult: true,
+                    labReports: { orderBy: { uploadedAt: 'desc' } },
                 },
                 orderBy: { createdAt: 'desc' },
             }),
@@ -157,7 +157,11 @@ let PatientsService = class PatientsService {
             },
             history: {
                 appointments,
-                labOrders,
+                labOrders: labOrders.map((item) => ({
+                    ...item,
+                    latestReport: item.labReports?.[0] ?? null,
+                    labResult: item.labReports?.[0] ?? null,
+                })),
                 prescriptions,
             },
         };

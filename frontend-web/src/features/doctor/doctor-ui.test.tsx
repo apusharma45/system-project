@@ -71,13 +71,38 @@ const doctorData = {
       id: 'lab-1',
       appointmentId: 'apt-1',
       diagnosticId: 'diag-1',
-      status: 'CREATED' as const,
+      status: 'SENT' as const,
       tests: [{ title: 'Test 1', description: 'CBC panel' }],
       appointment: {
         patientId: 'patient-1',
         patient: { id: 'patient-1', fullName: 'Alice Smith', email: 'alice@example.com' },
       },
-      labResult: null,
+      labReports: [
+        {
+          id: 'lr-2',
+          labOrderId: 'lab-1',
+          fileUrl: 'https://files.test/lab-1-report-2.pdf',
+          uploadedAt: '2026-03-02T10:00:00.000Z',
+        },
+        {
+          id: 'lr-1',
+          labOrderId: 'lab-1',
+          fileUrl: 'https://files.test/lab-1-report-1.pdf',
+          uploadedAt: '2026-03-01T10:00:00.000Z',
+        },
+      ],
+      latestReport: {
+        id: 'lr-2',
+        labOrderId: 'lab-1',
+        fileUrl: 'https://files.test/lab-1-report-2.pdf',
+        uploadedAt: '2026-03-02T10:00:00.000Z',
+      },
+      labResult: {
+        id: 'lr-2',
+        labOrderId: 'lab-1',
+        fileUrl: 'https://files.test/lab-1-report-2.pdf',
+        uploadedAt: '2026-03-02T10:00:00.000Z',
+      },
     },
   ],
   notifications: [
@@ -131,6 +156,10 @@ vi.mock('./doctor-shared', () => ({
   useDoctorDiagnostics: () => ({ data: doctorData.diagnostics }),
   useDoctorPharmacies: () => ({ data: doctorData.pharmacies }),
   useDoctorMyProfile: () => ({ data: doctorData.profile, isLoading: false, isError: false }),
+}))
+
+vi.mock('../diagnostic/diagnostic-shared', () => ({
+  useDiagnosticNotifications: () => ({ data: [] }),
 }))
 
 function renderDoctorRoute(path: string, element: ReactNode) {
@@ -312,9 +341,11 @@ describe('doctor UI regression', () => {
     expect(screen.getByText('No lab order exists for this appointment.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'View Lab Orders' })).not.toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Diagnostic'), { target: { value: 'diag-1' } })
-    fireEvent.change(screen.getByLabelText('Requested Tests (one per line)'), {
-      target: { value: 'CBC\nESR' },
-    })
+    fireEvent.change(screen.getByLabelText('Test 1 Title'), { target: { value: 'CBC' } })
+    fireEvent.change(screen.getByLabelText('Test 1 Description'), { target: { value: 'CBC panel' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Add Test' }))
+    fireEvent.change(screen.getByLabelText('Test 2 Title'), { target: { value: 'ESR' } })
+    fireEvent.change(screen.getByLabelText('Test 2 Description'), { target: { value: 'ESR level' } })
     fireEvent.click(screen.getByRole('button', { name: 'Create Lab Order' }))
 
     await waitFor(() => {
@@ -322,8 +353,8 @@ describe('doctor UI regression', () => {
         appointmentId: 'apt-2',
         diagnosticId: 'diag-1',
         tests: [
-          { title: 'CBC', description: 'CBC' },
-          { title: 'ESR', description: 'ESR' },
+          { title: 'CBC', description: 'CBC panel' },
+          { title: 'ESR', description: 'ESR level' },
         ],
       })
     })
@@ -335,18 +366,30 @@ describe('doctor UI regression', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Lab' }))
     expect(screen.getByText('Additional lab orders are allowed for this appointment.')).toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Diagnostic'), { target: { value: 'diag-1' } })
-    fireEvent.change(screen.getByLabelText('Requested Tests (one per line)'), {
-      target: { value: 'LFT' },
-    })
+    fireEvent.change(screen.getByLabelText('Test 1 Title'), { target: { value: 'LFT' } })
+    fireEvent.change(screen.getByLabelText('Test 1 Description'), { target: { value: 'Liver function panel' } })
     fireEvent.click(screen.getByRole('button', { name: 'Create Lab Order' }))
 
     await waitFor(() => {
       expect(postMock).toHaveBeenCalledWith('/labs/orders', {
         appointmentId: 'apt-1',
         diagnosticId: 'diag-1',
-        tests: [{ title: 'LFT', description: 'LFT' }],
+        tests: [{ title: 'LFT', description: 'Liver function panel' }],
       })
     })
+  })
+
+  it('appointment details blocks lab create when any test description is missing', async () => {
+    renderDoctorRoute('/doctor/appointments/apt-2', <div />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lab' }))
+    fireEvent.change(screen.getByLabelText('Diagnostic'), { target: { value: 'diag-1' } })
+    fireEvent.change(screen.getByLabelText('Test 1 Title'), { target: { value: 'CBC' } })
+    fireEvent.change(screen.getByLabelText('Test 1 Description'), { target: { value: '' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Create Lab Order' }))
+
+    expect(await screen.findByText('Provide title and description for each requested test.')).toBeInTheDocument()
+    expect(postMock).not.toHaveBeenCalledWith('/labs/orders', expect.anything())
   })
 
   it('appointment details prescription and lab view panes are appointment-scoped', () => {
@@ -362,6 +405,26 @@ describe('doctor UI regression', () => {
     expect(screen.getByText('No lab order exists for this appointment.')).toBeInTheDocument()
     expect(screen.queryByText('Lab Order ID: lab-1')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'View Lab Orders' })).not.toBeInTheDocument()
+  })
+
+  it('appointment details shows grouped multi-report links in lab and report tabs', () => {
+    renderDoctorRoute('/doctor/appointments/apt-1', <div />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lab' }))
+    expect(screen.getByText('Lab Order Ref: lab-1')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open Report 1' })).toHaveAttribute(
+      'href',
+      'https://files.test/lab-1-report-2.pdf',
+    )
+    expect(screen.getByRole('link', { name: 'Open Report 2' })).toHaveAttribute(
+      'href',
+      'https://files.test/lab-1-report-1.pdf',
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Report' }))
+    expect(screen.getByText('Lab Order Ref: lab-1')).toBeInTheDocument()
+    const reportLinks = screen.getAllByRole('link', { name: /Open Report/ })
+    expect(reportLinks.length).toBeGreaterThanOrEqual(2)
   })
 
   it('lab orders page shows requested tests and readable patient identity', () => {

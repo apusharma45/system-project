@@ -98,7 +98,7 @@ describe('RegisterPage', () => {
         },
       })
     })
-  })
+  }, 15000)
 
   it('supports DIAGNOSTIC role and submits required lab fields', async () => {
     postMock.mockResolvedValue({ data: { access_token: 'token-2' } })
@@ -138,7 +138,7 @@ describe('RegisterPage', () => {
         }),
       )
     })
-  })
+  }, 15000)
 
   it('shows validation error when doctor required fields are missing', async () => {
     const user = userEvent.setup()

@@ -7,19 +7,28 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { Role } from '../../generated/prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { CreateLabOrderDto } from './dto/create-lab-order.dto';
-import { UploadLabResultDto } from './dto/upload-lab-result.dto';
 import { LabsService } from './labs.service';
 
 type RequestUser = {
   userId: string;
   role: Role;
+};
+
+type UploadedLabFile = {
+  originalname: string;
+  mimetype: string;
+  size: number;
+  buffer: Buffer;
 };
 
 @Controller('labs')
@@ -47,12 +56,13 @@ export class LabsController {
 
   @Patch('orders/:id/result-uploaded')
   @Roles(Role.DIAGNOSTIC)
+  @UseInterceptors(FilesInterceptor('files', 10))
   resultUploaded(
     @Req() req: { user: RequestUser },
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UploadLabResultDto,
+    @UploadedFiles() files: UploadedLabFile[] | undefined,
   ) {
-    return this.labsService.uploadResult(req.user.userId, id, dto);
+    return this.labsService.uploadResult(req.user.userId, id, files);
   }
 
   @Patch('orders/:id/sent')
