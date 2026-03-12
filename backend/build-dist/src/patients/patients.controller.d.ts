@@ -12,6 +12,7 @@ export declare class PatientsController {
         patient: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             role: "PATIENT";
             phone: string | null;
@@ -41,6 +42,7 @@ export declare class PatientsController {
         patient: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             role: "PATIENT";
             phone: string | null;
@@ -70,6 +72,7 @@ export declare class PatientsController {
         patient: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             joinedAt: Date;
             profile: {

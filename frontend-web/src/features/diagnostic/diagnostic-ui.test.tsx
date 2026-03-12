@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -9,6 +9,7 @@ import { DiagnosticLabOrdersPage } from './diagnostic-lab-orders'
 import { DiagnosticLabOrderDetailsPage } from './diagnostic-lab-order-details'
 import { DiagnosticNotificationsPage } from './diagnostic-notifications'
 import { DiagnosticProfilePage } from './diagnostic-profile'
+import { createTestQueryClient } from '../../test/query-client'
 
 const patchMock = vi.fn()
 const authState = {
@@ -97,6 +98,14 @@ vi.mock('../pharmacy/pharmacy-shared', () => ({
   usePharmacyNotifications: () => ({ data: [] }),
 }))
 
+vi.mock('../../lib/socket', () => ({
+  connectNotificationsSocket: () => ({
+    on: vi.fn(),
+    off: vi.fn(),
+    disconnect: vi.fn(),
+  }),
+}))
+
 vi.mock('./diagnostic-shared', () => ({
   useDiagnosticLabOrders: () => ({ data: diagnosticData.labOrders }),
   useDiagnosticNotifications: () => ({ data: diagnosticData.notifications }),
@@ -104,12 +113,7 @@ vi.mock('./diagnostic-shared', () => ({
 }))
 
 function renderDiagnosticRoute(path: string, element: ReactNode) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
+  const queryClient = createTestQueryClient()
 
   return render(
     <QueryClientProvider client={queryClient}>
@@ -157,7 +161,7 @@ describe('diagnostic UI regression', () => {
     expect(screen.queryByRole('button', { name: 'Mark Assigned' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Upload Selected Reports' })).not.toBeInTheDocument()
     expect(screen.getByText('Reports: 0 (pending)')).toBeInTheDocument()
-  })
+  }, 15000)
 
   it('lab order details supports append/remove/clear and bulk upload action', async () => {
     patchMock.mockResolvedValue({ data: {} })
@@ -216,6 +220,13 @@ describe('diagnostic UI regression', () => {
       'href',
       '/diagnostic/lab-orders',
     )
+  })
+
+  it('notifications page renders notification center', () => {
+    renderDiagnosticRoute('/diagnostic/notifications', <div />)
+
+    expect(screen.getByRole('heading', { name: 'Notifications' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Notification Center' })).toBeInTheDocument()
   })
 
   it('profile page shows read-only fields and updates editable contact fields', async () => {

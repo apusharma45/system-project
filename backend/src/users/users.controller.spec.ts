@@ -2,9 +2,14 @@ import { UsersController } from './users.controller';
 
 describe('UsersController', () => {
   let controller: UsersController;
+  const usersServiceMock = {
+    uploadMyAvatar: jest.fn(),
+    removeMyAvatar: jest.fn(),
+    listByRole: jest.fn(),
+  };
 
   beforeEach(() => {
-    controller = new UsersController();
+    controller = new UsersController(usersServiceMock as any);
   });
 
   it('me returns request user payload', () => {

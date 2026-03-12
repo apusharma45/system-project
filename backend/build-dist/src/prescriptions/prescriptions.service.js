@@ -191,14 +191,45 @@ let PrescriptionsService = class PrescriptionsService {
                             },
                         },
                     },
+                    pharmacy: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            email: true,
+                            professionalProfile: {
+                                select: {
+                                    pharmacyName: true,
+                                },
+                            },
+                        },
+                    },
                 },
                 orderBy: { createdAt: 'desc' },
-            });
+            }).then((items) => items.map((item) => this.withPharmacySnapshot(item)));
         }
         if (role === client_1.Role.PHARMACY) {
             return db.prescription.findMany({
                 where: { pharmacyId: userId },
-                include: { appointment: true },
+                include: {
+                    appointment: {
+                        include: {
+                            patient: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                    email: true,
+                                },
+                            },
+                            doctor: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
+                },
                 orderBy: { createdAt: 'desc' },
             });
         }
@@ -207,9 +238,25 @@ let PrescriptionsService = class PrescriptionsService {
                 where: {
                     appointment: { patientId: userId },
                 },
-                include: { appointment: true },
+                include: {
+                    appointment: true,
+                    pharmacy: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            email: true,
+                            address: true,
+                            phone: true,
+                            professionalProfile: {
+                                select: {
+                                    pharmacyName: true,
+                                },
+                            },
+                        },
+                    },
+                },
                 orderBy: { createdAt: 'desc' },
-            });
+            }).then((items) => items.map((item) => this.withPharmacySnapshot(item)));
         }
         throw new common_1.ForbiddenException('Role cannot view prescriptions');
     }
@@ -217,19 +264,50 @@ let PrescriptionsService = class PrescriptionsService {
         const db = this.prisma;
         const prescription = await db.prescription.findUnique({
             where: { id: prescriptionId },
-            include: { appointment: true },
+            include: {
+                appointment: {
+                    include: {
+                        patient: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                                email: true,
+                            },
+                        },
+                        doctor: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
+                pharmacy: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        email: true,
+                        professionalProfile: {
+                            select: {
+                                pharmacyName: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
         if (!prescription) {
             throw new common_1.NotFoundException('Prescription not found');
         }
         if (role === client_1.Role.DOCTOR && prescription.doctorId === userId) {
-            return prescription;
+            return this.withPharmacySnapshot(prescription);
         }
         if (role === client_1.Role.PHARMACY && prescription.pharmacyId === userId) {
             return prescription;
         }
         if (role === client_1.Role.PATIENT && prescription.appointment.patientId === userId) {
-            return prescription;
+            return this.withPharmacySnapshot(prescription);
         }
         throw new common_1.ForbiddenException('You are not allowed to access this prescription');
     }
@@ -272,6 +350,30 @@ let PrescriptionsService = class PrescriptionsService {
         if (!result) {
             throw new common_1.BadRequestException('Cannot sign prescription before lab result is uploaded');
         }
+    }
+    withPharmacySnapshot(prescription) {
+        const snapshot = this.getPharmacySnapshot(prescription);
+        return {
+            ...prescription,
+            pharmacySnapshot: snapshot,
+        };
+    }
+    getPharmacySnapshot(prescription) {
+        const pharmacyName = prescription.pharmacy?.professionalProfile?.pharmacyName ?? null;
+        const fullName = prescription.pharmacy?.fullName ?? null;
+        const email = prescription.pharmacy?.email ?? null;
+        const address = prescription.pharmacy?.address ?? null;
+        const phone = prescription.pharmacy?.phone ?? null;
+        const name = pharmacyName ?? fullName ?? email ?? 'Not assigned';
+        return {
+            id: prescription.pharmacyId,
+            name,
+            pharmacyName,
+            fullName,
+            email,
+            address,
+            phone,
+        };
     }
 };
 exports.PrescriptionsService = PrescriptionsService;

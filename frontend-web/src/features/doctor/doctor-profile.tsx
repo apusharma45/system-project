@@ -4,6 +4,7 @@ import type { FormEvent } from 'react'
 import { api, getApiErrorMessage } from '../../lib/api'
 import type { MyDoctorProfileResponse } from '../../types'
 import { useAuth } from '../auth/auth-context'
+import { ProfileAvatarEditor } from '../profile/profile-avatar-editor'
 import { useDoctorMyProfile } from './doctor-shared'
 
 type DoctorProfileForm = {
@@ -87,6 +88,12 @@ export function DoctorProfilePage() {
       {doctor ? (
         <section className="card">
           <h3>Doctor Profile</h3>
+          <ProfileAvatarEditor
+            fullName={doctor.fullName}
+            avatarUrl={doctor.avatarUrl}
+            queryKey={['doctor-profile', 'me']}
+            refreshUser={refreshUser}
+          />
           <form onSubmit={onSubmit} className="stack">
             <label htmlFor="fullName">Full Name</label>
             <input

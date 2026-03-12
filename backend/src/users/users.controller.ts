@@ -1,4 +1,14 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from '../../generated/prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -14,6 +24,32 @@ export class UsersController {
   @Get('me')
   me(@Req() req: { user: unknown }) {
     return req.user;
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PATIENT, Role.DOCTOR, Role.DIAGNOSTIC, Role.PHARMACY, Role.ADMIN)
+  @Patch('me/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadAvatar(
+    @Req() req: { user: { userId: string } },
+    @UploadedFile()
+    file:
+      | {
+          originalname: string;
+          mimetype: string;
+          size: number;
+          buffer: Buffer;
+        }
+      | undefined,
+  ) {
+    return this.usersService.uploadMyAvatar(req.user.userId, file);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PATIENT, Role.DOCTOR, Role.DIAGNOSTIC, Role.PHARMACY, Role.ADMIN)
+  @Delete('me/avatar')
+  removeAvatar(@Req() req: { user: { userId: string } }) {
+    return this.usersService.removeMyAvatar(req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

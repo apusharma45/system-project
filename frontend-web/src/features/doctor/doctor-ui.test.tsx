@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -10,8 +10,10 @@ import { DoctorHome } from './doctor-home'
 import { DoctorLabOrdersPage } from './doctor-lab-orders'
 import { DoctorNotificationsPage } from './doctor-notifications'
 import { DoctorPatientsPage } from './doctor-patients'
+import { DoctorPatientProfilePage } from './doctor-patient-profile'
 import { DoctorProfilePage } from './doctor-profile'
 import { DoctorPrescriptionsPage } from './doctor-prescriptions'
+import { createTestQueryClient } from '../../test/query-client'
 
 const patchMock = vi.fn()
 const postMock = vi.fn()
@@ -58,6 +60,12 @@ const doctorData = {
       appointmentId: 'apt-2',
       doctorId: 'doctor-1',
       pharmacyId: 'pharmacy-1',
+      pharmacySnapshot: {
+        id: 'pharmacy-1',
+        pharmacyName: 'Prime Pharmacy',
+        fullName: 'Prime Rx',
+        email: 'pharm@test.com',
+      },
       notes: 'Take once daily',
       status: 'DRAFT' as const,
       appointment: {
@@ -155,6 +163,20 @@ vi.mock('./doctor-shared', () => ({
   useDoctorNotifications: () => ({ data: doctorData.notifications }),
   useDoctorDiagnostics: () => ({ data: doctorData.diagnostics }),
   useDoctorPharmacies: () => ({ data: doctorData.pharmacies }),
+  useDoctorPatientProfile: () => ({
+    data: {
+      patient: {
+        id: 'patient-1',
+        fullName: 'Alice Smith',
+        email: 'alice@example.com',
+        profile: {},
+      },
+      summary: { appointmentCount: 1, labOrderCount: 1, prescriptionCount: 1 },
+      history: { appointments: [], labOrders: [], prescriptions: [] },
+    },
+    isLoading: false,
+    isError: false,
+  }),
   useDoctorMyProfile: () => ({ data: doctorData.profile, isLoading: false, isError: false }),
 }))
 
@@ -163,12 +185,7 @@ vi.mock('../diagnostic/diagnostic-shared', () => ({
 }))
 
 function renderDoctorRoute(path: string, element: ReactNode) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
+  const queryClient = createTestQueryClient()
 
   return render(
     <QueryClientProvider client={queryClient}>
@@ -179,6 +196,7 @@ function renderDoctorRoute(path: string, element: ReactNode) {
             <Route path="/doctor/appointments" element={<DoctorAppointmentsPage />} />
             <Route path="/doctor/appointments/:appointmentId" element={<DoctorAppointmentDetailsPage />} />
             <Route path="/doctor/patients" element={<DoctorPatientsPage />} />
+            <Route path="/doctor/patients/:patientId/profile" element={<DoctorPatientProfilePage />} />
             <Route path="/doctor/prescriptions" element={<DoctorPrescriptionsPage />} />
             <Route path="/doctor/lab-orders" element={<DoctorLabOrdersPage />} />
             <Route path="/doctor/notifications" element={<DoctorNotificationsPage />} />
@@ -271,6 +289,10 @@ describe('doctor UI regression', () => {
     expect(screen.getByText('Alice Smith')).toBeInTheDocument()
     expect(screen.getByText('alice@example.com')).toBeInTheDocument()
     expect(screen.queryByText('Patient ID: patient-1')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'View profile for Alice Smith' })).toHaveAttribute(
+      'href',
+      '/doctor/patients/patient-1/profile',
+    )
 
     fireEvent.change(screen.getByPlaceholderText('Search by patient name or email'), {
       target: { value: 'john@example.com' },
@@ -278,6 +300,14 @@ describe('doctor UI regression', () => {
 
     expect(screen.getByText('John Doe')).toBeInTheDocument()
     expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument()
+  })
+
+  it('patients page patient identity link opens patient profile page', () => {
+    renderDoctorRoute('/doctor/patients', <div />)
+
+    fireEvent.click(screen.getByRole('link', { name: 'View profile for Alice Smith' }))
+
+    expect(screen.getByRole('heading', { name: 'Patient Profile' })).toBeInTheDocument()
   })
 
   it('appointment details workflow actions hit appointment endpoints', async () => {
@@ -308,6 +338,10 @@ describe('doctor UI regression', () => {
     expect(screen.getByText('Preferred time: Evening')).toBeInTheDocument()
     expect(screen.getByText('Reason: Fever follow-up')).toBeInTheDocument()
     expect(screen.getByText('Requires lab: true')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'View Patient Profile' })).toHaveAttribute(
+      'href',
+      '/doctor/patients/patient-1/profile',
+    )
   })
 
   it('appointment details supports prescription create action', async () => {
@@ -398,6 +432,7 @@ describe('doctor UI regression', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Prescription' }))
     expect(screen.getByText('Given Prescriptions')).toBeInTheDocument()
     expect(screen.getByText('Prescription Ref: rx-1')).toBeInTheDocument()
+    expect(screen.getByText('Sent to: Prime Pharmacy')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'View Given Prescriptions' })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Lab' }))
@@ -442,6 +477,7 @@ describe('doctor UI regression', () => {
     expect(screen.queryByRole('button', { name: 'Send Patient' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Send Pharmacy' })).not.toBeInTheDocument()
     expect(screen.getByText('Patient: John Doe (john@example.com)')).toBeInTheDocument()
+    expect(screen.getByText('Sent to: Prime Pharmacy')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Upload Document' })).toBeInTheDocument()
   })
 

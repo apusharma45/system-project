@@ -4,12 +4,24 @@ import type * as Prisma from "../internal/prismaNamespace";
 export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayload>;
 export type AggregateUser = {
     _count: UserCountAggregateOutputType | null;
+    _avg: UserAvgAggregateOutputType | null;
+    _sum: UserSumAggregateOutputType | null;
     _min: UserMinAggregateOutputType | null;
     _max: UserMaxAggregateOutputType | null;
+};
+export type UserAvgAggregateOutputType = {
+    avatarSizeBytes: number | null;
+};
+export type UserSumAggregateOutputType = {
+    avatarSizeBytes: number | null;
 };
 export type UserMinAggregateOutputType = {
     id: string | null;
     fullName: string | null;
+    avatarUrl: string | null;
+    avatarPublicId: string | null;
+    avatarMimeType: string | null;
+    avatarSizeBytes: number | null;
     email: string | null;
     phone: string | null;
     address: string | null;
@@ -21,6 +33,10 @@ export type UserMinAggregateOutputType = {
 export type UserMaxAggregateOutputType = {
     id: string | null;
     fullName: string | null;
+    avatarUrl: string | null;
+    avatarPublicId: string | null;
+    avatarMimeType: string | null;
+    avatarSizeBytes: number | null;
     email: string | null;
     phone: string | null;
     address: string | null;
@@ -32,6 +48,10 @@ export type UserMaxAggregateOutputType = {
 export type UserCountAggregateOutputType = {
     id: number;
     fullName: number;
+    avatarUrl: number;
+    avatarPublicId: number;
+    avatarMimeType: number;
+    avatarSizeBytes: number;
     email: number;
     phone: number;
     address: number;
@@ -41,9 +61,19 @@ export type UserCountAggregateOutputType = {
     updatedAt: number;
     _all: number;
 };
+export type UserAvgAggregateInputType = {
+    avatarSizeBytes?: true;
+};
+export type UserSumAggregateInputType = {
+    avatarSizeBytes?: true;
+};
 export type UserMinAggregateInputType = {
     id?: true;
     fullName?: true;
+    avatarUrl?: true;
+    avatarPublicId?: true;
+    avatarMimeType?: true;
+    avatarSizeBytes?: true;
     email?: true;
     phone?: true;
     address?: true;
@@ -55,6 +85,10 @@ export type UserMinAggregateInputType = {
 export type UserMaxAggregateInputType = {
     id?: true;
     fullName?: true;
+    avatarUrl?: true;
+    avatarPublicId?: true;
+    avatarMimeType?: true;
+    avatarSizeBytes?: true;
     email?: true;
     phone?: true;
     address?: true;
@@ -66,6 +100,10 @@ export type UserMaxAggregateInputType = {
 export type UserCountAggregateInputType = {
     id?: true;
     fullName?: true;
+    avatarUrl?: true;
+    avatarPublicId?: true;
+    avatarMimeType?: true;
+    avatarSizeBytes?: true;
     email?: true;
     phone?: true;
     address?: true;
@@ -82,6 +120,8 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
     take?: number;
     skip?: number;
     _count?: true | UserCountAggregateInputType;
+    _avg?: UserAvgAggregateInputType;
+    _sum?: UserSumAggregateInputType;
     _min?: UserMinAggregateInputType;
     _max?: UserMaxAggregateInputType;
 };
@@ -96,12 +136,18 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
     take?: number;
     skip?: number;
     _count?: UserCountAggregateInputType | true;
+    _avg?: UserAvgAggregateInputType;
+    _sum?: UserSumAggregateInputType;
     _min?: UserMinAggregateInputType;
     _max?: UserMaxAggregateInputType;
 };
 export type UserGroupByOutputType = {
     id: string;
     fullName: string | null;
+    avatarUrl: string | null;
+    avatarPublicId: string | null;
+    avatarMimeType: string | null;
+    avatarSizeBytes: number | null;
     email: string;
     phone: string | null;
     address: string | null;
@@ -110,6 +156,8 @@ export type UserGroupByOutputType = {
     createdAt: Date;
     updatedAt: Date;
     _count: UserCountAggregateOutputType | null;
+    _avg: UserAvgAggregateOutputType | null;
+    _sum: UserSumAggregateOutputType | null;
     _min: UserMinAggregateOutputType | null;
     _max: UserMaxAggregateOutputType | null;
 };
@@ -122,6 +170,10 @@ export type UserWhereInput = {
     NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
     id?: Prisma.StringFilter<"User"> | string;
     fullName?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarPublicId?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarMimeType?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarSizeBytes?: Prisma.IntNullableFilter<"User"> | number | null;
     email?: Prisma.StringFilter<"User"> | string;
     phone?: Prisma.StringNullableFilter<"User"> | string | null;
     address?: Prisma.StringNullableFilter<"User"> | string | null;
@@ -142,6 +194,10 @@ export type UserWhereInput = {
 export type UserOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrderInput | Prisma.SortOrder;
     address?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -166,6 +222,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
     OR?: Prisma.UserWhereInput[];
     NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
     fullName?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarPublicId?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarMimeType?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarSizeBytes?: Prisma.IntNullableFilter<"User"> | number | null;
     phone?: Prisma.StringNullableFilter<"User"> | string | null;
     address?: Prisma.StringNullableFilter<"User"> | string | null;
     passwordHash?: Prisma.StringFilter<"User"> | string;
@@ -185,6 +245,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
 export type UserOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrderInput | Prisma.SortOrder;
     address?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -193,8 +257,10 @@ export type UserOrderByWithAggregationInput = {
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     _count?: Prisma.UserCountOrderByAggregateInput;
+    _avg?: Prisma.UserAvgOrderByAggregateInput;
     _max?: Prisma.UserMaxOrderByAggregateInput;
     _min?: Prisma.UserMinOrderByAggregateInput;
+    _sum?: Prisma.UserSumOrderByAggregateInput;
 };
 export type UserScalarWhereWithAggregatesInput = {
     AND?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[];
@@ -202,6 +268,10 @@ export type UserScalarWhereWithAggregatesInput = {
     NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[];
     id?: Prisma.StringWithAggregatesFilter<"User"> | string;
     fullName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    avatarPublicId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    avatarMimeType?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    avatarSizeBytes?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null;
     email?: Prisma.StringWithAggregatesFilter<"User"> | string;
     phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
     address?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
@@ -213,6 +283,10 @@ export type UserScalarWhereWithAggregatesInput = {
 export type UserCreateInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -233,6 +307,10 @@ export type UserCreateInput = {
 export type UserUncheckedCreateInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -253,6 +331,10 @@ export type UserUncheckedCreateInput = {
 export type UserUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -273,6 +355,10 @@ export type UserUpdateInput = {
 export type UserUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -293,6 +379,10 @@ export type UserUncheckedUpdateInput = {
 export type UserCreateManyInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -304,6 +394,10 @@ export type UserCreateManyInput = {
 export type UserUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -315,6 +409,10 @@ export type UserUpdateManyMutationInput = {
 export type UserUncheckedUpdateManyInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -326,6 +424,10 @@ export type UserUncheckedUpdateManyInput = {
 export type UserCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrder;
     address?: Prisma.SortOrder;
@@ -334,9 +436,16 @@ export type UserCountOrderByAggregateInput = {
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
+export type UserAvgOrderByAggregateInput = {
+    avatarSizeBytes?: Prisma.SortOrder;
+};
 export type UserMaxOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrder;
     address?: Prisma.SortOrder;
@@ -348,6 +457,10 @@ export type UserMaxOrderByAggregateInput = {
 export type UserMinOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrder;
     address?: Prisma.SortOrder;
@@ -355,6 +468,9 @@ export type UserMinOrderByAggregateInput = {
     role?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
+};
+export type UserSumOrderByAggregateInput = {
+    avatarSizeBytes?: Prisma.SortOrder;
 };
 export type UserScalarRelationFilter = {
     is?: Prisma.UserWhereInput;
@@ -369,6 +485,13 @@ export type StringFieldUpdateOperationsInput = {
 };
 export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null;
+};
+export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null;
+    increment?: number;
+    decrement?: number;
+    multiply?: number;
+    divide?: number;
 };
 export type EnumRoleFieldUpdateOperationsInput = {
     set?: $Enums.Role;
@@ -489,6 +612,10 @@ export type UserUpdateOneWithoutAuditLogsNestedInput = {
 export type UserCreateWithoutPatientProfileInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -508,6 +635,10 @@ export type UserCreateWithoutPatientProfileInput = {
 export type UserUncheckedCreateWithoutPatientProfileInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -540,6 +671,10 @@ export type UserUpdateToOneWithWhereWithoutPatientProfileInput = {
 export type UserUpdateWithoutPatientProfileInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -559,6 +694,10 @@ export type UserUpdateWithoutPatientProfileInput = {
 export type UserUncheckedUpdateWithoutPatientProfileInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -578,6 +717,10 @@ export type UserUncheckedUpdateWithoutPatientProfileInput = {
 export type UserCreateWithoutProfessionalProfileInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -597,6 +740,10 @@ export type UserCreateWithoutProfessionalProfileInput = {
 export type UserUncheckedCreateWithoutProfessionalProfileInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -629,6 +776,10 @@ export type UserUpdateToOneWithWhereWithoutProfessionalProfileInput = {
 export type UserUpdateWithoutProfessionalProfileInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -648,6 +799,10 @@ export type UserUpdateWithoutProfessionalProfileInput = {
 export type UserUncheckedUpdateWithoutProfessionalProfileInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -667,6 +822,10 @@ export type UserUncheckedUpdateWithoutProfessionalProfileInput = {
 export type UserCreateWithoutPatientAppointmentsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -686,6 +845,10 @@ export type UserCreateWithoutPatientAppointmentsInput = {
 export type UserUncheckedCreateWithoutPatientAppointmentsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -709,6 +872,10 @@ export type UserCreateOrConnectWithoutPatientAppointmentsInput = {
 export type UserCreateWithoutDoctorAppointmentsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -728,6 +895,10 @@ export type UserCreateWithoutDoctorAppointmentsInput = {
 export type UserUncheckedCreateWithoutDoctorAppointmentsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -760,6 +931,10 @@ export type UserUpdateToOneWithWhereWithoutPatientAppointmentsInput = {
 export type UserUpdateWithoutPatientAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -779,6 +954,10 @@ export type UserUpdateWithoutPatientAppointmentsInput = {
 export type UserUncheckedUpdateWithoutPatientAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -807,6 +986,10 @@ export type UserUpdateToOneWithWhereWithoutDoctorAppointmentsInput = {
 export type UserUpdateWithoutDoctorAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -826,6 +1009,10 @@ export type UserUpdateWithoutDoctorAppointmentsInput = {
 export type UserUncheckedUpdateWithoutDoctorAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -845,6 +1032,10 @@ export type UserUncheckedUpdateWithoutDoctorAppointmentsInput = {
 export type UserCreateWithoutDiagnosticLabOrdersInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -864,6 +1055,10 @@ export type UserCreateWithoutDiagnosticLabOrdersInput = {
 export type UserUncheckedCreateWithoutDiagnosticLabOrdersInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -896,6 +1091,10 @@ export type UserUpdateToOneWithWhereWithoutDiagnosticLabOrdersInput = {
 export type UserUpdateWithoutDiagnosticLabOrdersInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -915,6 +1114,10 @@ export type UserUpdateWithoutDiagnosticLabOrdersInput = {
 export type UserUncheckedUpdateWithoutDiagnosticLabOrdersInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -934,6 +1137,10 @@ export type UserUncheckedUpdateWithoutDiagnosticLabOrdersInput = {
 export type UserCreateWithoutDoctorPrescriptionsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -953,6 +1160,10 @@ export type UserCreateWithoutDoctorPrescriptionsInput = {
 export type UserUncheckedCreateWithoutDoctorPrescriptionsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -976,6 +1187,10 @@ export type UserCreateOrConnectWithoutDoctorPrescriptionsInput = {
 export type UserCreateWithoutPharmacyPrescriptionsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -995,6 +1210,10 @@ export type UserCreateWithoutPharmacyPrescriptionsInput = {
 export type UserUncheckedCreateWithoutPharmacyPrescriptionsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1027,6 +1246,10 @@ export type UserUpdateToOneWithWhereWithoutDoctorPrescriptionsInput = {
 export type UserUpdateWithoutDoctorPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1046,6 +1269,10 @@ export type UserUpdateWithoutDoctorPrescriptionsInput = {
 export type UserUncheckedUpdateWithoutDoctorPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1074,6 +1301,10 @@ export type UserUpdateToOneWithWhereWithoutPharmacyPrescriptionsInput = {
 export type UserUpdateWithoutPharmacyPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1093,6 +1324,10 @@ export type UserUpdateWithoutPharmacyPrescriptionsInput = {
 export type UserUncheckedUpdateWithoutPharmacyPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1112,6 +1347,10 @@ export type UserUncheckedUpdateWithoutPharmacyPrescriptionsInput = {
 export type UserCreateWithoutNotificationsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1131,6 +1370,10 @@ export type UserCreateWithoutNotificationsInput = {
 export type UserUncheckedCreateWithoutNotificationsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1163,6 +1406,10 @@ export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
 export type UserUpdateWithoutNotificationsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1182,6 +1429,10 @@ export type UserUpdateWithoutNotificationsInput = {
 export type UserUncheckedUpdateWithoutNotificationsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1201,6 +1452,10 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
 export type UserCreateWithoutAuditLogsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1220,6 +1475,10 @@ export type UserCreateWithoutAuditLogsInput = {
 export type UserUncheckedCreateWithoutAuditLogsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1252,6 +1511,10 @@ export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
 export type UserUpdateWithoutAuditLogsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1271,6 +1534,10 @@ export type UserUpdateWithoutAuditLogsInput = {
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1332,6 +1599,10 @@ export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     fullName?: boolean;
+    avatarUrl?: boolean;
+    avatarPublicId?: boolean;
+    avatarMimeType?: boolean;
+    avatarSizeBytes?: boolean;
     email?: boolean;
     phone?: boolean;
     address?: boolean;
@@ -1353,6 +1624,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     fullName?: boolean;
+    avatarUrl?: boolean;
+    avatarPublicId?: boolean;
+    avatarMimeType?: boolean;
+    avatarSizeBytes?: boolean;
     email?: boolean;
     phone?: boolean;
     address?: boolean;
@@ -1364,6 +1639,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     fullName?: boolean;
+    avatarUrl?: boolean;
+    avatarPublicId?: boolean;
+    avatarMimeType?: boolean;
+    avatarSizeBytes?: boolean;
     email?: boolean;
     phone?: boolean;
     address?: boolean;
@@ -1375,6 +1654,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectScalar = {
     id?: boolean;
     fullName?: boolean;
+    avatarUrl?: boolean;
+    avatarPublicId?: boolean;
+    avatarMimeType?: boolean;
+    avatarSizeBytes?: boolean;
     email?: boolean;
     phone?: boolean;
     address?: boolean;
@@ -1383,7 +1666,7 @@ export type UserSelectScalar = {
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "address" | "passwordHash" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>;
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "avatarUrl" | "avatarPublicId" | "avatarMimeType" | "avatarSizeBytes" | "email" | "phone" | "address" | "passwordHash" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>;
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     patientAppointments?: boolean | Prisma.User$patientAppointmentsArgs<ExtArgs>;
     doctorAppointments?: boolean | Prisma.User$doctorAppointmentsArgs<ExtArgs>;
@@ -1414,6 +1697,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     scalars: runtime.Types.Extensions.GetPayloadResult<{
         id: string;
         fullName: string | null;
+        avatarUrl: string | null;
+        avatarPublicId: string | null;
+        avatarMimeType: string | null;
+        avatarSizeBytes: number | null;
         email: string;
         phone: string | null;
         address: string | null;
@@ -1489,6 +1776,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface UserFieldRefs {
     readonly id: Prisma.FieldRef<"User", 'String'>;
     readonly fullName: Prisma.FieldRef<"User", 'String'>;
+    readonly avatarUrl: Prisma.FieldRef<"User", 'String'>;
+    readonly avatarPublicId: Prisma.FieldRef<"User", 'String'>;
+    readonly avatarMimeType: Prisma.FieldRef<"User", 'String'>;
+    readonly avatarSizeBytes: Prisma.FieldRef<"User", 'Int'>;
     readonly email: Prisma.FieldRef<"User", 'String'>;
     readonly phone: Prisma.FieldRef<"User", 'String'>;
     readonly address: Prisma.FieldRef<"User", 'String'>;

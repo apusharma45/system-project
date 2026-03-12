@@ -34,7 +34,7 @@ export function AppLayout() {
     user?.role === 'DOCTOR'
       ? user?.fullName?.trim() || user?.email || 'Doctor User'
       : user?.role === 'PHARMACY'
-        ? 'Pharmacy User'
+        ? user?.fullName?.trim() || user?.email || 'Pharmacy User'
         : user?.role === 'DIAGNOSTIC'
           ? user?.fullName?.trim() || user?.email || 'Diagnostic User'
           : user?.fullName?.trim() || 'Patient User'
@@ -48,6 +48,12 @@ export function AppLayout() {
           : 'Patient'
   const initials =
     user?.role === 'DOCTOR' ? 'DR' : user?.role === 'PHARMACY' ? 'PH' : user?.role === 'DIAGNOSTIC' ? 'LB' : 'PT'
+
+  const avatarNode = user?.avatarUrl ? (
+    <img src={user.avatarUrl} alt={userLabel} className="avatar-img" />
+  ) : (
+    <span>{initials}</span>
+  )
 
   const navItems = useMemo<Array<{ label: string; to: string; icon: typeof LayoutDashboard; badge?: number }>>(() => {
     if (!user) return []
@@ -78,6 +84,7 @@ export function AppLayout() {
         { label: 'Dashboard', to: '/pharmacy', icon: LayoutDashboard },
         { label: 'Prescriptions', to: '/pharmacy/prescriptions', icon: FileText },
         { label: 'Notifications', to: '/pharmacy/notifications', icon: Bell, badge: unreadNotifications },
+        { label: 'Profile', to: '/pharmacy/profile', icon: User },
       ]
     }
     if (user.role === 'DIAGNOSTIC') {
@@ -133,7 +140,7 @@ export function AppLayout() {
             {user?.role === 'PATIENT' ? (
               <Link to="/patient/profile" className="profile-card" aria-label="Open profile">
                 <div className="avatar">
-                  <span>{initials}</span>
+                  {avatarNode}
                 </div>
                 <div>
                   <strong>{userLabel}</strong>
@@ -143,7 +150,7 @@ export function AppLayout() {
             ) : user?.role === 'DOCTOR' ? (
               <Link to="/doctor/profile" className="profile-card" aria-label="Open profile">
                 <div className="avatar">
-                  <span>{initials}</span>
+                  {avatarNode}
                 </div>
                 <div>
                   <strong>{userLabel}</strong>
@@ -153,7 +160,17 @@ export function AppLayout() {
             ) : user?.role === 'DIAGNOSTIC' ? (
               <Link to="/diagnostic/profile" className="profile-card" aria-label="Open profile">
                 <div className="avatar">
-                  <span>{initials}</span>
+                  {avatarNode}
+                </div>
+                <div>
+                  <strong>{userLabel}</strong>
+                  <p>{userSubtitle}</p>
+                </div>
+              </Link>
+            ) : user?.role === 'PHARMACY' ? (
+              <Link to="/pharmacy/profile" className="profile-card" aria-label="Open profile">
+                <div className="avatar">
+                  {avatarNode}
                 </div>
                 <div>
                   <strong>{userLabel}</strong>
@@ -163,7 +180,7 @@ export function AppLayout() {
             ) : (
               <div className="profile-card">
                 <div className="avatar">
-                  <span>{initials}</span>
+                  {avatarNode}
                 </div>
                 <div>
                   <strong>{userLabel}</strong>

@@ -17,6 +17,16 @@ function getOrderReports(order: LabOrder): LabReport[] {
   return []
 }
 
+function getPharmacyName(item: Prescription) {
+  return (
+    item.pharmacySnapshot?.name?.trim() ||
+    item.pharmacySnapshot?.pharmacyName?.trim() ||
+    item.pharmacySnapshot?.fullName?.trim() ||
+    item.pharmacySnapshot?.email?.trim() ||
+    'Not assigned'
+  )
+}
+
 export function PatientAppointmentDetailsPage() {
   const { appointmentId = '' } = useParams()
   const appointmentsQuery = useQuery({
@@ -119,6 +129,13 @@ export function PatientAppointmentDetailsPage() {
                     <p>Status: {item.status}</p>
                     <p className="muted">Notes: {item.notes || 'Not provided'}</p>
                     <p className="muted">Diagnosis: {item.diagnosis || 'Not provided'}</p>
+                    <p className="muted">Pharmacy: {getPharmacyName(item)}</p>
+                    <p className="muted">
+                      Address: {item.pharmacySnapshot?.address?.trim() || 'Not provided'}
+                    </p>
+                    <p className="muted">
+                      Phone: {item.pharmacySnapshot?.phone?.trim() || 'Not provided'}
+                    </p>
                   </div>
                   {item.documentUrl ? (
                     <a href={item.documentUrl} target="_blank" rel="noreferrer">

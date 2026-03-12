@@ -24,6 +24,7 @@ let DoctorsService = class DoctorsService {
             select: {
                 id: true,
                 fullName: true,
+                avatarUrl: true,
                 email: true,
                 role: true,
                 phone: true,
@@ -39,6 +40,7 @@ let DoctorsService = class DoctorsService {
             doctor: {
                 id: doctor.id,
                 fullName: doctor.fullName,
+                avatarUrl: doctor.avatarUrl,
                 email: doctor.email,
                 role: doctor.role,
                 phone: doctor.phone,

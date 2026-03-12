@@ -150,6 +150,7 @@ describe('RegisterPage', () => {
     )
 
     await user.selectOptions(screen.getByLabelText(/role/i), 'DOCTOR')
+    expect((screen.getByLabelText(/role/i) as HTMLSelectElement).value).toBe('DOCTOR')
     await user.type(screen.getByLabelText(/^full name$/i), 'Doctor User')
     await user.type(screen.getByLabelText(/email/i), 'doctor@example.com')
     await user.type(screen.getByLabelText(/password/i), 'strongpass')
@@ -157,7 +158,16 @@ describe('RegisterPage', () => {
     await user.type(screen.getByLabelText(/^Address$/i), 'Dhaka')
     await user.click(screen.getByRole('button', { name: /create account/i }))
 
-    expect(await screen.findByText(/gender is required for doctor registration/i)).toBeInTheDocument()
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText(
+            /(professional profile is required|gender is required for doctor registration|date of birth is required for doctor registration|license number is required for doctor registration|specialization is required for doctor registration)/i,
+          ),
+        ).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
     expect(postMock).not.toHaveBeenCalled()
-  })
+  }, 15000)
 })

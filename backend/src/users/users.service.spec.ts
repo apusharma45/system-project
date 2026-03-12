@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Role } from '../../generated/prisma/client';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from './users.service';
 
@@ -11,6 +12,10 @@ describe('UsersService', () => {
       create: jest.fn(),
     },
   };
+  const cloudinaryMock = {
+    uploadBuffer: jest.fn(),
+    destroy: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -20,6 +25,10 @@ describe('UsersService', () => {
         {
           provide: PrismaService,
           useValue: prismaMock,
+        },
+        {
+          provide: CloudinaryService,
+          useValue: cloudinaryMock,
         },
       ],
     }).compile();
@@ -64,6 +73,7 @@ describe('UsersService', () => {
         id: true,
         email: true,
         role: true,
+        avatarUrl: true,
       },
     });
     expect(user).toEqual({ id: 'u2', email: 'new@x.com' });

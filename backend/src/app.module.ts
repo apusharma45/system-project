@@ -14,6 +14,7 @@ import { PatientsModule } from './patients/patients.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { DiagnosticModule } from './diagnostic/diagnostic.module';
+import { PharmaciesModule } from './pharmacies/pharmacies.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { DiagnosticModule } from './diagnostic/diagnostic.module';
     PatientsModule,
     DoctorsModule,
     DiagnosticModule,
+    PharmaciesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
