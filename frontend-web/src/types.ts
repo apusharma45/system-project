@@ -31,6 +31,7 @@ export type NotificationType =
 export type UserSummary = {
   id: string
   fullName?: string | null
+  avatarUrl?: string | null
   email: string
   role: Role
 }
@@ -40,12 +41,18 @@ export type CurrentUser = {
   email: string
   role: Role
   fullName?: string | null
+  avatarUrl?: string | null
 }
 
 export type Appointment = {
   id: string
   patientId: string
   patient?: {
+    id: string
+    fullName?: string | null
+    email?: string | null
+  }
+  doctor?: {
     id: string
     fullName?: string | null
     email?: string | null
@@ -141,6 +148,15 @@ export type Prescription = {
   documentMimeType?: string | null
   documentVersion?: number
   appointment?: Appointment
+  pharmacySnapshot?: {
+    id: string
+    name?: string
+    pharmacyName?: string | null
+    fullName?: string | null
+    email?: string | null
+    address?: string | null
+    phone?: string | null
+  }
 }
 
 export type AppNotification = {
@@ -169,6 +185,7 @@ export type PatientProfileResponse = {
   patient: {
     id: string
     fullName?: string | null
+    avatarUrl?: string | null
     email: string
     joinedAt: string
     profile?: PatientMedicalProfile | null
@@ -189,6 +206,7 @@ export type MyPatientProfileResponse = {
   patient: {
     id: string
     fullName?: string | null
+    avatarUrl?: string | null
     email: string
     role: Role
     phone?: string | null
@@ -212,6 +230,7 @@ export type MyDoctorProfileResponse = {
   doctor: {
     id: string
     fullName?: string | null
+    avatarUrl?: string | null
     email: string
     role: Role
     phone?: string | null
@@ -234,11 +253,34 @@ export type MyDiagnosticProfileResponse = {
   diagnostic: {
     id: string
     fullName?: string | null
+    avatarUrl?: string | null
     email: string
     role: Role
     phone?: string | null
     address?: string | null
     joinedAt: string
     profile?: DiagnosticProfessionalProfile | null
+  }
+}
+
+export type PharmacyProfessionalProfile = {
+  pharmacyName?: string | null
+  licenseNumber?: string | null
+  dateOfBirth?: string | null
+  gender?: string | null
+  licenseAuthority?: string | null
+}
+
+export type MyPharmacyProfileResponse = {
+  pharmacy: {
+    id: string
+    fullName?: string | null
+    avatarUrl?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    joinedAt: string
+    profile?: PharmacyProfessionalProfile | null
   }
 }

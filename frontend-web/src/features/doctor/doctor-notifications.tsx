@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Socket } from 'socket.io-client'
 import { Bell, Calendar, FileText, FlaskConical } from 'lucide-react'
 import { api } from '../../lib/api'
+import {
+  showBrowserNotification,
+} from '../../lib/browser-notifications'
 import { connectNotificationsSocket } from '../../lib/socket'
 import { useAuth } from '../auth/auth-context'
 import { NotificationsPanel } from '../notifications/notifications-panel'
@@ -14,6 +17,8 @@ export function DoctorNotificationsPage() {
   const notificationsQuery = useDoctorNotifications()
   const [realtimeEvents, setRealtimeEvents] = useState<string[]>([])
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
+  const [socketWarning, setSocketWarning] = useState<string | null>(null)
+  const didWarnOnceRef = useRef(false)
 
   useEffect(() => {
     if (!token) return
@@ -21,11 +26,49 @@ export function DoctorNotificationsPage() {
     const onEvent = (eventName: string) => {
       setRealtimeEvents((prev) => [eventName, ...prev].slice(0, 20))
       void queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      if (eventName === 'appointment.called') {
+        showBrowserNotification('Appointment Called', {
+          body: 'A patient appointment has been called.',
+        })
+      } else if (eventName === 'lab.result_uploaded') {
+        showBrowserNotification('Lab Result Uploaded', {
+          body: 'A lab report has been uploaded.',
+        })
+      } else if (eventName === 'prescription.ready') {
+        showBrowserNotification('Prescription Ready', {
+          body: 'A prescription update is available.',
+        })
+      }
     }
+    const onConnect = () => {
+      setSocketWarning(null)
+      didWarnOnceRef.current = false
+    }
+    const onConnectError = (err: { message?: string }) => {
+      setSocketWarning('Realtime connection unavailable. Retrying...')
+      if (!didWarnOnceRef.current) {
+        console.warn('notifications socket connect_error:', err?.message ?? 'unknown')
+        didWarnOnceRef.current = true
+      }
+    }
+    const onDisconnect = (reason: string) => {
+      if (reason !== 'io client disconnect') {
+        setSocketWarning('Realtime connection unavailable. Retrying...')
+      }
+    }
+    socket.on('connect', onConnect)
+    socket.on('connect_error', onConnectError)
+    socket.on('disconnect', onDisconnect)
     socket.on('appointment.called', () => onEvent('appointment.called'))
     socket.on('lab.result_uploaded', () => onEvent('lab.result_uploaded'))
     socket.on('prescription.ready', () => onEvent('prescription.ready'))
     return () => {
+      socket.off('connect', onConnect)
+      socket.off('connect_error', onConnectError)
+      socket.off('disconnect', onDisconnect)
+      socket.off('appointment.called')
+      socket.off('lab.result_uploaded')
+      socket.off('prescription.ready')
       socket.disconnect()
     }
   }, [queryClient, token])
@@ -68,6 +111,8 @@ export function DoctorNotificationsPage() {
           </button>
         </div>
       </div>
+
+      {socketWarning ? <p className="muted">{socketWarning}</p> : null}
 
       <section className="kpi-grid">
         <article className="kpi">

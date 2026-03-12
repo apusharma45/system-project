@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { FileText, Pill, Search } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { api, getApiErrorMessage } from '../../lib/api'
 import type { Prescription, PrescriptionStatus } from '../../types'
 import { pharmacyInvalidateKeys, pharmacyPrescriptionActions, usePharmacyPrescriptions } from './pharmacy-shared'
@@ -26,7 +27,11 @@ export function PharmacyPrescriptionsPage() {
   const filtered = useMemo(
     () =>
       (prescriptionsQuery.data ?? []).filter((item) => {
-        const text = `${item.id} ${item.status} ${item.appointmentId} ${item.notes}`.toLowerCase()
+        const text = `${item.id} ${item.status} ${item.appointmentId} ${item.notes} ${
+          item.appointment?.patient?.fullName ?? ''
+        } ${item.appointment?.patient?.email ?? ''} ${item.appointment?.doctor?.fullName ?? ''} ${
+          item.appointment?.doctor?.email ?? ''
+        }`.toLowerCase()
         const matchesSearch = text.includes(search.toLowerCase())
         const matchesFilter = filter === 'all' || item.status === filter
         return matchesSearch && matchesFilter
@@ -42,21 +47,25 @@ export function PharmacyPrescriptionsPage() {
       </div>
       {error ? <p className="error">{error}</p> : null}
 
-      <section className="card search-card">
-        <Search size={16} />
-        <input
-          placeholder="Search by ID, status, notes or appointment ID"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
-          <option value="all">All Status</option>
-          <option value="SENT_TO_PHARMACY">Sent To Pharmacy</option>
-          <option value="DISPENSED">Dispensed</option>
-          <option value="DRAFT">Draft</option>
-          <option value="SIGNED">Signed</option>
-          <option value="SENT_TO_PATIENT">Sent To Patient</option>
-        </select>
+      <section className="card search-card pharmacy-prescriptions-toolbar">
+        <div className="pharmacy-search-wrap">
+          <Search size={16} />
+          <input
+            placeholder="Search by patient, doctor, notes or reference"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="pharmacy-status-filter">
+          <select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
+            <option value="all">All Status</option>
+            <option value="SENT_TO_PHARMACY">Sent To Pharmacy</option>
+            <option value="DISPENSED">Dispensed</option>
+            <option value="DRAFT">Draft</option>
+            <option value="SIGNED">Signed</option>
+            <option value="SENT_TO_PATIENT">Sent To Patient</option>
+          </select>
+        </div>
       </section>
 
       <section className="card">
@@ -67,13 +76,28 @@ export function PharmacyPrescriptionsPage() {
                 <strong className="row-title">
                   <FileText size={14} /> {item.id}
                 </strong>
+                <p className="muted">
+                  Patient:{' '}
+                  {item.appointment?.patient?.fullName ||
+                    item.appointment?.patient?.email ||
+                    'Unknown patient'}
+                </p>
+                <p className="muted">
+                  Doctor:{' '}
+                  {item.appointment?.doctor?.fullName ||
+                    item.appointment?.doctor?.email ||
+                    'Unknown doctor'}
+                </p>
                 <p>
                   <span className={statusClass(item.status)}>{item.status}</span>
                 </p>
-                <p className="muted">Appointment: {item.appointmentId}</p>
+                <p className="muted">Appointment Ref: {item.appointmentId}</p>
                 <p className="muted row-meta">
                   <Pill size={14} /> {item.notes}
                 </p>
+                <Link to={`/pharmacy/prescriptions/${item.id}`} className="quick-link">
+                  View Details
+                </Link>
               </div>
               <div className="actions">
                 {pharmacyPrescriptionActions.map((action) => (

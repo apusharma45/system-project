@@ -24,6 +24,7 @@ let PatientsService = class PatientsService {
             select: {
                 id: true,
                 fullName: true,
+                avatarUrl: true,
                 email: true,
                 role: true,
                 phone: true,
@@ -39,6 +40,7 @@ let PatientsService = class PatientsService {
             patient: {
                 id: patient.id,
                 fullName: patient.fullName,
+                avatarUrl: patient.avatarUrl,
                 email: patient.email,
                 role: patient.role,
                 phone: patient.phone,
@@ -103,6 +105,7 @@ let PatientsService = class PatientsService {
             select: {
                 id: true,
                 fullName: true,
+                avatarUrl: true,
                 email: true,
                 role: true,
                 createdAt: true,
@@ -146,6 +149,7 @@ let PatientsService = class PatientsService {
             patient: {
                 id: patient.id,
                 fullName: patient.fullName,
+                avatarUrl: patient.avatarUrl,
                 email: patient.email,
                 joinedAt: patient.createdAt,
                 profile: patient.patientProfile,

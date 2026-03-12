@@ -1,9 +1,10 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PatientRecordsPage } from './patient-records'
+import { createTestQueryClient } from '../../test/query-client'
 
 const getMock = vi.fn()
 
@@ -14,12 +15,7 @@ vi.mock('../../lib/api', () => ({
 }))
 
 function renderRecordsPage(initialEntry = '/patient/records') {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
+  const queryClient = createTestQueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[initialEntry]}>
@@ -44,6 +40,12 @@ describe('PatientRecordsPage', () => {
               instructions: 'After meal',
               status: 'SENT_TO_PATIENT',
               documentUrl: 'https://example.com/prescription.pdf',
+              pharmacySnapshot: {
+                id: 'ph-1',
+                name: 'Prime Pharmacy',
+                address: 'Dhanmondi, Dhaka',
+                phone: '+8801700001000',
+              },
             },
           ],
         })
@@ -91,6 +93,9 @@ describe('PatientRecordsPage', () => {
       'href',
       'https://example.com/prescription.pdf',
     )
+    expect(screen.getByText('Pharmacy: Prime Pharmacy')).toBeInTheDocument()
+    expect(screen.getByText('Address: Dhanmondi, Dhaka')).toBeInTheDocument()
+    expect(screen.getByText('Phone: +8801700001000')).toBeInTheDocument()
   })
 
   it('switches tabs and shows reports with file links', async () => {

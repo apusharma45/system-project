@@ -24,6 +24,7 @@ let DiagnosticService = class DiagnosticService {
             select: {
                 id: true,
                 fullName: true,
+                avatarUrl: true,
                 email: true,
                 role: true,
                 phone: true,
@@ -39,6 +40,7 @@ let DiagnosticService = class DiagnosticService {
             diagnostic: {
                 id: diagnostic.id,
                 fullName: diagnostic.fullName,
+                avatarUrl: diagnostic.avatarUrl,
                 email: diagnostic.email,
                 role: diagnostic.role,
                 phone: diagnostic.phone,

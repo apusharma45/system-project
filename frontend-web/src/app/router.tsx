@@ -20,6 +20,8 @@ import { PatientRecordsPage } from '../features/patient/patient-records'
 import { PharmacyHome } from '../features/pharmacy/pharmacy-home'
 import { PharmacyPrescriptionsPage } from '../features/pharmacy/pharmacy-prescriptions'
 import { PharmacyNotificationsPage } from '../features/pharmacy/pharmacy-notifications'
+import { PharmacyPrescriptionDetailsPage } from '../features/pharmacy/pharmacy-prescription-details'
+import { PharmacyProfilePage } from '../features/pharmacy/pharmacy-profile'
 import { DiagnosticHome } from '../features/diagnostic/diagnostic-home'
 import { DiagnosticLabOrdersPage } from '../features/diagnostic/diagnostic-lab-orders'
 import { DiagnosticLabOrderDetailsPage } from '../features/diagnostic/diagnostic-lab-order-details'
@@ -138,8 +140,16 @@ export const router = createBrowserRouter([
                 element: <PharmacyPrescriptionsPage />,
               },
               {
+                path: '/pharmacy/prescriptions/:prescriptionId',
+                element: <PharmacyPrescriptionDetailsPage />,
+              },
+              {
                 path: '/pharmacy/notifications',
                 element: <PharmacyNotificationsPage />,
+              },
+              {
+                path: '/pharmacy/profile',
+                element: <PharmacyProfilePage />,
               },
             ],
           },

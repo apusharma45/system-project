@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useDoctorAppointments, useDoctorLabOrders, useDoctorPrescriptions } from './doctor-shared'
 
 type PatientAggregate = {
@@ -110,13 +111,17 @@ export function DoctorPatientsPage() {
       <section className="grid two-col">
         {rows.map((item) => (
           <article key={item.patientId} className="card patient-card">
-            <div className="patient-card-top">
+            <Link
+              to={`/doctor/patients/${item.patientId}/profile`}
+              className="patient-card-top patient-profile-link"
+              aria-label={`View profile for ${item.patientName}`}
+            >
               <div className="avatar patient-avatar">{item.patientName.slice(0, 2).toUpperCase()}</div>
               <div className="patient-identity">
                 <h3>{item.patientName}</h3>
                 {item.patientEmail ? <p className="muted patient-email">{item.patientEmail}</p> : null}
               </div>
-            </div>
+            </Link>
 
             <div className="patient-metrics">
               <div className="patient-metric">

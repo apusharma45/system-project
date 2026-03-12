@@ -484,13 +484,6 @@ export type ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput = {
     connect?: Prisma.ProfessionalProfileWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.ProfessionalProfileUpdateToOneWithWhereWithoutUserInput, Prisma.ProfessionalProfileUpdateWithoutUserInput>, Prisma.ProfessionalProfileUncheckedUpdateWithoutUserInput>;
 };
-export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null;
-    increment?: number;
-    decrement?: number;
-    multiply?: number;
-    divide?: number;
-};
 export type ProfessionalProfileCreateWithoutUserInput = {
     id?: string;
     licenseNumber?: string | null;

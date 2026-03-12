@@ -7,6 +7,7 @@ export declare class DiagnosticService {
         diagnostic: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             role: "DIAGNOSTIC";
             phone: string | null;
@@ -36,6 +37,7 @@ export declare class DiagnosticService {
         diagnostic: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             role: "DIAGNOSTIC";
             phone: string | null;

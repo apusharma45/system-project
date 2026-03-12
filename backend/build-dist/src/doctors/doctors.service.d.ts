@@ -7,6 +7,7 @@ export declare class DoctorsService {
         doctor: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             role: "DOCTOR";
             phone: string | null;
@@ -36,6 +37,7 @@ export declare class DoctorsService {
         doctor: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             role: "DOCTOR";
             phone: string | null;

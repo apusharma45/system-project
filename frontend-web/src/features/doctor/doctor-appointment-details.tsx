@@ -260,6 +260,9 @@ export function DoctorAppointmentDetailsPage() {
             {patientName} ({appointment.patientId})
           </p>
           <p className="muted">Appointment Ref: {appointment.id}</p>
+          <Link to={`/doctor/patients/${appointment.patientId}/profile`} className="quick-link">
+            View Patient Profile
+          </Link>
         </div>
       </div>
 
@@ -490,6 +493,7 @@ export function DoctorAppointmentDetailsPage() {
                           <span className={prescriptionStatusClass(item.status)}>{item.status}</span>
                         </p>
                         <p className="muted">Prescription Ref: {item.id}</p>
+                        <p className="muted">Sent to: {getPharmacyLabel(item)}</p>
                         <p><strong>Notes:</strong> {item.notes || 'Not provided'}</p>
                         <p><strong>Diagnosis:</strong> {item.diagnosis || 'Not provided'}</p>
                         <p><strong>Instructions:</strong> {item.instructions || 'Not provided'}</p>
@@ -699,4 +703,15 @@ function getReports(order: LabOrder) {
     return order.labReports
   }
   return order.latestReport ? [order.latestReport] : order.labResult ? [order.labResult] : []
+}
+
+function getPharmacyLabel(prescription: Prescription) {
+  const pharmacyName = prescription.pharmacySnapshot?.pharmacyName?.trim()
+  const fullName = prescription.pharmacySnapshot?.fullName?.trim()
+  const email = prescription.pharmacySnapshot?.email?.trim()
+
+  if (pharmacyName) return pharmacyName
+  if (fullName) return fullName
+  if (email) return email
+  return 'Not assigned'
 }

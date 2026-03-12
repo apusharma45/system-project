@@ -29,5 +29,7 @@ export declare class PrescriptionsService {
     private assertDoctorOwnership;
     private transitionOrThrow;
     private assertLabDependencySatisfied;
+    private withPharmacySnapshot;
+    private getPharmacySnapshot;
 }
 export {};

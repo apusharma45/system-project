@@ -1,13 +1,63 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { Socket } from 'socket.io-client'
 import { Bell, FlaskConical } from 'lucide-react'
 import { api } from '../../lib/api'
+import {
+  showBrowserNotification,
+} from '../../lib/browser-notifications'
+import { connectNotificationsSocket } from '../../lib/socket'
+import { useAuth } from '../auth/auth-context'
 import { useDiagnosticNotifications } from './diagnostic-shared'
 
 export function DiagnosticNotificationsPage() {
+  const { token } = useAuth()
   const queryClient = useQueryClient()
   const notificationsQuery = useDiagnosticNotifications()
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
+  const [socketWarning, setSocketWarning] = useState<string | null>(null)
+  const didWarnOnceRef = useRef(false)
+
+  useEffect(() => {
+    if (!token) return
+    const socket: Socket = connectNotificationsSocket(token)
+    const onEvent = (eventName: string) => {
+      void queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      if (eventName === 'lab.result_uploaded') {
+        showBrowserNotification('Lab Result Uploaded', {
+          body: 'A lab result has been uploaded and shared.',
+        })
+      }
+    }
+    const onConnect = () => {
+      setSocketWarning(null)
+      didWarnOnceRef.current = false
+    }
+    const onConnectError = (err: { message?: string }) => {
+      setSocketWarning('Realtime connection unavailable. Retrying...')
+      if (!didWarnOnceRef.current) {
+        console.warn('notifications socket connect_error:', err?.message ?? 'unknown')
+        didWarnOnceRef.current = true
+      }
+    }
+    const onDisconnect = (reason: string) => {
+      if (reason !== 'io client disconnect') {
+        setSocketWarning('Realtime connection unavailable. Retrying...')
+      }
+    }
+    socket.on('connect', onConnect)
+    socket.on('connect_error', onConnectError)
+    socket.on('disconnect', onDisconnect)
+    socket.on('lab.result_uploaded', () => onEvent('lab.result_uploaded'))
+
+    return () => {
+      socket.off('connect', onConnect)
+      socket.off('connect_error', onConnectError)
+      socket.off('disconnect', onDisconnect)
+      socket.off('lab.result_uploaded')
+      socket.disconnect()
+    }
+  }, [queryClient, token])
 
   const markRead = useMutation({
     mutationFn: async (id: string) => (await api.patch(`/notifications/${id}/read`)).data,
@@ -38,6 +88,8 @@ export function DiagnosticNotificationsPage() {
         <h1>Notifications</h1>
         <p>Realtime updates for lab report delivery and workflow events.</p>
       </div>
+
+      {socketWarning ? <p className="muted">{socketWarning}</p> : null}
 
       <section className="kpi-grid kpi-three">
         <article className="kpi">

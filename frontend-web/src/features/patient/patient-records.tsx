@@ -18,6 +18,16 @@ function getInitialTab(value: string | null): RecordsTab {
   return 'prescriptions'
 }
 
+function getPharmacyName(item: Prescription) {
+  return (
+    item.pharmacySnapshot?.name?.trim() ||
+    item.pharmacySnapshot?.pharmacyName?.trim() ||
+    item.pharmacySnapshot?.fullName?.trim() ||
+    item.pharmacySnapshot?.email?.trim() ||
+    'Not assigned'
+  )
+}
+
 export function PatientRecordsPage() {
   const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState<RecordsTab>(getInitialTab(searchParams.get('tab')))
@@ -96,6 +106,13 @@ export function PatientRecordsPage() {
                   <p className="muted">Notes: {item.notes || 'Not provided'}</p>
                   <p className="muted">Diagnosis: {item.diagnosis || 'Not provided'}</p>
                   <p className="muted">Instructions: {item.instructions || 'Not provided'}</p>
+                  <p className="muted">Pharmacy: {getPharmacyName(item)}</p>
+                  <p className="muted">
+                    Address: {item.pharmacySnapshot?.address?.trim() || 'Not provided'}
+                  </p>
+                  <p className="muted">
+                    Phone: {item.pharmacySnapshot?.phone?.trim() || 'Not provided'}
+                  </p>
                 </div>
                 <div className="actions">
                   {item.documentUrl ? (

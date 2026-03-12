@@ -12,18 +12,28 @@ var UsersService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
+const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 let UsersService = class UsersService {
     static { UsersService_1 = this; }
     prisma;
-    constructor(prisma) {
+    cloudinaryService;
+    constructor(prisma, cloudinaryService) {
         this.prisma = prisma;
+        this.cloudinaryService = cloudinaryService;
     }
     static REGISTER_SELECT = {
         id: true,
         email: true,
         role: true,
+        avatarUrl: true,
     };
+    static ALLOWED_AVATAR_MIME_TYPES = new Set([
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+    ]);
+    static MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
     findByEmail(email) {
         return this.prisma.user.findUnique({
             where: { email },
@@ -33,6 +43,84 @@ let UsersService = class UsersService {
         return this.prisma.user.findUnique({
             where: { id },
         });
+    }
+    async uploadMyAvatar(userId, file) {
+        if (!file) {
+            throw new common_1.BadRequestException('Avatar file is required');
+        }
+        if (!UsersService_1.ALLOWED_AVATAR_MIME_TYPES.has(file.mimetype)) {
+            throw new common_1.BadRequestException('Only jpg, png, and webp images are allowed');
+        }
+        if (file.size > UsersService_1.MAX_AVATAR_SIZE_BYTES) {
+            throw new common_1.BadRequestException('Avatar image must be 5MB or smaller');
+        }
+        const existing = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                avatarPublicId: true,
+            },
+        });
+        if (!existing) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        const upload = await this.cloudinaryService.uploadBuffer({
+            buffer: file.buffer,
+            fileName: file.originalname,
+            folder: `profile-avatars/${userId}`,
+            contentType: file.mimetype,
+            resourceType: 'image',
+        });
+        if (existing.avatarPublicId) {
+            await this.cloudinaryService.destroy(existing.avatarPublicId, 'image');
+        }
+        const updated = await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                avatarUrl: upload.url,
+                avatarPublicId: upload.publicId,
+                avatarMimeType: upload.mimeType,
+                avatarSizeBytes: upload.bytes,
+            },
+            select: {
+                id: true,
+                avatarUrl: true,
+            },
+        });
+        return {
+            user: updated,
+        };
+    }
+    async removeMyAvatar(userId) {
+        const existing = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                avatarPublicId: true,
+            },
+        });
+        if (!existing) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        if (existing.avatarPublicId) {
+            await this.cloudinaryService.destroy(existing.avatarPublicId, 'image');
+        }
+        const updated = await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                avatarUrl: null,
+                avatarPublicId: null,
+                avatarMimeType: null,
+                avatarSizeBytes: null,
+            },
+            select: {
+                id: true,
+                avatarUrl: true,
+            },
+        });
+        return {
+            user: updated,
+        };
     }
     createUser(params) {
         const { fullName, email, passwordHash, role, phone, address, patientProfile, professionalProfile, } = params;
@@ -68,6 +156,7 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = UsersService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        cloudinary_service_1.CloudinaryService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

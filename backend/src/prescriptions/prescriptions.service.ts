@@ -24,6 +24,16 @@ type UploadedPrescriptionFile = {
   buffer: Buffer;
 };
 
+type PharmacySnapshot = {
+  id: string;
+  name: string;
+  pharmacyName: string | null;
+  fullName: string | null;
+  email: string | null;
+  address: string | null;
+  phone: string | null;
+};
+
 const TRANSITIONS: Record<PrescriptionStatus, PrescriptionStatus[]> = {
   DRAFT: [PrescriptionStatus.SIGNED],
   SIGNED: [PrescriptionStatus.SENT_TO_PATIENT],
@@ -273,14 +283,45 @@ export class PrescriptionsService {
               },
             },
           },
+          pharmacy: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              professionalProfile: {
+                select: {
+                  pharmacyName: true,
+                },
+              },
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
-      });
+      }).then((items: any[]) => items.map((item) => this.withPharmacySnapshot(item)));
     }
     if (role === Role.PHARMACY) {
       return db.prescription.findMany({
         where: { pharmacyId: userId },
-        include: { appointment: true },
+        include: {
+          appointment: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+              doctor: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
     }
@@ -289,9 +330,25 @@ export class PrescriptionsService {
         where: {
           appointment: { patientId: userId },
         },
-        include: { appointment: true },
+        include: {
+          appointment: true,
+          pharmacy: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              address: true,
+              phone: true,
+              professionalProfile: {
+                select: {
+                  pharmacyName: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
-      });
+      }).then((items: any[]) => items.map((item) => this.withPharmacySnapshot(item)));
     }
 
     throw new ForbiddenException('Role cannot view prescriptions');
@@ -301,20 +358,51 @@ export class PrescriptionsService {
     const db = this.prisma as any;
     const prescription = await db.prescription.findUnique({
       where: { id: prescriptionId },
-      include: { appointment: true },
+      include: {
+        appointment: {
+          include: {
+            patient: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+            doctor: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        pharmacy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            professionalProfile: {
+              select: {
+                pharmacyName: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!prescription) {
       throw new NotFoundException('Prescription not found');
     }
 
     if (role === Role.DOCTOR && prescription.doctorId === userId) {
-      return prescription;
+      return this.withPharmacySnapshot(prescription);
     }
     if (role === Role.PHARMACY && prescription.pharmacyId === userId) {
       return prescription;
     }
     if (role === Role.PATIENT && prescription.appointment.patientId === userId) {
-      return prescription;
+      return this.withPharmacySnapshot(prescription);
     }
 
     throw new ForbiddenException('You are not allowed to access this prescription');
@@ -367,5 +455,32 @@ export class PrescriptionsService {
     if (!result) {
       throw new BadRequestException('Cannot sign prescription before lab result is uploaded');
     }
+  }
+
+  private withPharmacySnapshot(prescription: any) {
+    const snapshot = this.getPharmacySnapshot(prescription);
+    return {
+      ...prescription,
+      pharmacySnapshot: snapshot,
+    };
+  }
+
+  private getPharmacySnapshot(prescription: any): PharmacySnapshot {
+    const pharmacyName = prescription.pharmacy?.professionalProfile?.pharmacyName ?? null;
+    const fullName = prescription.pharmacy?.fullName ?? null;
+    const email = prescription.pharmacy?.email ?? null;
+    const address = prescription.pharmacy?.address ?? null;
+    const phone = prescription.pharmacy?.phone ?? null;
+    const name = pharmacyName ?? fullName ?? email ?? 'Not assigned';
+
+    return {
+      id: prescription.pharmacyId,
+      name,
+      pharmacyName,
+      fullName,
+      email,
+      address,
+      phone,
+    };
   }
 }

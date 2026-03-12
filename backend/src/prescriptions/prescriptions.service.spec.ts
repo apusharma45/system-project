@@ -359,6 +359,65 @@ describe('PrescriptionsService', () => {
             },
           },
         },
+        pharmacy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            professionalProfile: {
+              select: {
+                pharmacyName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(prismaMock.prescription.findMany).toHaveBeenNthCalledWith(2, {
+      where: { pharmacyId: 'p1' },
+      include: {
+        appointment: {
+          include: {
+            patient: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+            doctor: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(prismaMock.prescription.findMany).toHaveBeenNthCalledWith(3, {
+      where: {
+        appointment: { patientId: 'u1' },
+      },
+      include: {
+        appointment: true,
+        pharmacy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            address: true,
+            phone: true,
+            professionalProfile: {
+              select: {
+                pharmacyName: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -369,6 +428,12 @@ describe('PrescriptionsService', () => {
         id: 'rx1',
         doctorId: 'd1',
         pharmacyId: 'ph1',
+        pharmacy: {
+          id: 'ph1',
+          fullName: 'Prime Rx',
+          email: 'prime@example.com',
+          professionalProfile: { pharmacyName: 'Prime Pharmacy' },
+        },
         appointment: { patientId: 'pt1' },
       })
       .mockResolvedValueOnce({
@@ -381,6 +446,15 @@ describe('PrescriptionsService', () => {
 
     const allowed = await service.getOne('d1', Role.DOCTOR, 'rx1');
     expect(allowed.id).toBe('rx1');
+    expect(allowed.pharmacySnapshot).toEqual({
+      id: 'ph1',
+      name: 'Prime Pharmacy',
+      pharmacyName: 'Prime Pharmacy',
+      fullName: 'Prime Rx',
+      email: 'prime@example.com',
+      address: null,
+      phone: null,
+    });
     await expect(service.getOne('other', Role.DOCTOR, 'rx1')).rejects.toBeInstanceOf(
       ForbiddenException,
     );

@@ -84,6 +84,19 @@ describe('AppController (e2e)', () => {
         licenseNumber: 'LAB-9001',
       },
     };
+    const pharmacyRecord = {
+      id: PHARMACY_ID,
+      fullName: 'Prime Pharmacy',
+      email: 'pharmacy@example.com',
+      role: 'PHARMACY',
+      phone: '+8801700000004',
+      address: 'Dhaka',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      professionalProfile: {
+        pharmacyName: 'Prime Pharmacy',
+        licenseNumber: 'PH-1001',
+      },
+    };
     const prismaMock = {
       $connect: jest.fn(),
       $disconnect: jest.fn(),
@@ -100,16 +113,7 @@ describe('AppController (e2e)', () => {
             return Promise.resolve(diagnosticRecord);
           }
           if (where.id === PHARMACY_ID) {
-            return Promise.resolve({
-              id: PHARMACY_ID,
-              fullName: 'Pharmacy Demo',
-              email: 'pharmacy@example.com',
-              role: 'PHARMACY',
-              phone: '+8801700000004',
-              address: 'Dhaka',
-              createdAt: new Date('2026-01-01T00:00:00.000Z'),
-              patientProfile: null,
-            });
+            return Promise.resolve(pharmacyRecord);
           }
           if (where.id === ADMIN_ID) {
             return Promise.resolve({
@@ -126,7 +130,12 @@ describe('AppController (e2e)', () => {
           return Promise.resolve(null);
         }),
         update: jest.fn(({ where, data }: any) => {
-          if (where.id !== PATIENT_ID && where.id !== DOCTOR_ID && where.id !== DIAGNOSTIC_ID) {
+          if (
+            where.id !== PATIENT_ID &&
+            where.id !== DOCTOR_ID &&
+            where.id !== DIAGNOSTIC_ID &&
+            where.id !== PHARMACY_ID
+          ) {
             return Promise.resolve(null);
           }
           if (where.id === PATIENT_ID) {
@@ -150,6 +159,14 @@ describe('AppController (e2e)', () => {
             };
             Object.assign(diagnosticRecord, nextDiagnostic);
             return Promise.resolve(diagnosticRecord);
+          }
+          if (where.id === PHARMACY_ID) {
+            const nextPharmacy = {
+              ...pharmacyRecord,
+              ...data,
+            };
+            Object.assign(pharmacyRecord, nextPharmacy);
+            return Promise.resolve(nextPharmacy);
           }
           const nextDoctor = {
             ...doctorRecord,
@@ -375,7 +392,7 @@ describe('AppController (e2e)', () => {
             appointment: appointments.get(item.appointmentId),
           });
         }),
-        findMany: jest.fn(({ where }: any) => {
+        findMany: jest.fn(({ where, include }: any) => {
           const list = [...prescriptions.values()].filter((p) => {
             const appointment = appointments.get(p.appointmentId);
             if (where?.doctorId) {
@@ -389,12 +406,19 @@ describe('AppController (e2e)', () => {
             }
             return true;
           });
-          return Promise.resolve(
-            list.map((p) => ({
+          return Promise.resolve(list.map((p) => {
+            const item: any = {
               ...p,
               appointment: appointments.get(p.appointmentId),
-            })),
-          );
+            };
+            if (include?.pharmacy) {
+              item.pharmacy =
+                p.pharmacyId === pharmacyRecord.id
+                  ? pharmacyRecord
+                  : null;
+            }
+            return item;
+          }));
         }),
         create: jest.fn(({ data }: any) => {
           const item = {
@@ -641,6 +665,7 @@ describe('AppController (e2e)', () => {
         email: 'doctor@example.com',
         role: 'DOCTOR',
         fullName: 'Dr. Demo',
+        avatarUrl: null,
       });
   });
 
@@ -660,6 +685,7 @@ describe('AppController (e2e)', () => {
         email: 'patient@example.com',
         role: 'PATIENT',
         fullName: 'Patient Demo',
+        avatarUrl: null,
       });
   });
 
@@ -1612,7 +1638,18 @@ describe('AppController (e2e)', () => {
       .get('/prescriptions/me')
       .set('Authorization', `Bearer ${patientToken}`)
       .expect(200)
-      .expect((res) => expect(res.body).toHaveLength(1));
+      .expect((res) => {
+        expect(res.body).toHaveLength(1);
+        expect(res.body[0].pharmacySnapshot).toEqual({
+          id: PHARMACY_ID,
+          name: 'Prime Pharmacy',
+          pharmacyName: 'Prime Pharmacy',
+          fullName: 'Prime Pharmacy',
+          email: 'pharmacy@example.com',
+          address: 'Dhaka',
+          phone: '+8801700000004',
+        });
+      });
     await request(app.getHttpServer())
       .get('/prescriptions/me')
       .set('Authorization', `Bearer ${pharmacyToken}`)
@@ -1738,6 +1775,42 @@ describe('AppController (e2e)', () => {
         expect(res.body.diagnostic.address).toBe('Updated Lab Address');
         expect(res.body.diagnostic.email).toBe('diagnostic@example.com');
         expect(res.body.diagnostic.role).toBe('DIAGNOSTIC');
+      });
+  });
+
+  it('/pharmacies/me/profile (GET/PATCH) supports editable whitelist and blocks restricted fields', async () => {
+    const pharmacyToken = await jwtService.signAsync({
+      sub: PHARMACY_ID,
+      email: 'pharmacy@example.com',
+      role: 'PHARMACY',
+    });
+
+    await request(app.getHttpServer())
+      .get('/pharmacies/me/profile')
+      .set('Authorization', `Bearer ${pharmacyToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.pharmacy.id).toBe(PHARMACY_ID);
+        expect(res.body.pharmacy.profile.pharmacyName).toBe('Prime Pharmacy');
+      });
+
+    await request(app.getHttpServer())
+      .patch('/pharmacies/me/profile')
+      .set('Authorization', `Bearer ${pharmacyToken}`)
+      .send({
+        fullName: 'Prime Pharmacy Updated',
+        phone: '+8801700000097',
+        address: 'Updated Pharmacy Address',
+        email: 'blocked@change.com',
+        role: 'PATIENT',
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.pharmacy.fullName).toBe('Prime Pharmacy Updated');
+        expect(res.body.pharmacy.phone).toBe('+8801700000097');
+        expect(res.body.pharmacy.address).toBe('Updated Pharmacy Address');
+        expect(res.body.pharmacy.email).toBe('pharmacy@example.com');
+        expect(res.body.pharmacy.role).toBe('PHARMACY');
       });
   });
 
