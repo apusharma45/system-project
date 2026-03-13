@@ -30,6 +30,9 @@ export declare class PrescriptionsController {
     uploadDocument(req: {
         user: RequestUser;
     }, id: string, file: UploadedPrescriptionFile | undefined): Promise<any>;
+    generateDocument(req: {
+        user: RequestUser;
+    }, id: string): Promise<any>;
     dispense(req: {
         user: RequestUser;
     }, id: string): Promise<any>;

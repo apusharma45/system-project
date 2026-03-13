@@ -71,6 +71,13 @@ describe('DoctorsService', () => {
       fullName: 'Dr. Alice Updated',
       phone: '+8801700000099',
       address: 'Updated Address',
+      about: 'Senior cardiologist',
+      clinicName: 'Heart Care Clinic',
+      clinicAddress: 'Dhaka',
+      clinicPhone: '+8801711111111',
+      availableTimeSlots: [
+        { day: 'MONDAY', startTime: '09:00', endTime: '12:00' },
+      ],
     });
 
     expect(prismaMock.user.update).toHaveBeenCalledWith({
@@ -79,6 +86,28 @@ describe('DoctorsService', () => {
         fullName: 'Dr. Alice Updated',
         phone: '+8801700000099',
         address: 'Updated Address',
+        professionalProfile: {
+          upsert: {
+            create: {
+              about: 'Senior cardiologist',
+              clinicName: 'Heart Care Clinic',
+              clinicAddress: 'Dhaka',
+              clinicPhone: '+8801711111111',
+              availableTimeSlots: [
+                { day: 'MONDAY', startTime: '09:00', endTime: '12:00' },
+              ],
+            },
+            update: {
+              about: 'Senior cardiologist',
+              clinicName: 'Heart Care Clinic',
+              clinicAddress: 'Dhaka',
+              clinicPhone: '+8801711111111',
+              availableTimeSlots: [
+                { day: 'MONDAY', startTime: '09:00', endTime: '12:00' },
+              ],
+            },
+          },
+        },
       },
     });
   });

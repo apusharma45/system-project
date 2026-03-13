@@ -34,6 +34,34 @@ export type UserSummary = {
   avatarUrl?: string | null
   email: string
   role: Role
+  specialization?: string | null
+  yearsOfExperience?: number | null
+}
+
+export type DoctorAvailabilitySlot = {
+  day: string
+  startTime: string
+  endTime: string
+}
+
+export type PatientDoctorDetailsResponse = {
+  doctor: {
+    id: string
+    fullName?: string | null
+    avatarUrl?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    specialization?: string | null
+    yearsOfExperience?: number | null
+    degrees?: string[] | null
+    about?: string | null
+    clinicName?: string | null
+    clinicAddress?: string | null
+    clinicPhone?: string | null
+    availableTimeSlots?: DoctorAvailabilitySlot[] | null
+  }
 }
 
 export type CurrentUser = {

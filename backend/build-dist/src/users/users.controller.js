@@ -35,7 +35,10 @@ let UsersController = class UsersController {
         return this.usersService.removeMyAvatar(req.user.userId);
     }
     listDoctors() {
-        return this.usersService.listByRole(client_1.Role.DOCTOR);
+        return this.usersService.listDoctorsForPatients();
+    }
+    getDoctorDetails(doctorId) {
+        return this.usersService.getDoctorDetailsForPatients(doctorId);
     }
     listPharmacies() {
         return this.usersService.listByRole(client_1.Role.PHARMACY);
@@ -82,6 +85,15 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "listDoctors", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.PATIENT, client_1.Role.ADMIN),
+    (0, common_1.Get)('doctors/:doctorId'),
+    __param(0, (0, common_1.Param)('doctorId', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "getDoctorDetails", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.DOCTOR, client_1.Role.ADMIN),

@@ -17,11 +17,24 @@ type LabTestDraft = {
   title: string
   description: string
 }
+type MedicationDraft = {
+  name: string
+  dosage: string
+  frequency: string
+  duration: string
+}
 
 const emptyLabTestDraft = (index: number): LabTestDraft => ({
   title: `Test ${index + 1}`,
   description: '',
 })
+const emptyMedicationDraft = (): MedicationDraft => ({
+  name: '',
+  dosage: '',
+  frequency: '',
+  duration: '',
+})
+const DEFAULT_PRESCRIPTION_NOTE = 'Generated from structured medication plan.'
 
 const appointmentActions: Array<{ label: string; action: string; from: AppointmentStatus[] }> = [
   { label: 'Approve Preferred', action: 'confirm', from: ['REQUESTED'] },
@@ -47,19 +60,15 @@ export function DoctorAppointmentDetailsPage() {
   const [scheduleAt, setScheduleAt] = useState('')
   const [selectedDiagnosticId, setSelectedDiagnosticId] = useState('')
   const [selectedPharmacyId, setSelectedPharmacyId] = useState('')
-  const [prescriptionNotes, setPrescriptionNotes] = useState('')
-  const [prescriptionDiagnosis, setPrescriptionDiagnosis] = useState('')
   const [prescriptionInstructions, setPrescriptionInstructions] = useState('')
+  const [prescriptionMedications, setPrescriptionMedications] = useState<MedicationDraft[]>([
+    emptyMedicationDraft(),
+  ])
   const [labTests, setLabTests] = useState<LabTestDraft[]>([emptyLabTestDraft(0)])
-  const [documentFile, setDocumentFile] = useState<File | null>(null)
 
   const appointment = useMemo(
     () => (appointmentsQuery.data ?? []).find((item) => item.id === appointmentId),
     [appointmentsQuery.data, appointmentId],
-  )
-  const appointmentPrescription = useMemo(
-    () => (prescriptionsQuery.data ?? []).find((item) => item.appointmentId === appointmentId),
-    [prescriptionsQuery.data, appointmentId],
   )
   const appointmentPrescriptions = useMemo(
     () => (prescriptionsQuery.data ?? []).filter((item) => item.appointmentId === appointmentId),
@@ -109,14 +118,15 @@ export function DoctorAppointmentDetailsPage() {
   })
 
   const createPrescriptionMutation = useMutation({
-    mutationFn: async () =>
+    mutationFn: async (payload: { notes: string; diagnosis?: string; instructions?: string; medications: Array<Record<string, string>> }) =>
       (
         await api.post<Prescription>('/prescriptions', {
           appointmentId,
           pharmacyId: selectedPharmacyId,
-          notes: prescriptionNotes.trim(),
-          diagnosis: prescriptionDiagnosis.trim() || undefined,
-          instructions: prescriptionInstructions.trim() || undefined,
+          notes: payload.notes,
+          diagnosis: payload.diagnosis,
+          instructions: payload.instructions,
+          medications: payload.medications,
         })
       ).data,
     onSuccess: async () => {
@@ -127,12 +137,13 @@ export function DoctorAppointmentDetailsPage() {
   })
 
   const signPrescriptionMutation = useMutation({
-    mutationFn: async (id: string) =>
+    mutationFn: async (payload: { id: string; notes?: string; diagnosis?: string; instructions?: string; medications: Array<Record<string, string>> }) =>
       (
-        await api.patch<Prescription>(`/prescriptions/${id}/sign`, {
-          notes: prescriptionNotes.trim() || undefined,
-          diagnosis: prescriptionDiagnosis.trim() || undefined,
-          instructions: prescriptionInstructions.trim() || undefined,
+        await api.patch<Prescription>(`/prescriptions/${payload.id}/sign`, {
+          notes: payload.notes || undefined,
+          diagnosis: payload.diagnosis,
+          instructions: payload.instructions,
+          medications: payload.medications,
         })
       ).data,
     onSuccess: async () => {
@@ -152,19 +163,11 @@ export function DoctorAppointmentDetailsPage() {
     onError: (err) => setError(getApiErrorMessage(err)),
   })
 
-  const uploadPrescriptionMutation = useMutation({
-    mutationFn: async (payload: { id: string; file: File }) => {
-      const formData = new FormData()
-      formData.append('file', payload.file)
-      return (
-        await api.patch<Prescription>(`/prescriptions/${payload.id}/upload-document`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-      ).data
-    },
+  const generatePrescriptionDocumentMutation = useMutation({
+    mutationFn: async (id: string) =>
+      (await api.post<Prescription>(`/prescriptions/${id}/generate-document`)).data,
     onSuccess: async () => {
       setError(null)
-      setDocumentFile(null)
       await invalidateDoctorData()
     },
     onError: (err) => setError(getApiErrorMessage(err)),
@@ -198,6 +201,11 @@ export function DoctorAppointmentDetailsPage() {
     labsQuery.isLoading ||
     diagnosticsQuery.isLoading ||
     pharmaciesQuery.isLoading
+  const isPrescriptionFlowPending =
+    createPrescriptionMutation.isPending ||
+    signPrescriptionMutation.isPending ||
+    simplePrescriptionMutation.isPending ||
+    generatePrescriptionDocumentMutation.isPending
 
   const patientName =
     appointment?.patientSnapshot?.fullName?.trim() ||
@@ -227,11 +235,57 @@ export function DoctorAppointmentDetailsPage() {
   const onCreatePrescription = (event: FormEvent) => {
     event.preventDefault()
     setError(null)
-    if (!selectedPharmacyId || !prescriptionNotes.trim()) {
-      setError('Select pharmacy and provide notes.')
+    if (!selectedPharmacyId) {
+      setError('Select pharmacy.')
       return
     }
-    createPrescriptionMutation.mutate()
+    const cleanedMedications = prescriptionMedications
+      .map((medication) => ({
+        name: medication.name.trim(),
+        dosage: medication.dosage.trim(),
+        frequency: medication.frequency.trim(),
+        duration: medication.duration.trim(),
+      }))
+      .filter((medication) => medication.name)
+
+    if (!cleanedMedications.length) {
+      setError('Add at least one medicine name.')
+      return
+    }
+
+    const payload = {
+      notes: DEFAULT_PRESCRIPTION_NOTE,
+      diagnosis: undefined,
+      instructions: prescriptionInstructions.trim() || undefined,
+      medications: cleanedMedications.map((medication) => ({
+        name: medication.name,
+        ...(medication.dosage ? { dosage: medication.dosage } : {}),
+        ...(medication.frequency ? { frequency: medication.frequency } : {}),
+        ...(medication.duration ? { duration: medication.duration } : {}),
+      })),
+    }
+
+    const run = async () => {
+      const draft = await createPrescriptionMutation.mutateAsync(payload)
+      const signed = await signPrescriptionMutation.mutateAsync({
+        id: draft.id,
+        ...payload,
+      })
+      await generatePrescriptionDocumentMutation.mutateAsync(signed.id)
+      const sentToPatient = await simplePrescriptionMutation.mutateAsync({
+        id: signed.id,
+        action: 'send-patient',
+      })
+      await simplePrescriptionMutation.mutateAsync({
+        id: sentToPatient.id,
+        action: 'send-pharmacy',
+      })
+      await invalidateDoctorData()
+    }
+
+    void run().catch((err) => {
+      setError(getApiErrorMessage(err))
+    })
   }
 
   const onCreateLabOrder = (event: FormEvent) => {
@@ -353,133 +407,113 @@ export function DoctorAppointmentDetailsPage() {
           <h3>Prescription</h3>
           <div className="grid two-col">
             <div className="stack">
-              <h4>Upload / Suggest</h4>
-              {appointmentPrescription ? (
-                <>
-                  <p>Prescription ID: {appointmentPrescription.id}</p>
-                  <p>Status: {appointmentPrescription.status}</p>
-                  <label htmlFor="prescriptionNotes">Notes</label>
-                  <textarea
-                    id="prescriptionNotes"
-                    rows={3}
-                    value={prescriptionNotes}
-                    onChange={(e) => setPrescriptionNotes(e.target.value)}
-                  />
-                  <label htmlFor="prescriptionDiagnosis">Diagnosis</label>
-                  <input
-                    id="prescriptionDiagnosis"
-                    value={prescriptionDiagnosis}
-                    onChange={(e) => setPrescriptionDiagnosis(e.target.value)}
-                  />
-                  <label htmlFor="prescriptionInstructions">Instructions</label>
-                  <textarea
-                    id="prescriptionInstructions"
-                    rows={3}
-                    value={prescriptionInstructions}
-                    onChange={(e) => setPrescriptionInstructions(e.target.value)}
-                  />
-                  <div className="actions">
-                    <button
-                      type="button"
-                      disabled={signPrescriptionMutation.isPending || appointmentPrescription.status !== 'DRAFT'}
-                      onClick={() => signPrescriptionMutation.mutate(appointmentPrescription.id)}
-                    >
-                      Sign & Update
-                    </button>
-                    <button
-                      type="button"
-                      disabled={simplePrescriptionMutation.isPending || appointmentPrescription.status !== 'SIGNED'}
-                      onClick={() =>
-                        simplePrescriptionMutation.mutate({
-                          id: appointmentPrescription.id,
-                          action: 'send-patient',
-                        })
-                      }
-                    >
-                      Send to Patient
-                    </button>
-                    <button
-                      type="button"
-                      disabled={
-                        simplePrescriptionMutation.isPending ||
-                        appointmentPrescription.status !== 'SENT_TO_PATIENT'
-                      }
-                      onClick={() =>
-                        simplePrescriptionMutation.mutate({
-                          id: appointmentPrescription.id,
-                          action: 'send-pharmacy',
-                        })
-                      }
-                    >
-                      Send to Pharmacy
-                    </button>
-                  </div>
-
-                  {appointmentPrescription.documentUrl ? (
-                    <a href={appointmentPrescription.documentUrl} target="_blank" rel="noreferrer">
-                      Open Uploaded Document
-                    </a>
-                  ) : (
-                    <p className="muted">No document uploaded</p>
-                  )}
-
-                  <input
-                    type="file"
-                    accept=".pdf,image/png,image/jpeg,image/jpg,image/webp"
-                    onChange={(e) => setDocumentFile(e.target.files?.[0] ?? null)}
-                  />
+              <h4>Create Prescription</h4>
+              <form onSubmit={onCreatePrescription} className="stack">
+                <p className="muted">
+                  {appointmentPrescriptions.length > 0
+                    ? 'Create a new prescription. Existing prescriptions are listed on the right.'
+                    : 'No prescription exists for this appointment yet.'}
+                </p>
+                <label htmlFor="pharmacyId">Pharmacy</label>
+                <select
+                  id="pharmacyId"
+                  value={selectedPharmacyId}
+                  onChange={(e) => setSelectedPharmacyId(e.target.value)}
+                >
+                  <option value="">Select pharmacy</option>
+                  {(pharmaciesQuery.data ?? []).map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.fullName ? `${item.fullName} (${item.email})` : item.email}
+                    </option>
+                  ))}
+                </select>
+                <label htmlFor="newPrescriptionInstructions">Instructions</label>
+                <textarea
+                  id="newPrescriptionInstructions"
+                  rows={3}
+                  value={prescriptionInstructions}
+                  onChange={(e) => setPrescriptionInstructions(e.target.value)}
+                />
+                <section className="stack" aria-label="prescription-medication-builder">
+                  <strong>Medicines</strong>
+                  {prescriptionMedications.map((medication, index) => (
+                    <div key={`create-medication-${index}`} className="grid two-col">
+                      <input
+                        aria-label={`Medicine ${index + 1} Name`}
+                        placeholder="Medicine name"
+                        value={medication.name}
+                        onChange={(e) =>
+                          setPrescriptionMedications((current) =>
+                            current.map((item, idx) =>
+                              idx === index ? { ...item, name: e.target.value } : item,
+                            ),
+                          )
+                        }
+                      />
+                      <input
+                        aria-label={`Medicine ${index + 1} Dosage`}
+                        placeholder="Dosage"
+                        value={medication.dosage}
+                        onChange={(e) =>
+                          setPrescriptionMedications((current) =>
+                            current.map((item, idx) =>
+                              idx === index ? { ...item, dosage: e.target.value } : item,
+                            ),
+                          )
+                        }
+                      />
+                      <input
+                        aria-label={`Medicine ${index + 1} Frequency`}
+                        placeholder="Frequency"
+                        value={medication.frequency}
+                        onChange={(e) =>
+                          setPrescriptionMedications((current) =>
+                            current.map((item, idx) =>
+                              idx === index ? { ...item, frequency: e.target.value } : item,
+                            ),
+                          )
+                        }
+                      />
+                      <div className="actions">
+                        <input
+                          aria-label={`Medicine ${index + 1} Duration`}
+                          placeholder="Duration"
+                          value={medication.duration}
+                          onChange={(e) =>
+                            setPrescriptionMedications((current) =>
+                              current.map((item, idx) =>
+                                idx === index ? { ...item, duration: e.target.value } : item,
+                              ),
+                            )
+                          }
+                        />
+                        <button
+                          type="button"
+                          disabled={prescriptionMedications.length === 1}
+                          onClick={() =>
+                            setPrescriptionMedications((current) =>
+                              current.filter((_, idx) => idx !== index),
+                            )
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                   <button
                     type="button"
-                    disabled={!documentFile || uploadPrescriptionMutation.isPending}
-                    onClick={() => {
-                      if (!documentFile) return
-                      uploadPrescriptionMutation.mutate({ id: appointmentPrescription.id, file: documentFile })
-                    }}
+                    onClick={() =>
+                      setPrescriptionMedications((current) => [...current, emptyMedicationDraft()])
+                    }
                   >
-                    Upload Document
+                    Add Medicine
                   </button>
-                </>
-              ) : (
-                <form onSubmit={onCreatePrescription} className="stack">
-                  <p className="muted">No prescription exists for this appointment yet.</p>
-                  <label htmlFor="pharmacyId">Pharmacy</label>
-                  <select
-                    id="pharmacyId"
-                    value={selectedPharmacyId}
-                    onChange={(e) => setSelectedPharmacyId(e.target.value)}
-                  >
-                    <option value="">Select pharmacy</option>
-                    {(pharmaciesQuery.data ?? []).map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.fullName ? `${item.fullName} (${item.email})` : item.email}
-                      </option>
-                    ))}
-                  </select>
-                  <label htmlFor="newPrescriptionNotes">Notes</label>
-                  <textarea
-                    id="newPrescriptionNotes"
-                    rows={3}
-                    value={prescriptionNotes}
-                    onChange={(e) => setPrescriptionNotes(e.target.value)}
-                  />
-                  <label htmlFor="newPrescriptionDiagnosis">Diagnosis</label>
-                  <input
-                    id="newPrescriptionDiagnosis"
-                    value={prescriptionDiagnosis}
-                    onChange={(e) => setPrescriptionDiagnosis(e.target.value)}
-                  />
-                  <label htmlFor="newPrescriptionInstructions">Instructions</label>
-                  <textarea
-                    id="newPrescriptionInstructions"
-                    rows={3}
-                    value={prescriptionInstructions}
-                    onChange={(e) => setPrescriptionInstructions(e.target.value)}
-                  />
-                  <button type="submit" disabled={createPrescriptionMutation.isPending}>
-                    Create Prescription
-                  </button>
-                </form>
-              )}
+                </section>
+                <button type="submit" disabled={isPrescriptionFlowPending}>
+                  Generate and Upload
+                </button>
+              </form>
             </div>
 
             <div className="stack">
@@ -497,6 +531,23 @@ export function DoctorAppointmentDetailsPage() {
                         <p><strong>Notes:</strong> {item.notes || 'Not provided'}</p>
                         <p><strong>Diagnosis:</strong> {item.diagnosis || 'Not provided'}</p>
                         <p><strong>Instructions:</strong> {item.instructions || 'Not provided'}</p>
+                        <div>
+                          <strong>Medications:</strong>
+                          {item.medications?.length ? (
+                            <ul>
+                              {item.medications.map((medication, index) => (
+                                <li key={`${item.id}-med-${index}`}>
+                                  {medication.name}
+                                  {medication.dosage ? `, Dosage: ${medication.dosage}` : ''}
+                                  {medication.frequency ? `, Frequency: ${medication.frequency}` : ''}
+                                  {medication.duration ? `, Duration: ${medication.duration}` : ''}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="muted">No medications listed</p>
+                          )}
+                        </div>
                         {item.documentUrl ? (
                           <a href={item.documentUrl} target="_blank" rel="noreferrer" className="quick-link">
                             Open Uploaded Document

@@ -2,6 +2,8 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
+  ParseUUIDPipe,
   Patch,
   Req,
   UploadedFile,
@@ -56,7 +58,14 @@ export class UsersController {
   @Roles(Role.PATIENT, Role.ADMIN)
   @Get('doctors')
   listDoctors() {
-    return this.usersService.listByRole(Role.DOCTOR);
+    return this.usersService.listDoctorsForPatients();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PATIENT, Role.ADMIN)
+  @Get('doctors/:doctorId')
+  getDoctorDetails(@Param('doctorId', ParseUUIDPipe) doctorId: string) {
+    return this.usersService.getDoctorDetailsForPatients(doctorId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

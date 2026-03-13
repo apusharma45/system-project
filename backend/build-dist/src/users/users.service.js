@@ -12,6 +12,7 @@ var UsersService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
+const client_1 = require("../../generated/prisma/client");
 const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 let UsersService = class UsersService {
@@ -151,6 +152,83 @@ let UsersService = class UsersService {
                 createdAt: 'desc',
             },
         });
+    }
+    listDoctorsForPatients() {
+        return this.prisma.user.findMany({
+            where: { role: client_1.Role.DOCTOR },
+            select: {
+                id: true,
+                fullName: true,
+                avatarUrl: true,
+                email: true,
+                role: true,
+                professionalProfile: {
+                    select: {
+                        specialization: true,
+                        yearsOfExperience: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        }).then((items) => items.map((item) => ({
+            id: item.id,
+            fullName: item.fullName,
+            avatarUrl: item.avatarUrl,
+            email: item.email,
+            role: item.role,
+            specialization: item.professionalProfile?.specialization ?? null,
+            yearsOfExperience: item.professionalProfile?.yearsOfExperience ?? null,
+        })));
+    }
+    async getDoctorDetailsForPatients(doctorId) {
+        const doctor = await this.prisma.user.findUnique({
+            where: { id: doctorId },
+            select: {
+                id: true,
+                fullName: true,
+                avatarUrl: true,
+                email: true,
+                role: true,
+                phone: true,
+                address: true,
+                professionalProfile: {
+                    select: {
+                        specialization: true,
+                        yearsOfExperience: true,
+                        degrees: true,
+                        about: true,
+                        clinicName: true,
+                        clinicAddress: true,
+                        clinicPhone: true,
+                        availableTimeSlots: true,
+                    },
+                },
+            },
+        });
+        if (!doctor || doctor.role !== client_1.Role.DOCTOR) {
+            throw new common_1.NotFoundException('Doctor not found');
+        }
+        return {
+            doctor: {
+                id: doctor.id,
+                fullName: doctor.fullName,
+                avatarUrl: doctor.avatarUrl,
+                email: doctor.email,
+                role: doctor.role,
+                phone: doctor.phone,
+                address: doctor.address,
+                specialization: doctor.professionalProfile?.specialization ?? null,
+                yearsOfExperience: doctor.professionalProfile?.yearsOfExperience ?? null,
+                degrees: doctor.professionalProfile?.degrees ?? null,
+                about: doctor.professionalProfile?.about ?? null,
+                clinicName: doctor.professionalProfile?.clinicName ?? null,
+                clinicAddress: doctor.professionalProfile?.clinicAddress ?? null,
+                clinicPhone: doctor.professionalProfile?.clinicPhone ?? null,
+                availableTimeSlots: doctor.professionalProfile?.availableTimeSlots ?? null,
+            },
+        };
     }
 };
 exports.UsersService = UsersService;
