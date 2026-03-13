@@ -107,9 +107,18 @@ export function PatientAppointmentsPage() {
                 {(doctorsQuery.data ?? []).map((doctor) => (
                   <option key={doctor.id} value={doctor.id}>
                     {doctor.fullName ? `${doctor.fullName} (${doctor.email})` : doctor.email}
+                    {doctor.specialization ? ` - ${doctor.specialization}` : ''}
+                    {doctor.yearsOfExperience != null ? ` • ${doctor.yearsOfExperience}y exp` : ''}
                   </option>
                 ))}
               </select>
+              {selectedDoctorId ? (
+                <p>
+                  <Link to={`/patient/doctors/${selectedDoctorId}`} className="quick-link">
+                    View Doctor Details
+                  </Link>
+                </p>
+              ) : null}
               <label htmlFor="preferredDateFrom">Preferred From (optional)</label>
               <input
                 id="preferredDateFrom"
@@ -197,6 +206,14 @@ export function PatientAppointmentsPage() {
                     <p>
                       <Link to={`/patient/appointments/${appointment.id}`} className="quick-link">
                         View Details
+                      </Link>
+                    </p>
+                    <p>
+                      <Link
+                        to={`/patient/doctors/${appointment.doctorId}`}
+                        className="quick-link"
+                      >
+                        View Doctor Details
                       </Link>
                     </p>
                   </div>

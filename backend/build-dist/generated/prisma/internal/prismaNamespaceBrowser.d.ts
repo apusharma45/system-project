@@ -67,6 +67,11 @@ export declare const ProfessionalProfileScalarFieldEnum: {
     readonly userId: "userId";
     readonly licenseNumber: "licenseNumber";
     readonly specialization: "specialization";
+    readonly about: "about";
+    readonly clinicName: "clinicName";
+    readonly clinicAddress: "clinicAddress";
+    readonly clinicPhone: "clinicPhone";
+    readonly availableTimeSlots: "availableTimeSlots";
     readonly pharmacyName: "pharmacyName";
     readonly labName: "labName";
     readonly gender: "gender";

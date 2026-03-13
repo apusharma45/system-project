@@ -213,8 +213,27 @@ describe('doctor UI regression', () => {
   beforeEach(() => {
     patchMock.mockReset()
     postMock.mockReset()
-    patchMock.mockResolvedValue({ data: {} })
-    postMock.mockResolvedValue({ data: {} })
+    patchMock.mockImplementation((url: string) => {
+      if (url === '/prescriptions/rx-created/sign') {
+        return Promise.resolve({ data: { id: 'rx-created', status: 'SIGNED' } })
+      }
+      if (url === '/prescriptions/rx-created/send-patient') {
+        return Promise.resolve({ data: { id: 'rx-created', status: 'SENT_TO_PATIENT' } })
+      }
+      if (url === '/prescriptions/rx-created/send-pharmacy') {
+        return Promise.resolve({ data: { id: 'rx-created', status: 'SENT_TO_PHARMACY' } })
+      }
+      return Promise.resolve({ data: {} })
+    })
+    postMock.mockImplementation((url: string) => {
+      if (url === '/prescriptions') {
+        return Promise.resolve({ data: { id: 'rx-created' } })
+      }
+      if (url === '/prescriptions/rx-created/generate-document') {
+        return Promise.resolve({ data: { id: 'rx-created' } })
+      }
+      return Promise.resolve({ data: {} })
+    })
   })
 
   it('renders doctor navigation labels in app layout', () => {
@@ -348,22 +367,55 @@ describe('doctor UI regression', () => {
     renderDoctorRoute('/doctor/appointments/apt-1', <div />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Prescription' }))
-    expect(screen.getByText('Upload / Suggest')).toBeInTheDocument()
+    expect(screen.getByText('Create Prescription')).toBeInTheDocument()
     expect(screen.getByText('Given Prescriptions')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Create / Suggest / Upload' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'View Given Prescriptions' })).not.toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Pharmacy'), { target: { value: 'pharmacy-1' } })
-    fireEvent.change(screen.getByLabelText(/^Notes$/), { target: { value: 'Take once daily' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Create Prescription' }))
+    fireEvent.change(screen.getByLabelText('Medicine 1 Name'), { target: { value: 'Amlodipine' } })
+    fireEvent.change(screen.getByLabelText('Medicine 1 Dosage'), { target: { value: '5mg' } })
+    fireEvent.change(screen.getByLabelText('Medicine 1 Frequency'), { target: { value: 'Once daily' } })
+    fireEvent.change(screen.getByLabelText('Medicine 1 Duration'), { target: { value: '30 days' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Generate and Upload' }))
 
     await waitFor(() => {
       expect(postMock).toHaveBeenCalledWith('/prescriptions', {
         appointmentId: 'apt-1',
         pharmacyId: 'pharmacy-1',
-        notes: 'Take once daily',
+        notes: 'Generated from structured medication plan.',
         diagnosis: undefined,
         instructions: undefined,
+        medications: [
+          {
+            name: 'Amlodipine',
+            dosage: '5mg',
+            frequency: 'Once daily',
+            duration: '30 days',
+          },
+        ],
       })
+    })
+    await waitFor(() => {
+      expect(patchMock).toHaveBeenCalledWith('/prescriptions/rx-created/sign', {
+        notes: 'Generated from structured medication plan.',
+        diagnosis: undefined,
+        instructions: undefined,
+        medications: [
+          {
+            name: 'Amlodipine',
+            dosage: '5mg',
+            frequency: 'Once daily',
+            duration: '30 days',
+          },
+        ],
+      })
+    })
+    await waitFor(() => {
+      expect(postMock).toHaveBeenCalledWith('/prescriptions/rx-created/generate-document')
+    })
+    await waitFor(() => {
+      expect(patchMock).toHaveBeenCalledWith('/prescriptions/rx-created/send-patient')
+      expect(patchMock).toHaveBeenCalledWith('/prescriptions/rx-created/send-pharmacy')
     })
   })
 

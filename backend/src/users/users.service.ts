@@ -213,4 +213,87 @@ export class UsersService {
       },
     });
   }
+
+  listDoctorsForPatients() {
+    return this.prisma.user.findMany({
+      where: { role: Role.DOCTOR },
+      select: {
+        id: true,
+        fullName: true,
+        avatarUrl: true,
+        email: true,
+        role: true,
+        professionalProfile: {
+          select: {
+            specialization: true,
+            yearsOfExperience: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    }).then((items) =>
+      items.map((item) => ({
+        id: item.id,
+        fullName: item.fullName,
+        avatarUrl: item.avatarUrl,
+        email: item.email,
+        role: item.role,
+        specialization: item.professionalProfile?.specialization ?? null,
+        yearsOfExperience: item.professionalProfile?.yearsOfExperience ?? null,
+      })),
+    );
+  }
+
+  async getDoctorDetailsForPatients(doctorId: string) {
+    const doctor = await this.prisma.user.findUnique({
+      where: { id: doctorId },
+      select: {
+        id: true,
+        fullName: true,
+        avatarUrl: true,
+        email: true,
+        role: true,
+        phone: true,
+        address: true,
+        professionalProfile: {
+          select: {
+            specialization: true,
+            yearsOfExperience: true,
+            degrees: true,
+            about: true,
+            clinicName: true,
+            clinicAddress: true,
+            clinicPhone: true,
+            availableTimeSlots: true,
+          },
+        },
+      },
+    });
+
+    if (!doctor || doctor.role !== Role.DOCTOR) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    return {
+      doctor: {
+        id: doctor.id,
+        fullName: doctor.fullName,
+        avatarUrl: doctor.avatarUrl,
+        email: doctor.email,
+        role: doctor.role,
+        phone: doctor.phone,
+        address: doctor.address,
+        specialization: doctor.professionalProfile?.specialization ?? null,
+        yearsOfExperience: doctor.professionalProfile?.yearsOfExperience ?? null,
+        degrees: doctor.professionalProfile?.degrees ?? null,
+        about: doctor.professionalProfile?.about ?? null,
+        clinicName: doctor.professionalProfile?.clinicName ?? null,
+        clinicAddress: doctor.professionalProfile?.clinicAddress ?? null,
+        clinicPhone: doctor.professionalProfile?.clinicPhone ?? null,
+        availableTimeSlots: doctor.professionalProfile?.availableTimeSlots ?? null,
+      },
+    };
+  }
 }

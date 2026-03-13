@@ -28,6 +28,13 @@ function getPharmacyName(item: Prescription) {
   )
 }
 
+function getDocumentLabel(item: Prescription) {
+  if (!item.documentUrl) return 'No document'
+  return item.documentMimeType?.toLowerCase() === 'application/pdf'
+    ? 'Download Prescription PDF'
+    : 'Open Document'
+}
+
 export function PatientRecordsPage() {
   const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState<RecordsTab>(getInitialTab(searchParams.get('tab')))
@@ -104,8 +111,27 @@ export function PatientRecordsPage() {
                     Open Appointment
                   </Link>
                   <p className="muted">Notes: {item.notes || 'Not provided'}</p>
+                  <p className="muted">Doctor Advice: {item.notes || 'Not provided'}</p>
                   <p className="muted">Diagnosis: {item.diagnosis || 'Not provided'}</p>
                   <p className="muted">Instructions: {item.instructions || 'Not provided'}</p>
+                  <div className="muted">
+                    <strong>Medications</strong>
+                    {item.medications?.length ? (
+                      <ul>
+                        {item.medications.map((medication, index) => (
+                          <li key={`${item.id}-med-${index}`}>
+                            {medication.name}
+                            {medication.dosage ? `, Dosage: ${medication.dosage}` : ''}
+                            {medication.frequency ? `, Frequency: ${medication.frequency}` : ''}
+                            {medication.duration ? `, Duration: ${medication.duration}` : ''}
+                            {medication.route ? `, Route: ${medication.route}` : ''}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No medications listed</p>
+                    )}
+                  </div>
                   <p className="muted">Pharmacy: {getPharmacyName(item)}</p>
                   <p className="muted">
                     Address: {item.pharmacySnapshot?.address?.trim() || 'Not provided'}
@@ -117,7 +143,7 @@ export function PatientRecordsPage() {
                 <div className="actions">
                   {item.documentUrl ? (
                     <a href={item.documentUrl} target="_blank" rel="noreferrer">
-                      Open Document
+                      {getDocumentLabel(item)}
                     </a>
                   ) : (
                     <span className="muted">No document</span>

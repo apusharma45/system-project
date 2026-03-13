@@ -42,6 +42,9 @@ let PrescriptionsController = class PrescriptionsController {
     uploadDocument(req, id, file) {
         return this.prescriptionsService.uploadDocumentByDoctor(req.user.userId, id, file);
     }
+    generateDocument(req, id) {
+        return this.prescriptionsService.generateDocumentByDoctor(req.user.userId, id);
+    }
     dispense(req, id) {
         return this.prescriptionsService.dispenseByPharmacy(req.user.userId, id);
     }
@@ -101,6 +104,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
 ], PrescriptionsController.prototype, "uploadDocument", null);
+__decorate([
+    (0, common_1.Post)(':id/generate-document'),
+    (0, roles_decorator_1.Roles)(client_1.Role.DOCTOR),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], PrescriptionsController.prototype, "generateDocument", null);
 __decorate([
     (0, common_1.Patch)(':id/dispense'),
     (0, roles_decorator_1.Roles)(client_1.Role.PHARMACY),

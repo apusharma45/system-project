@@ -76,6 +76,12 @@ export class PrescriptionsController {
     return this.prescriptionsService.uploadDocumentByDoctor(req.user.userId, id, file);
   }
 
+  @Post(':id/generate-document')
+  @Roles(Role.DOCTOR)
+  generateDocument(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {
+    return this.prescriptionsService.generateDocumentByDoctor(req.user.userId, id);
+  }
+
   @Patch(':id/dispense')
   @Roles(Role.PHARMACY)
   dispense(@Req() req: { user: RequestUser }, @Param('id', ParseUUIDPipe) id: string) {

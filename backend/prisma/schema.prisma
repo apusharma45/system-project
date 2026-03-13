@@ -103,6 +103,11 @@ model ProfessionalProfile {
 
   licenseNumber String?
   specialization String?
+  about String?
+  clinicName String?
+  clinicAddress String?
+  clinicPhone String?
+  availableTimeSlots Json?
   pharmacyName String?
   labName String?
   gender String?
@@ -140,8 +145,8 @@ model Appointment {
   labFlowLocked Boolean         @default(false)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  labOrders   LabOrder[]
-  prescription Prescription?
+  labOrders     LabOrder[]
+  prescriptions Prescription[]
 
   @@index([patientId])
   @@index([doctorId])
@@ -191,7 +196,7 @@ model LabResult {
 model Prescription {
   id String @id @default(uuid())
 
-  appointmentId String      @unique
+  appointmentId String
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
 
   doctorId String
