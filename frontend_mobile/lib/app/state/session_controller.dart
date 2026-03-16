@@ -57,14 +57,18 @@ class SessionController extends ChangeNotifier {
       if (accessToken == null || accessToken.isEmpty) {
         throw const ApiException('Missing access token in response');
       }
-      _token = accessToken;
-      await preferences.setString(_tokenKey, accessToken);
-      await _loadCurrentUser();
+      await authenticateWithToken(accessToken);
     } catch (error) {
       _errorMessage = error is ApiException ? error.message : 'Login failed';
       _status = AuthStatus.unauthenticated;
       notifyListeners();
     }
+  }
+
+  Future<void> authenticateWithToken(String accessToken) async {
+    _token = accessToken;
+    await preferences.setString(_tokenKey, accessToken);
+    await _loadCurrentUser();
   }
 
   Future<void> logout() async {

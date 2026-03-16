@@ -31,6 +31,11 @@ void main() {
       expect(find.byType(ListView), findsOneWidget);
       if (page is HomePage) {
         expect(find.byKey(const Key('home-notification-icon')), findsOneWidget);
+      } else if (page is MyAppointmentsPage) {
+        expect(find.byKey(const Key('appointments_list')), findsOneWidget);
+      } else if (page is ProfilePage) {
+        expect(find.byKey(const Key('profile_list')), findsOneWidget);
+        expect(find.text('Save Profile'), findsOneWidget);
       } else {
         expect(find.byType(Card), findsWidgets);
       }

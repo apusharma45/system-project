@@ -42,6 +42,33 @@ void main() {
           200,
         );
       }
+      if (path.endsWith('/users/doctors/d1')) {
+        return http.Response(
+          jsonEncode({
+            'doctor': {
+              'id': 'd1',
+              'email': 'doctor@example.com',
+              'role': 'DOCTOR',
+              'fullName': 'Dr. One',
+              'specialization': 'Cardiology',
+              'yearsOfExperience': 12,
+              'degrees': ['MBBS', 'MD'],
+              'about': 'Heart specialist',
+              'clinicName': 'Heart Care',
+              'clinicAddress': 'Main Road',
+              'clinicPhone': '+15550001111',
+              'availableTimeSlots': [
+                {
+                  'day': 'Mon',
+                  'startTime': '10:00 AM',
+                  'endTime': '12:00 PM',
+                },
+              ],
+            },
+          }),
+          200,
+        );
+      }
       return http.Response('{}', 200);
     });
 
@@ -56,9 +83,12 @@ void main() {
 
     final doctors = await doctorsRepo.listDoctors();
     final appointments = await appointmentsRepo.listMyAppointments();
+    final doctorDetails = await doctorsRepo.getDoctorDetailsById('d1');
 
     expect(doctors.first.fullName, 'Dr. One');
     expect(appointments.first.reason, 'Headache');
     expect(appointments.first.doctorSnapshot?.fullName, 'Dr. One');
+    expect(doctorDetails?.specialization, 'Cardiology');
+    expect(doctorDetails?.availableTimeSlots.first.label, 'Mon 10:00 AM 12:00 PM');
   });
 }

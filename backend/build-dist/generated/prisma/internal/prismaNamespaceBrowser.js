@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.ProfessionalProfileScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.ProfessionalProfileScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.PasswordResetCodeScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -46,6 +46,7 @@ exports.JsonNull = runtime.JsonNull;
 exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
     User: 'User',
+    PasswordResetCode: 'PasswordResetCode',
     PatientProfile: 'PatientProfile',
     ProfessionalProfile: 'ProfessionalProfile',
     Appointment: 'Appointment',
@@ -73,6 +74,17 @@ exports.UserScalarFieldEnum = {
     address: 'address',
     passwordHash: 'passwordHash',
     role: 'role',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.PasswordResetCodeScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    email: 'email',
+    codeHash: 'codeHash',
+    expiresAt: 'expiresAt',
+    consumedAt: 'consumedAt',
+    attemptCount: 'attemptCount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

@@ -436,9 +436,6 @@ export type PatientProfileUncheckedUpdateOneWithoutPatientNestedInput = {
     connect?: Prisma.PatientProfileWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.PatientProfileUpdateToOneWithWhereWithoutPatientInput, Prisma.PatientProfileUpdateWithoutPatientInput>, Prisma.PatientProfileUncheckedUpdateWithoutPatientInput>;
 };
-export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null;
-};
 export type PatientProfileCreateWithoutPatientInput = {
     id?: string;
     dateOfBirth?: Date | string | null;

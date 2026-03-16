@@ -71,6 +71,25 @@ model User {
   auditLogs AuditLog[] @relation("ActorAuditLogs")
   patientProfile PatientProfile?
   professionalProfile ProfessionalProfile?
+  passwordResetCodes PasswordResetCode[]
+}
+
+model PasswordResetCode {
+  id String @id @default(uuid())
+
+  userId String?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  email String
+  codeHash String
+  expiresAt DateTime
+  consumedAt DateTime?
+  attemptCount Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email, createdAt])
+  @@index([userId, createdAt])
 }
 
 model PatientProfile {

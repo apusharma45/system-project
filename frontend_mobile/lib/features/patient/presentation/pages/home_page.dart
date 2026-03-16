@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/app_scope.dart';
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/api/user_facing_error.dart';
 import '../../../../core/domain/enums.dart';
 import '../../../../core/domain/models.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -50,7 +51,12 @@ class _HomePageState extends State<HomePage> {
         }
         if (snapshot.hasError) {
           return Center(
-            child: Text('Failed to load dashboard: ${snapshot.error}'),
+            child: Text(
+              userFacingErrorMessage(
+                snapshot.error,
+                fallback: 'Unable to load dashboard right now.',
+              ),
+            ),
           );
         }
 
@@ -120,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                         upcomingAppointment,
                         data.doctors,
                       ),
-                      onTap: () => context.go(
+                      onTap: () => context.push(
                         AppRoutes.appointmentDetails(upcomingAppointment.id),
                       ),
                     ),
@@ -139,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                         recentPrescription,
                         data.doctors,
                       ),
-                      onTap: () => context.go(
+                      onTap: () => context.push(
                         AppRoutes.prescriptionDetails(recentPrescription.id),
                       ),
                     ),
@@ -157,7 +163,7 @@ class _HomePageState extends State<HomePage> {
                         final report = latestReport;
                         return _ReportCard(
                           latestReport: report!,
-                          onTap: () => context.go(
+                          onTap: () => context.push(
                             AppRoutes.reportDetails(report.report.id),
                           ),
                         );
@@ -287,7 +293,7 @@ class _Header extends StatelessWidget {
               const SizedBox(width: 8),
               IconButton.filledTonal(
                 key: const Key('home-notification-icon'),
-                onPressed: () => context.go(AppRoutes.notifications),
+                onPressed: () => context.push(AppRoutes.notifications),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white.withValues(alpha: 0.14),
                   foregroundColor: Colors.white,

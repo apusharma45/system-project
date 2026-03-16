@@ -37,7 +37,7 @@ class _PatientShellState extends State<PatientShell> {
             label: 'Open',
             onPressed: () {
               if (!mounted) return;
-              context.go(notificationDeepLink(item.type));
+              context.push(notificationDeepLink(item.type));
             },
           ),
         ),
@@ -85,7 +85,7 @@ class _PatientShellState extends State<PatientShell> {
               ? null
               : FloatingActionButton(
                   key: const Key('fab-notifications'),
-                  onPressed: () => _goTo(context, AppRoutes.notifications),
+                  onPressed: () => _openNotifications(context),
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: <Widget>[
@@ -157,6 +157,10 @@ class _PatientShellState extends State<PatientShell> {
   void _goTo(BuildContext context, String path) {
     if (path == widget.location) return;
     context.go(path);
+  }
+
+  void _openNotifications(BuildContext context) {
+    context.push(AppRoutes.notifications);
   }
 }
 

@@ -30,12 +30,71 @@ CurrentUser mapCurrentUser(Map<String, dynamic> json) {
 }
 
 UserSummary mapUserSummary(Map<String, dynamic> json) {
+  final yearsRaw = json['yearsOfExperience'];
   return UserSummary(
     id: _stringOrNull(json['id']) ?? '',
     email: _stringOrNull(json['email']) ?? '',
     role: parseUserRole(_stringOrNull(json['role']) ?? '') ?? UserRole.doctor,
     fullName: _stringOrNull(json['fullName']),
     avatarUrl: _stringOrNull(json['avatarUrl']),
+    specialization: _stringOrNull(json['specialization']),
+    yearsOfExperience: yearsRaw is int ? yearsRaw : int.tryParse('$yearsRaw'),
+  );
+}
+
+List<String> _stringListOrEmpty(Object? raw) {
+  final list = (raw as List<dynamic>?) ?? const <dynamic>[];
+  return list
+      .map((item) => _stringOrNull(item))
+      .whereType<String>()
+      .toList();
+}
+
+DoctorAvailableTimeSlot? _mapDoctorSlot(Object? raw) {
+  if (raw is String && raw.trim().isNotEmpty) {
+    return DoctorAvailableTimeSlot(label: raw.trim());
+  }
+  final map = _asMap(raw);
+  if (map.isEmpty) return null;
+  final day = _stringOrNull(map['day']);
+  final start = _stringOrNull(map['startTime']) ?? _stringOrNull(map['start']);
+  final end = _stringOrNull(map['endTime']) ?? _stringOrNull(map['end']);
+  final label =
+      _stringOrNull(map['label']) ??
+      [day, start, end].whereType<String>().join(' ');
+  if (label.trim().isEmpty) return null;
+  return DoctorAvailableTimeSlot(
+    label: label.trim(),
+    day: day,
+    startTime: start,
+    endTime: end,
+  );
+}
+
+DoctorDetails mapDoctorDetails(Map<String, dynamic> json) {
+  final payload = _asMap(json['doctor']).isNotEmpty ? _asMap(json['doctor']) : json;
+  final yearsRaw = payload['yearsOfExperience'];
+  final slotsRaw =
+      (payload['availableTimeSlots'] as List<dynamic>?) ?? const <dynamic>[];
+  final slots = slotsRaw
+      .map(_mapDoctorSlot)
+      .whereType<DoctorAvailableTimeSlot>()
+      .toList();
+  return DoctorDetails(
+    id: _stringOrNull(payload['id']) ?? '',
+    email: _stringOrNull(payload['email']) ?? '',
+    role:
+        parseUserRole(_stringOrNull(payload['role']) ?? '') ?? UserRole.doctor,
+    fullName: _stringOrNull(payload['fullName']),
+    avatarUrl: _stringOrNull(payload['avatarUrl']),
+    specialization: _stringOrNull(payload['specialization']),
+    yearsOfExperience: yearsRaw is int ? yearsRaw : int.tryParse('$yearsRaw'),
+    degrees: _stringListOrEmpty(payload['degrees']),
+    about: _stringOrNull(payload['about']),
+    clinicName: _stringOrNull(payload['clinicName']),
+    clinicAddress: _stringOrNull(payload['clinicAddress']),
+    clinicPhone: _stringOrNull(payload['clinicPhone']),
+    availableTimeSlots: slots,
   );
 }
 
@@ -122,6 +181,21 @@ LabOrder mapLabOrder(Map<String, dynamic> json) {
 
 Prescription mapPrescription(Map<String, dynamic> json) {
   final pharmacyRaw = _asMap(json['pharmacySnapshot']);
+  final medsRaw = (json['medications'] as List<dynamic>?) ?? const <dynamic>[];
+  final medications = medsRaw
+      .map((item) {
+        final map = _asMap(item);
+        final name = _stringOrNull(map['name']);
+        if (name == null) return null;
+        return PrescriptionMedication(
+          name: name,
+          dosage: _stringOrNull(map['dosage']),
+          frequency: _stringOrNull(map['frequency']),
+          duration: _stringOrNull(map['duration']),
+        );
+      })
+      .whereType<PrescriptionMedication>()
+      .toList();
   return Prescription(
     id: _stringOrNull(json['id']) ?? '',
     appointmentId: _stringOrNull(json['appointmentId']) ?? '',
@@ -134,6 +208,8 @@ Prescription mapPrescription(Map<String, dynamic> json) {
     diagnosis: _stringOrNull(json['diagnosis']),
     instructions: _stringOrNull(json['instructions']),
     documentUrl: _stringOrNull(json['documentUrl']),
+    documentMimeType: _stringOrNull(json['documentMimeType']),
+    medications: medications,
     pharmacySnapshot: PharmacySnapshot(
       name:
           _stringOrNull(pharmacyRaw['name']) ??
