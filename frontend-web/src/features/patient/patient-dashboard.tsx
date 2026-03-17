@@ -26,23 +26,37 @@ export function PatientDashboard() {
   ]
 
   return (
-    <div className="page">
-      <div className="page-head">
-        <h1>Patient Dashboard</h1>
-        <p>Book visits, track appointment status, and receive realtime notifications.</p>
-      </div>
+    <div className="page patient-page patient-dashboard-page">
+      <section className="patient-hero">
+        <div className="page-head">
+          <div>
+            <p className="patient-eyebrow">Patient Dashboard</p>
+            <h1>Patient Dashboard</h1>
+            <p>Book visits, track appointment status, and receive realtime notifications.</p>
+          </div>
+          <div className="patient-hero-note">
+            <strong>Daily snapshot</strong>
+            <span>Your overview is designed to match the rest of the patient portal.</span>
+          </div>
+        </div>
+      </section>
 
-      <section className="kpi-grid kpi-three">
+      <section className="kpi-grid kpi-three patient-kpi-grid">
         {statItems.map((item) => (
-          <article key={item.label} className="kpi">
+          <article key={item.label} className="kpi patient-kpi">
             <p>{item.label}</p>
             <h3>{item.value}</h3>
           </article>
         ))}
       </section>
 
-      <section className="card">
-        <h3>Quick Snapshot</h3>
+      <section className="card patient-card">
+        <div className="patient-card-head">
+          <div>
+            <p className="patient-kicker">Orientation</p>
+            <h3>Quick Snapshot</h3>
+          </div>
+        </div>
         <p className="muted">
           Use the sidebar to manage appointments and notifications in dedicated pages.
         </p>

@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { AppLayout } from '../../app/layout'
 import { PatientAppointmentsPage } from './patient-appointments'
 import { PatientAppointmentDetailsPage } from './patient-appointment-details'
+import { PatientDashboard } from './patient-dashboard'
 import { PatientNotificationsPage } from './patient-notifications'
 import { PatientProfilePage } from './patient-profile'
 import { PatientRecordsPage } from './patient-records'
@@ -82,7 +83,7 @@ function renderPatientRoute(path: string, element: ReactNode) {
       <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route element={<AppLayout />}>
-            <Route path="/patient" element={<PatientAppointmentsPage />} />
+            <Route path="/patient" element={<PatientDashboard />} />
             <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
             <Route path="/patient/appointments/:appointmentId" element={<PatientAppointmentDetailsPage />} />
             <Route path="/patient/records" element={<PatientRecordsPage />} />
@@ -160,9 +161,9 @@ describe('patient navigation', () => {
     expect(await screen.findByRole('heading', { name: 'Records' })).toBeInTheDocument()
   })
 
-  it('dashboard route renders appointments content', async () => {
+  it('dashboard route renders dashboard content', async () => {
     renderPatientRoute('/patient', <div />)
-    expect(await screen.findByRole('heading', { name: 'Appointments' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Patient Dashboard' })).toBeInTheDocument()
   })
 
   it('patient appointment details route is guarded and renders details page', async () => {

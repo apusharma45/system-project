@@ -112,53 +112,58 @@ export function PatientNotificationsPage() {
   }, [notificationsQuery.data, filter])
 
   return (
-    <div className="page">
-      <div className="page-head">
-        <div>
-          <h1>Notifications</h1>
-          <p>Track your appointment, lab, and prescription updates in one place.</p>
+    <div className="page patient-page patient-notifications-page">
+      <section className="patient-hero">
+        <div className="page-head">
+          <div>
+            <p className="patient-eyebrow">Update Center</p>
+            <h1>Notifications</h1>
+            <p>Track your appointment, lab, and prescription updates in one consistent feed.</p>
+          </div>
+          <div className="page-toolbar patient-toolbar">
+            <button
+              type="button"
+              className="outline-btn"
+              onClick={() => markAllRead.mutate()}
+              disabled={markAllRead.isPending}
+            >
+              Mark All Read
+            </button>
+          </div>
         </div>
-        <div className="page-toolbar">
-          <button
-            type="button"
-            className="outline-btn"
-            onClick={() => markAllRead.mutate()}
-            disabled={markAllRead.isPending}
-          >
-            Mark All Read
-          </button>
-        </div>
-      </div>
 
-      {socketWarning ? <p className="muted">{socketWarning}</p> : null}
-
-      <section className="kpi-grid">
-        <article className="kpi">
-          <p>Total</p>
-          <h3>{stats.total}</h3>
-        </article>
-        <article className="kpi">
-          <p>Unread</p>
-          <h3>{stats.unread}</h3>
-        </article>
-        <article className="kpi">
-          <p>Appointment</p>
-          <h3>{stats.appointment}</h3>
-        </article>
-        <article className="kpi">
-          <p>Lab + Rx</p>
-          <h3>{stats.lab + stats.prescription}</h3>
-        </article>
+        <section className="patient-hero-stats">
+          <article className="patient-hero-stat">
+            <p>Total</p>
+            <h3>{stats.total}</h3>
+          </article>
+          <article className="patient-hero-stat">
+            <p>Unread</p>
+            <h3>{stats.unread}</h3>
+          </article>
+          <article className="patient-hero-stat">
+            <p>Appointment</p>
+            <h3>{stats.appointment}</h3>
+          </article>
+          <article className="patient-hero-stat">
+            <p>Lab + Rx</p>
+            <h3>{stats.lab + stats.prescription}</h3>
+          </article>
+        </section>
       </section>
 
-      {notificationsQuery.isLoading ? <p className="state">Loading notifications...</p> : null}
-      {notificationsQuery.error ? <p className="error">Failed to load notifications.</p> : null}
+      {socketWarning ? <p className="patient-feedback info">{socketWarning}</p> : null}
+      {notificationsQuery.isLoading ? <p className="patient-feedback info">Loading notifications...</p> : null}
+      {notificationsQuery.error ? <p className="patient-feedback error">Failed to load notifications.</p> : null}
 
       {!notificationsQuery.isLoading && !notificationsQuery.error ? (
-        <section className="card">
-          <div className="card-head">
-            <h3>Notification Center</h3>
-            <div className="actions">
+        <section className="card patient-card">
+          <div className="card-head patient-card-head">
+            <div>
+              <p className="patient-kicker">Message Feed</p>
+              <h3>Notification Center</h3>
+            </div>
+            <div className="actions patient-tabs">
               <button
                 type="button"
                 className={filter === 'all' ? 'tab active' : 'tab'}
@@ -175,53 +180,63 @@ export function PatientNotificationsPage() {
               </button>
             </div>
           </div>
-          <ul className="list">
+          <ul className="list patient-list">
             {visibleNotifications.map((item) => (
               <li key={item.id}>
-                <div className="row-title">
-                  <div
-                    className={`icon-chip ${
-                      item.type === 'APPOINTMENT_CALLED'
-                        ? 'blue'
-                        : item.type === 'LAB_RESULT_UPLOADED' || item.type === 'LAB_ASSIGNED'
-                          ? 'purple'
-                          : item.type === 'PRESCRIPTION_READY'
-                            ? 'green'
-                            : 'orange'
-                    }`}
-                  >
-                    {item.type === 'APPOINTMENT_CALLED' ? (
-                      <Calendar size={18} />
-                    ) : item.type === 'LAB_RESULT_UPLOADED' || item.type === 'LAB_ASSIGNED' ? (
-                      <FlaskConical size={18} />
-                    ) : item.type === 'PRESCRIPTION_READY' ? (
-                      <FileText size={18} />
-                    ) : (
-                      <Bell size={18} />
-                    )}
-                  </div>
-                  <div>
-                    <strong>{item.type}</strong>
-                    <p>{item.message}</p>
-                    <p className="muted">{new Date(item.createdAt).toLocaleString()}</p>
+                <div className="patient-list-content">
+                  <div className="row-title">
+                    <div
+                      className={`icon-chip ${
+                        item.type === 'APPOINTMENT_CALLED'
+                          ? 'blue'
+                          : item.type === 'LAB_RESULT_UPLOADED' || item.type === 'LAB_ASSIGNED'
+                            ? 'purple'
+                            : item.type === 'PRESCRIPTION_READY'
+                              ? 'green'
+                              : 'orange'
+                      }`}
+                    >
+                      {item.type === 'APPOINTMENT_CALLED' ? (
+                        <Calendar size={18} />
+                      ) : item.type === 'LAB_RESULT_UPLOADED' || item.type === 'LAB_ASSIGNED' ? (
+                        <FlaskConical size={18} />
+                      ) : item.type === 'PRESCRIPTION_READY' ? (
+                        <FileText size={18} />
+                      ) : (
+                        <Bell size={18} />
+                      )}
+                    </div>
+                    <div>
+                      <strong>{item.type}</strong>
+                      <p>{item.message}</p>
+                      <p className="muted">{new Date(item.createdAt).toLocaleString()}</p>
+                    </div>
                   </div>
                 </div>
-                {!item.read ? (
-                  <button type="button" onClick={() => markRead.mutate(item.id)}>
-                    Mark read
-                  </button>
-                ) : (
-                  <span className="muted">Read</span>
-                )}
-                {item.type === 'PRESCRIPTION_READY' ? (
-                  <Link to="/patient/records?tab=prescriptions">View Prescription</Link>
-                ) : null}
-                {item.type === 'LAB_RESULT_UPLOADED' ? (
-                  <Link to="/patient/records?tab=reports">View Report</Link>
-                ) : null}
-                {item.type === 'LAB_ASSIGNED' ? (
-                  <Link to="/patient/records?tab=labs">View Lab Order</Link>
-                ) : null}
+                <div className="patient-notification-actions">
+                  {!item.read ? (
+                    <button type="button" onClick={() => markRead.mutate(item.id)}>
+                      Mark read
+                    </button>
+                  ) : (
+                    <span className="muted">Read</span>
+                  )}
+                  {item.type === 'PRESCRIPTION_READY' ? (
+                    <Link to="/patient/records?tab=prescriptions" className="patient-action-link">
+                      View Prescription
+                    </Link>
+                  ) : null}
+                  {item.type === 'LAB_RESULT_UPLOADED' ? (
+                    <Link to="/patient/records?tab=reports" className="patient-action-link">
+                      View Report
+                    </Link>
+                  ) : null}
+                  {item.type === 'LAB_ASSIGNED' ? (
+                    <Link to="/patient/records?tab=labs" className="patient-action-link">
+                      View Lab Order
+                    </Link>
+                  ) : null}
+                </div>
               </li>
             ))}
             {visibleNotifications.length === 0 ? (

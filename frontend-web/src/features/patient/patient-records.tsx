@@ -61,16 +61,40 @@ export function PatientRecordsPage() {
     [reports],
   )
   const loading = prescriptionsQuery.isLoading || labsQuery.isLoading
+  const statItems = [
+    { label: 'Prescriptions', value: String((prescriptionsQuery.data ?? []).length) },
+    { label: 'Lab Orders', value: String((labsQuery.data ?? []).length) },
+    { label: 'Reports', value: String(totalReportCount) },
+  ]
 
   return (
-    <div className="page">
-      <div className="page-head">
-        <h1>Records</h1>
-        <p>View prescriptions, lab orders, and uploaded reports.</p>
-      </div>
+    <div className="page patient-page patient-records-page">
+      <section className="patient-hero">
+        <div className="page-head">
+          <div>
+            <p className="patient-eyebrow">Medical Library</p>
+            <h1>Records</h1>
+            <p>View prescriptions, lab orders, and uploaded reports in a single consistent workspace.</p>
+          </div>
+          <div className="patient-hero-note">
+            <strong>Organized for follow-up</strong>
+            <span>Switch tabs to move between medication, diagnostics, and reports without leaving the page.</span>
+          </div>
+        </div>
+        {!loading ? (
+          <div className="patient-hero-stats patient-hero-stats-three">
+            {statItems.map((item) => (
+              <article key={item.label} className="patient-hero-stat">
+                <p>{item.label}</p>
+                <h3>{item.value}</h3>
+              </article>
+            ))}
+          </div>
+        ) : null}
+      </section>
 
-      <section className="card">
-        <div className="actions">
+      <section className="card patient-card">
+        <div className="actions patient-tabs">
           <button
             type="button"
             className={activeTab === 'prescriptions' ? 'tab active' : 'tab'}
@@ -95,29 +119,34 @@ export function PatientRecordsPage() {
         </div>
       </section>
 
-      {loading ? <p className="state">Loading records...</p> : null}
+      {loading ? <p className="patient-feedback info">Loading records...</p> : null}
 
       {activeTab === 'prescriptions' && !loading ? (
-        <section className="card">
-          <h3>Prescriptions</h3>
-          <ul className="list">
+        <section className="card patient-card">
+          <div className="patient-card-head">
+            <div>
+              <p className="patient-kicker">Medication History</p>
+              <h3>Prescriptions</h3>
+            </div>
+          </div>
+          <ul className="list patient-list">
             {(prescriptionsQuery.data ?? []).map((item) => (
               <li key={item.id}>
-                <div>
-                  <strong>Prescription #{item.id}</strong>
+                <div className="patient-list-content">
+                  <div className="patient-list-top">
+                    <strong>Prescription #{item.id}</strong>
+                    <span className="patient-chip soft">{item.status}</span>
+                  </div>
                   <p>Status: {item.status}</p>
                   <p className="muted">Appointment: #{item.appointmentId}</p>
-                  <Link to={`/patient/appointments/${item.appointmentId}`} className="quick-link">
-                    Open Appointment
-                  </Link>
                   <p className="muted">Notes: {item.notes || 'Not provided'}</p>
                   <p className="muted">Doctor Advice: {item.notes || 'Not provided'}</p>
                   <p className="muted">Diagnosis: {item.diagnosis || 'Not provided'}</p>
                   <p className="muted">Instructions: {item.instructions || 'Not provided'}</p>
-                  <div className="muted">
+                  <div className="muted patient-rich-block">
                     <strong>Medications</strong>
                     {item.medications?.length ? (
-                      <ul>
+                      <ul className="patient-bullet-list">
                         {item.medications.map((medication, index) => (
                           <li key={`${item.id}-med-${index}`}>
                             {medication.name}
@@ -139,10 +168,23 @@ export function PatientRecordsPage() {
                   <p className="muted">
                     Phone: {item.pharmacySnapshot?.phone?.trim() || 'Not provided'}
                   </p>
+                  <div className="patient-link-row">
+                    <Link
+                      to={`/patient/appointments/${item.appointmentId}`}
+                      className="quick-link patient-action-link"
+                    >
+                      Open Appointment
+                    </Link>
+                  </div>
                 </div>
-                <div className="actions">
+                <div className="actions patient-side-actions">
                   {item.documentUrl ? (
-                    <a href={item.documentUrl} target="_blank" rel="noreferrer">
+                    <a
+                      href={item.documentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="patient-action-link"
+                    >
                       {getDocumentLabel(item)}
                     </a>
                   ) : (
@@ -159,13 +201,21 @@ export function PatientRecordsPage() {
       ) : null}
 
       {activeTab === 'labs' && !loading ? (
-        <section className="card">
-          <h3>Lab Orders</h3>
-          <ul className="list">
+        <section className="card patient-card">
+          <div className="patient-card-head">
+            <div>
+              <p className="patient-kicker">Diagnostics</p>
+              <h3>Lab Orders</h3>
+            </div>
+          </div>
+          <ul className="list patient-list">
             {(labsQuery.data ?? []).map((item) => (
               <li key={item.id}>
-                <div>
-                  <strong>Lab Order #{item.id}</strong>
+                <div className="patient-list-content">
+                  <div className="patient-list-top">
+                    <strong>Lab Order #{item.id}</strong>
+                    <span className="patient-chip soft">{item.status}</span>
+                  </div>
                   <p>Status: {item.status}</p>
                   <p className="muted">Appointment: #{item.appointmentId}</p>
                   <p className="muted">
@@ -177,10 +227,10 @@ export function PatientRecordsPage() {
                   <p className="muted">
                     Phone: {item.diagnosticSnapshot?.phone?.trim() || 'Not provided'}
                   </p>
-                  <div className="muted">
+                  <div className="muted patient-rich-block">
                     <strong>Tests</strong>
                     {item.tests?.length ? (
-                      <ul>
+                      <ul className="patient-bullet-list">
                         {item.tests.map((test, index) => (
                           <li key={`${item.id}-test-${index}`}>
                             {test.title}: {test.description?.trim() || 'Not specified'}
@@ -192,13 +242,22 @@ export function PatientRecordsPage() {
                     )}
                   </div>
                 </div>
-                <div className="stack">
-                  <Link to={`/patient/appointments/${item.appointmentId}`} className="quick-link">
+                <div className="stack patient-link-stack">
+                  <Link
+                    to={`/patient/appointments/${item.appointmentId}`}
+                    className="quick-link patient-action-link"
+                  >
                     Open Appointment
                   </Link>
                   {getOrderReports(item).length > 0 ? (
                     getOrderReports(item).map((report, index) => (
-                      <a key={report.id} href={report.fileUrl} target="_blank" rel="noreferrer">
+                      <a
+                        key={report.id}
+                        href={report.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="patient-action-link"
+                      >
                         View Report {index + 1}
                       </a>
                     ))
@@ -216,21 +275,35 @@ export function PatientRecordsPage() {
       ) : null}
 
       {activeTab === 'reports' && !loading ? (
-        <section className="card">
-          <h3>Reports</h3>
-          <ul className="list">
+        <section className="card patient-card">
+          <div className="patient-card-head">
+            <div>
+              <p className="patient-kicker">Uploaded Results</p>
+              <h3>Reports</h3>
+            </div>
+          </div>
+          <ul className="list patient-list">
             {reports.map(({ order, reports: orderReports }) => (
               <li key={order.id}>
-                <div>
+                <div className="patient-list-content">
                   <strong>Reports for Lab Order #{order.id}</strong>
                   <p className="muted">Appointment: #{order.appointmentId}</p>
                 </div>
-                <div className="stack">
-                  <Link to={`/patient/appointments/${order.appointmentId}`} className="quick-link">
+                <div className="stack patient-link-stack">
+                  <Link
+                    to={`/patient/appointments/${order.appointmentId}`}
+                    className="quick-link patient-action-link"
+                  >
                     Open Appointment
                   </Link>
                   {orderReports.map((report, index) => (
-                    <a key={report.id} href={report.fileUrl} target="_blank" rel="noreferrer">
+                    <a
+                      key={report.id}
+                      href={report.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="patient-action-link"
+                    >
                       Open Report {index + 1}
                     </a>
                   ))}
