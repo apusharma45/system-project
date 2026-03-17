@@ -18,7 +18,7 @@ export function NotificationsPanel({
   busy,
 }: NotificationsPanelProps) {
   return (
-    <section className="card">
+    <section className="card notifications-panel">
       <div className="card-head">
         <h3>{title}</h3>
         <button type="button" onClick={onMarkAllRead} disabled={busy || notifications.length === 0}>
@@ -44,8 +44,8 @@ export function NotificationsPanel({
         ))}
       </ul>
 
-      <h4>Realtime Events</h4>
-      <ul className="list">
+      <h4 className="notifications-panel-heading">Realtime Events</h4>
+      <ul className="list notifications-panel-events">
         {realtimeEvents.length === 0 ? <li className="empty">No realtime events yet.</li> : null}
         {realtimeEvents.map((event, idx) => (
           <li key={`${event}-${idx}`}>{event}</li>

@@ -7,6 +7,11 @@ import type { Appointment, UserSummary } from '../../types'
 
 const cancellableStatuses = new Set(['REQUESTED', 'CONFIRMED'])
 
+function formatDateTime(value?: string | null) {
+  if (!value) return '-'
+  return new Date(value).toLocaleString()
+}
+
 export function PatientAppointmentsPage() {
   const queryClient = useQueryClient()
   const [selectedDoctorId, setSelectedDoctorId] = useState('')
@@ -67,6 +72,28 @@ export function PatientAppointmentsPage() {
     () => appointmentsQuery.data ?? [],
     [appointmentsQuery.data],
   )
+  const statItems = useMemo(
+    () => [
+      { label: 'Available Doctors', value: String((doctorsQuery.data ?? []).length) },
+      {
+        label: 'Scheduled Visits',
+        value: String(upcomingAppointments.filter((item) => Boolean(item.scheduledAt)).length),
+      },
+      {
+        label: 'Pending Requests',
+        value: String(
+          upcomingAppointments.filter(
+            (item) => !item.scheduledAt && item.status !== 'CANCELLED' && item.status !== 'CLOSED',
+          ).length,
+        ),
+      },
+      {
+        label: 'Lab Follow-ups',
+        value: String(upcomingAppointments.filter((item) => item.requiresLab).length),
+      },
+    ],
+    [doctorsQuery.data, upcomingAppointments],
+  )
 
   const onCreate = (event: FormEvent) => {
     event.preventDefault()
@@ -83,20 +110,47 @@ export function PatientAppointmentsPage() {
   }
 
   return (
-    <div className="page">
-      <div className="page-head">
-        <h1>Appointments</h1>
-        <p>Request appointments and track your status updates.</p>
-      </div>
-      {error ? <p className="error">{error}</p> : null}
-      {queryErrorMessage ? <p className="error">{queryErrorMessage}</p> : null}
-      {loading ? <p className="state">Loading appointments...</p> : null}
+    <div className="page patient-page patient-appointments-page">
+      <section className="patient-hero">
+        <div className="page-head">
+          <div>
+            <p className="patient-eyebrow">Patient Dashboard</p>
+            <h1>Appointments</h1>
+            <p>Request appointments, monitor updates, and keep every doctor visit in one calm place.</p>
+          </div>
+          <div className="patient-hero-note">
+            <strong>Care planning</strong>
+            <span>Book a new visit and track every status change without leaving this page.</span>
+          </div>
+        </div>
+        {!loading && !queryErrorMessage ? (
+          <div className="patient-hero-stats">
+            {statItems.map((item) => (
+              <article key={item.label} className="patient-hero-stat">
+                <p>{item.label}</p>
+                <h3>{item.value}</h3>
+              </article>
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      {error ? <p className="patient-feedback error">{error}</p> : null}
+      {queryErrorMessage ? <p className="patient-feedback error">{queryErrorMessage}</p> : null}
+      {loading ? <p className="patient-feedback info">Loading appointments...</p> : null}
 
       {!loading && !queryErrorMessage ? (
-        <div className="grid two-col">
-          <section className="card">
-            <h3>Request Appointment</h3>
-            <form onSubmit={onCreate} className="stack">
+        <div className="grid two-col patient-main-grid">
+          <section className="card patient-card">
+            <div className="patient-card-head">
+              <div>
+                <p className="patient-kicker">New Request</p>
+                <h3>Request Appointment</h3>
+                <p className="muted">Choose a doctor, add timing preferences, and send a structured request.</p>
+              </div>
+              <span className="patient-chip soft">Form</span>
+            </div>
+            <form onSubmit={onCreate} className="stack patient-form">
               <label htmlFor="doctorId">Doctor</label>
               <select
                 id="doctorId"
@@ -108,13 +162,16 @@ export function PatientAppointmentsPage() {
                   <option key={doctor.id} value={doctor.id}>
                     {doctor.fullName ? `${doctor.fullName} (${doctor.email})` : doctor.email}
                     {doctor.specialization ? ` - ${doctor.specialization}` : ''}
-                    {doctor.yearsOfExperience != null ? ` • ${doctor.yearsOfExperience}y exp` : ''}
+                    {doctor.yearsOfExperience != null ? ` - ${doctor.yearsOfExperience}y exp` : ''}
                   </option>
                 ))}
               </select>
               {selectedDoctorId ? (
                 <p>
-                  <Link to={`/patient/doctors/${selectedDoctorId}`} className="quick-link">
+                  <Link
+                    to={`/patient/doctors/${selectedDoctorId}`}
+                    className="quick-link patient-action-link"
+                  >
                     View Doctor Details
                   </Link>
                 </p>
@@ -155,21 +212,47 @@ export function PatientAppointmentsPage() {
             </form>
           </section>
 
-          <section className="card">
-            <h3>My Appointments</h3>
-            <ul className="list">
+          <section className="card patient-card">
+            <div className="patient-card-head">
+              <div>
+                <p className="patient-kicker">Appointment Timeline</p>
+                <h3>My Appointments</h3>
+                <p className="muted">Recent requests, scheduled visits, and lab-related follow-ups.</p>
+              </div>
+              <span className="patient-chip">{upcomingAppointments.length} total</span>
+            </div>
+            <ul className="list patient-list">
               {upcomingAppointments.length === 0 ? (
                 <li className="empty">No appointments yet.</li>
               ) : null}
               {upcomingAppointments.map((appointment) => (
                 <li key={appointment.id}>
-                  <div>
-                    <strong>
-                      {appointment.scheduledAt
-                        ? `Scheduled: ${new Date(appointment.scheduledAt).toLocaleString()}`
-                        : 'Pending doctor schedule'}
-                    </strong>
-                    <p>Status: {appointment.status}</p>
+                  <div className="patient-list-content">
+                    <div className="patient-list-top">
+                      <strong>
+                        {appointment.scheduledAt
+                          ? `Scheduled: ${new Date(appointment.scheduledAt).toLocaleString()}`
+                          : 'Pending doctor schedule'}
+                      </strong>
+                      <span className="patient-chip soft">{appointment.status}</span>
+                    </div>
+                    <div className="patient-chip-row">
+                      <span
+                        className={`patient-chip ${
+                          appointment.requiresLab
+                            ? appointment.labFlowLocked
+                              ? 'alert'
+                              : 'success'
+                            : 'neutral'
+                        }`}
+                      >
+                        {appointment.requiresLab
+                          ? appointment.labFlowLocked
+                            ? 'Result pending'
+                            : 'Test required'
+                          : 'No test required'}
+                      </span>
+                    </div>
                     <p className="muted">
                       Doctor:{' '}
                       {appointment.doctorSnapshot?.fullName?.trim() ||
@@ -179,61 +262,53 @@ export function PatientAppointmentsPage() {
                     {appointment.doctorSnapshot?.email ? (
                       <p className="muted">Email: {appointment.doctorSnapshot.email}</p>
                     ) : null}
-                    <p className="muted">
-                      {appointment.requiresLab
-                        ? appointment.labFlowLocked
-                          ? 'Result pending'
-                          : 'Test required'
-                        : 'No test required'}
-                    </p>
+                    <p className="muted">Status: {appointment.status}</p>
                     {!appointment.scheduledAt ? (
                       <>
                         <p className="muted">
-                          Preferred:{' '}
-                          {appointment.preferredDateFrom
-                            ? new Date(appointment.preferredDateFrom).toLocaleString()
-                            : '-'}
+                          Preferred: {formatDateTime(appointment.preferredDateFrom)}
                           {' -> '}
-                          {appointment.preferredDateTo
-                            ? new Date(appointment.preferredDateTo).toLocaleString()
-                            : '-'}
+                          {formatDateTime(appointment.preferredDateTo)}
                         </p>
                         {appointment.preferredTimeNote ? (
                           <p className="muted">Preferred Time: {appointment.preferredTimeNote}</p>
                         ) : null}
                       </>
                     ) : null}
-                    <p>
-                      <Link to={`/patient/appointments/${appointment.id}`} className="quick-link">
+                    <div className="patient-link-row">
+                      <Link
+                        to={`/patient/appointments/${appointment.id}`}
+                        className="quick-link patient-action-link"
+                      >
                         View Details
                       </Link>
-                    </p>
-                    <p>
                       <Link
                         to={`/patient/doctors/${appointment.doctorId}`}
-                        className="quick-link"
+                        className="quick-link patient-action-link"
                       >
                         View Doctor Details
                       </Link>
-                    </p>
+                    </div>
                   </div>
-                  {cancellableStatuses.has(appointment.status) ? (
-                    <button
-                      type="button"
-                      onClick={() => cancelAppointment.mutate(appointment.id)}
-                      disabled={cancelAppointment.isPending}
-                    >
-                      Cancel
-                    </button>
-                  ) : (
-                    <span className="muted">
-                      {appointment.status === 'CANCELLED'
-                        ? 'Already cancelled'
-                        : appointment.status === 'CLOSED'
-                          ? 'Completed'
-                          : 'Not cancellable'}
-                    </span>
-                  )}
+                  <div className="patient-side-actions">
+                    {cancellableStatuses.has(appointment.status) ? (
+                      <button
+                        type="button"
+                        onClick={() => cancelAppointment.mutate(appointment.id)}
+                        disabled={cancelAppointment.isPending}
+                      >
+                        Cancel
+                      </button>
+                    ) : (
+                      <span className="muted">
+                        {appointment.status === 'CANCELLED'
+                          ? 'Already cancelled'
+                          : appointment.status === 'CLOSED'
+                            ? 'Completed'
+                            : 'Not cancellable'}
+                      </span>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
