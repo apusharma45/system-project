@@ -103,9 +103,10 @@ export function AppLayout() {
       { label: 'Profile', to: '/patient/profile', icon: User },
     ]
   }, [diagnosticNotificationsQuery.data, notificationsQuery.data, pharmacyNotificationsQuery.data, user])
+  const isPatient = user?.role === 'PATIENT'
 
   return (
-    <div className="shell">
+    <div className={isPatient ? 'shell patient-shell' : 'shell'}>
       <aside className={`sidebar ${open ? 'open' : 'closed'}`}>
         <div className="sidebar-inner">
           <div className="brand">
@@ -193,7 +194,7 @@ export function AppLayout() {
       </aside>
 
       <div className="main-column">
-        <header className="app-header">
+        <header className={isPatient ? 'app-header patient-app-header' : 'app-header'}>
           <button type="button" className="icon-btn" onClick={() => setOpen((prev) => !prev)}>
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>

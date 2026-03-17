@@ -3427,6 +3427,10 @@ textarea:focus {
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
   }
 
+  .patient-shell::after {
+    left: 24px;
+  }
+
   .page {
     padding: 1rem;
   }
