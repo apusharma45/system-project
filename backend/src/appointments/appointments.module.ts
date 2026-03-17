@@ -1,0 +1,12 @@
+import { Module } from '@nestjs/common';
+import { AuditModule } from '../audit/audit.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { AppointmentsController } from './appointments.controller';
+import { AppointmentsService } from './appointments.service';
+
+@Module({
+  imports: [NotificationsModule, AuditModule],
+  controllers: [AppointmentsController],
+  providers: [AppointmentsService],
+})
+export class AppointmentsModule {}

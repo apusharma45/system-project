@@ -1,0 +1,257 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  PHARMACY
+  DIAGNOSTIC
+  ADMIN
+}
+
+enum AppointmentStatus {
+  REQUESTED
+  CONFIRMED
+  CALLED
+  IN_VISIT
+  EXAM_DONE
+  CLOSED
+  CANCELLED
+}
+
+enum LabOrderStatus {
+  CREATED
+  ASSIGNED
+  SAMPLE_COLLECTED
+  SENT
+}
+
+enum PrescriptionStatus {
+  DRAFT
+  SIGNED
+  SENT_TO_PATIENT
+  SENT_TO_PHARMACY
+  DISPENSED
+}
+
+enum NotificationType {
+  APPOINTMENT_CALLED
+  LAB_ASSIGNED
+  LAB_RESULT_UPLOADED
+  PRESCRIPTION_READY
+}
+
+model User {
+  id           String   @id @default(uuid())
+  fullName     String?
+  avatarUrl    String?
+  avatarPublicId String?
+  avatarMimeType String?
+  avatarSizeBytes Int?
+  email        String   @unique
+  phone        String?
+  address      String?
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patientAppointments  Appointment[] @relation("PatientAppointments")
+  doctorAppointments   Appointment[] @relation("DoctorAppointments")
+  diagnosticLabOrders  LabOrder[]    @relation("DiagnosticLabOrders")
+  doctorPrescriptions  Prescription[] @relation("DoctorPrescriptions")
+  pharmacyPrescriptions Prescription[] @relation("PharmacyPrescriptions")
+  notifications Notification[]
+  auditLogs AuditLog[] @relation("ActorAuditLogs")
+  patientProfile PatientProfile?
+  professionalProfile ProfessionalProfile?
+}
+
+model PatientProfile {
+  id String @id @default(uuid())
+
+  patientId String @unique
+  patient   User   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  dateOfBirth DateTime?
+  gender      String?
+  phone       String?
+  address     String?
+  allergies   String?
+  chronicConditions String?
+  currentMedications String?
+  emergencyContactName String?
+  emergencyContactPhone String?
+  emergencyContactRelation String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientId])
+}
+
+model ProfessionalProfile {
+  id String @id @default(uuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  licenseNumber String?
+  specialization String?
+  about String?
+  clinicName String?
+  clinicAddress String?
+  clinicPhone String?
+  availableTimeSlots Json?
+  pharmacyName String?
+  labName String?
+  gender String?
+  dateOfBirth DateTime?
+
+  degrees Json?
+  certifications Json?
+  yearsOfExperience Int?
+  licenseAuthority String?
+  accreditations Json?
+  availableTests Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Appointment {
+  id String @id @default(uuid())
+
+  patientId String
+  patient   User   @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Restrict)
+
+  doctorId String
+  doctor   User   @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Restrict)
+
+  status      AppointmentStatus @default(REQUESTED)
+  scheduledAt DateTime?
+  reason      String?
+  preferredDateFrom DateTime?
+  preferredDateTo   DateTime?
+  preferredTimeNote String?
+  requiresLab Boolean           @default(false)
+  labFlowLocked Boolean         @default(false)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  labOrders     LabOrder[]
+  prescriptions Prescription[]
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([scheduledAt])
+  @@index([preferredDateFrom])
+  @@index([preferredDateTo])
+}
+
+model LabOrder {
+  id String @id @default(uuid())
+
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+
+  diagnosticId String
+  diagnostic   User @relation("DiagnosticLabOrders", fields: [diagnosticId], references: [id], onDelete: Restrict)
+
+  status    LabOrderStatus @default(CREATED)
+  tests     Json?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  labReports LabResult[]
+
+  @@index([diagnosticId])
+  @@index([appointmentId])
+}
+
+model LabResult {
+  id String @id @default(uuid())
+
+  labOrderId String
+  labOrder   LabOrder @relation(fields: [labOrderId], references: [id], onDelete: Restrict)
+
+  fileUrl    String
+  filePublicId String?
+  fileMimeType String?
+  fileSizeBytes Int?
+  uploadedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([labOrderId])
+  @@index([uploadedAt])
+}
+
+model Prescription {
+  id String @id @default(uuid())
+
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+
+  doctorId String
+  doctor   User @relation("DoctorPrescriptions", fields: [doctorId], references: [id], onDelete: Restrict)
+
+  pharmacyId String
+  pharmacy   User @relation("PharmacyPrescriptions", fields: [pharmacyId], references: [id], onDelete: Restrict)
+
+  notes  String
+  diagnosis String?
+  instructions String?
+  medications Json?
+  status PrescriptionStatus @default(DRAFT)
+  documentUrl String?
+  documentPublicId String?
+  documentMimeType String?
+  documentVersion Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([doctorId])
+  @@index([pharmacyId])
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  type    NotificationType
+  message String
+  read    Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  actorUserId String?
+  actor       User? @relation("ActorAuditLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
