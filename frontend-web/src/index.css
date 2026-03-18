@@ -669,6 +669,448 @@ textarea:focus {
   gap: 0.45rem;
 }
 
+.doctor-shell {
+  --doctor-deep: #0c1732;
+  --doctor-deep-strong: #081127;
+  --doctor-deep-soft: #163667;
+  --doctor-panel: #dfe8f7;
+  --doctor-panel-strong: #d1ddf3;
+  --doctor-panel-soft: #eef3fb;
+  --doctor-accent: #2f6fdf;
+  --doctor-accent-soft: #c6dbff;
+  --doctor-text: #182845;
+  --doctor-text-soft: #62718d;
+  position: relative;
+  background:
+    radial-gradient(circle at top left, rgba(66, 108, 190, 0.18), transparent 22%),
+    radial-gradient(circle at 100% 100%, rgba(112, 153, 222, 0.18), transparent 24%),
+    linear-gradient(180deg, #edf2f9 0%, #e2e8f2 52%, #eef3fa 100%);
+}
+
+.doctor-shell::before,
+.doctor-shell::after {
+  content: '';
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(12px);
+}
+
+.doctor-shell::before {
+  width: 340px;
+  height: 340px;
+  top: -132px;
+  right: -120px;
+  background: rgba(66, 108, 190, 0.14);
+}
+
+.doctor-shell::after {
+  width: 260px;
+  height: 260px;
+  bottom: 48px;
+  left: 288px;
+  background: rgba(112, 153, 222, 0.14);
+}
+
+.doctor-shell .sidebar,
+.doctor-shell .main-column {
+  position: relative;
+  z-index: 1;
+}
+
+.doctor-shell .sidebar {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 24%),
+    linear-gradient(180deg, #0a1430 0%, #10244b 55%, #17376c 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 18px 0 42px rgba(5, 11, 26, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.doctor-shell .brand {
+  padding: 1.6rem 1.25rem 1.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.doctor-shell .brand-mark {
+  border-radius: 15px;
+  background: linear-gradient(135deg, #3e84ff 0%, #83b6ff 100%);
+  box-shadow: 0 14px 28px rgba(47, 111, 223, 0.24);
+}
+
+.doctor-shell .brand h2 {
+  color: #f7faff;
+  font-size: 1.15rem;
+}
+
+.doctor-shell .brand p {
+  color: rgba(223, 234, 250, 0.72);
+}
+
+.doctor-shell .nav {
+  gap: 0.55rem;
+  padding: 1rem 0.9rem;
+}
+
+.doctor-shell .nav a {
+  padding: 0.86rem 0.95rem;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(242, 246, 255, 0.92);
+  font-weight: 500;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.doctor-shell .nav a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(2px);
+}
+
+.doctor-shell .nav a.active {
+  border-color: rgba(209, 221, 243, 0.52);
+  background: linear-gradient(135deg, #dce8fb 0%, #c9daf8 100%);
+  color: #142647;
+  box-shadow: 0 18px 30px rgba(5, 11, 26, 0.22);
+}
+
+.doctor-shell .nav-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: #edf3ff;
+}
+
+.doctor-shell .nav a.active .nav-badge {
+  background: rgba(20, 38, 71, 0.1);
+  color: #142647;
+}
+
+.doctor-shell .profile {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.04) 100%);
+}
+
+.doctor-shell .profile-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.06) 100%);
+  box-shadow: 0 16px 32px rgba(5, 11, 26, 0.18);
+}
+
+.doctor-shell .avatar {
+  background: linear-gradient(135deg, #3e84ff 0%, #83b6ff 100%);
+  box-shadow: 0 12px 24px rgba(47, 111, 223, 0.22);
+}
+
+.doctor-shell .profile strong {
+  color: #f7faff;
+}
+
+.doctor-shell .profile p {
+  color: rgba(223, 234, 250, 0.72);
+}
+
+.doctor-shell .main-column {
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(238, 243, 251, 0.96) 0%, rgba(228, 235, 246, 0.92) 100%);
+}
+
+.doctor-shell .doctor-app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(24, 47, 92, 0.08);
+  background: rgba(224, 233, 246, 0.8);
+  backdrop-filter: blur(16px);
+}
+
+.doctor-shell .doctor-app-header .header-meta span {
+  padding: 0.48rem 0.78rem;
+  border: 1px solid rgba(24, 47, 92, 0.1);
+  border-radius: 999px;
+  background: rgba(237, 243, 252, 0.94);
+  color: #5b6f93;
+}
+
+.doctor-shell .doctor-app-header .icon-btn {
+  border: 1px solid rgba(24, 47, 92, 0.1);
+  border-radius: 14px;
+  background: rgba(237, 243, 252, 0.84);
+  color: #162848;
+}
+
+.doctor-shell .doctor-app-header .icon-btn:hover {
+  background: rgba(47, 111, 223, 0.08);
+}
+
+.doctor-shell .doctor-app-header .outline-btn {
+  border-color: rgba(24, 47, 92, 0.12);
+  border-radius: 14px;
+  background: rgba(237, 243, 252, 0.92);
+  color: #1d4f9f;
+}
+
+.doctor-shell .doctor-app-header .outline-btn:hover {
+  background: rgba(47, 111, 223, 0.08);
+}
+
+.doctor-shell .page {
+  position: relative;
+  z-index: 1;
+}
+
+.doctor-page {
+  color: var(--doctor-text);
+}
+
+.doctor-page .page-head {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+  padding: 1.55rem;
+  border: 1px solid rgba(24, 47, 92, 0.12);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 14% 22%, rgba(126, 167, 237, 0.32), transparent 22%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.16), transparent 28%),
+    linear-gradient(135deg, #0b1834 0%, #102851 36%, #173f7f 72%, #2f6fdf 100%);
+  box-shadow:
+    0 24px 56px rgba(11, 24, 52, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.doctor-page .page-head::before,
+.doctor-page .page-head::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.doctor-page .page-head::before {
+  width: 240px;
+  height: 240px;
+  right: -60px;
+  top: -116px;
+}
+
+.doctor-page .page-head::after {
+  width: 210px;
+  height: 210px;
+  left: -74px;
+  bottom: -120px;
+}
+
+.doctor-page .page-head > * {
+  position: relative;
+  z-index: 1;
+}
+
+.doctor-page .page-head h1 {
+  color: #fff;
+}
+
+.doctor-page .page-head p {
+  color: rgba(236, 242, 252, 0.82);
+}
+
+.doctor-page .card,
+.doctor-page .kpi,
+.doctor-page .notifications-panel,
+.doctor-page .doctor-patients-page .patient-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(24, 47, 92, 0.1);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(224, 234, 248, 0.98) 0%, rgba(212, 225, 243, 0.96) 100%);
+  box-shadow:
+    0 20px 44px rgba(11, 24, 52, 0.06),
+    inset 0 1px 0 rgba(247, 250, 255, 0.72);
+}
+
+.doctor-page .card::before,
+.doctor-page .kpi::before,
+.doctor-page .notifications-panel::before,
+.doctor-page .doctor-patients-page .patient-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(47, 111, 223, 0.22), rgba(47, 111, 223, 0));
+}
+
+.doctor-page .search-card {
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(220, 231, 248, 0.98) 0%, rgba(211, 224, 243, 0.96) 100%);
+}
+
+.doctor-page button,
+.doctor-page .primary-btn {
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1c4fa8 0%, #2f6fdf 100%);
+  box-shadow: 0 14px 24px rgba(47, 111, 223, 0.14);
+}
+
+.doctor-page button:hover:not(:disabled),
+.doctor-page .primary-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #173f87 0%, #265fbe 100%);
+}
+
+.doctor-page .outline-btn {
+  border-color: rgba(24, 47, 92, 0.12);
+  background: rgba(235, 241, 251, 0.9);
+  color: #1d4f9f;
+}
+
+.doctor-page .outline-btn:hover {
+  background: rgba(47, 111, 223, 0.08);
+}
+
+.doctor-page input,
+.doctor-page select,
+.doctor-page textarea {
+  background: linear-gradient(180deg, #edf3fb 0%, #e2ebf8 100%);
+  border: 1px solid rgba(24, 47, 92, 0.12);
+  border-radius: 16px;
+  color: #182845;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 8px 18px rgba(11, 24, 52, 0.02);
+}
+
+.doctor-page input:disabled,
+.doctor-page textarea:disabled {
+  background: #dbe4f2;
+  color: #53647e;
+}
+
+.doctor-page input:focus,
+.doctor-page select:focus,
+.doctor-page textarea:focus {
+  outline: none;
+  border-color: rgba(47, 111, 223, 0.32);
+  box-shadow:
+    0 0 0 4px rgba(47, 111, 223, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.doctor-page .tab {
+  border-radius: 999px;
+  border-color: rgba(24, 47, 92, 0.12);
+  background: linear-gradient(180deg, #dce8fb 0%, #cfdef7 100%);
+  color: #234b92;
+}
+
+.doctor-page .tab.active {
+  border-color: rgba(24, 47, 92, 0.2);
+  background: linear-gradient(135deg, #1c4fa8 0%, #2f6fdf 100%);
+  color: #fff;
+}
+
+.doctor-page .list li {
+  border: 1px solid rgba(24, 47, 92, 0.1);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #e7effb 0%, #dce8f8 100%);
+  box-shadow: 0 14px 30px rgba(11, 24, 52, 0.04);
+}
+
+.doctor-page .quick-link,
+.doctor-page .list a {
+  color: #1d4f9f;
+}
+
+.doctor-page .quick-link:hover,
+.doctor-page .list a:hover {
+  color: #173f87;
+}
+
+.doctor-page .muted {
+  color: #60708c;
+}
+
+.doctor-page .kpi h3,
+.doctor-page .kpi p,
+.doctor-page .card h3,
+.doctor-page .card h4 {
+  color: #182845;
+}
+
+.doctor-page .icon-chip.blue,
+.doctor-page .icon-chip.green,
+.doctor-page .icon-chip.purple,
+.doctor-page .icon-chip.orange {
+  background: linear-gradient(180deg, #d3e3ff 0%, #c1d6fb 100%);
+  color: #2f6fdf;
+}
+
+.doctor-page .activity-item {
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(216, 228, 247, 0.92) 0%, rgba(204, 219, 243, 0.88) 100%);
+}
+
+.doctor-page .activity-dot {
+  background: #2f6fdf;
+}
+
+.doctor-page .status-blue {
+  background: #d7e5ff;
+  color: #1f57b5;
+}
+
+.doctor-page .status-green {
+  background: #deeff0;
+  color: #22646d;
+}
+
+.doctor-page .status-yellow {
+  background: #e7e6fb;
+  color: #4f4aa5;
+}
+
+.doctor-page .status-red {
+  background: #f6dde2;
+  color: #b33e5b;
+}
+
+.doctor-page .status-gray {
+  background: #dfe5ef;
+  color: #54637c;
+}
+
+.doctor-page .doctor-patients-page .patient-metric {
+  border-color: rgba(24, 47, 92, 0.1);
+  background: linear-gradient(180deg, rgba(230, 238, 251, 0.9) 0%, rgba(216, 227, 246, 0.86) 100%);
+}
+
+.doctor-page .doctor-patients-page .patient-meta {
+  border-top-color: rgba(24, 47, 92, 0.14);
+}
+
+.doctor-page .profile-avatar-editor {
+  border-style: solid;
+  border-color: rgba(24, 47, 92, 0.12);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(231, 239, 251, 0.88) 0%, rgba(216, 227, 246, 0.82) 100%);
+}
+
+.doctor-page .profile-avatar-preview {
+  background: linear-gradient(135deg, #1c4fa8 0%, #2f6fdf 100%);
+}
+
+.doctor-page .notifications-panel-heading {
+  margin: 1.1rem 0 0.8rem;
+}
+
+.doctor-page .notifications-panel-events li {
+  justify-content: flex-start;
+}
+
 .patient-page {
   color: #17382d;
 }
@@ -1652,6 +2094,10 @@ textarea:focus {
     left: 24px;
   }
 
+  .doctor-shell::after {
+    left: 24px;
+  }
+
   .page {
     padding: 1rem;
   }
@@ -1697,6 +2143,10 @@ textarea:focus {
   }
 
   .patient-page .patient-list li {
+    flex-direction: column;
+  }
+
+  .doctor-page .list li {
     flex-direction: column;
   }
 

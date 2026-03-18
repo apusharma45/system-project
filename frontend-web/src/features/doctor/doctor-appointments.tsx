@@ -46,7 +46,7 @@ export function DoctorAppointmentsPage() {
   }
 
   return (
-    <div className="page">
+    <div className="page doctor-page doctor-appointments-page">
       <div className="page-head">
         <h1>Appointments</h1>
         <p>Manage and advance appointment workflow with quick actions.</p>

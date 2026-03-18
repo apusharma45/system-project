@@ -75,7 +75,7 @@ export function DoctorProfilePage() {
   const doctor = profileQuery.data?.doctor
 
   return (
-    <div className="page">
+    <div className="page doctor-page doctor-profile-page">
       <div className="page-head">
         <h1>Profile</h1>
         <p>Manage your doctor contact information.</p>

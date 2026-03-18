@@ -87,7 +87,7 @@ export function DoctorLabOrdersPage() {
   }
 
   return (
-    <div className="page">
+    <div className="page doctor-page doctor-lab-orders-page">
       <div className="page-head">
         <div>
           <h1>Lab Orders</h1>

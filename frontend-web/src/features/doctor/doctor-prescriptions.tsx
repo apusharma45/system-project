@@ -53,7 +53,7 @@ export function DoctorPrescriptionsPage() {
   })
 
   return (
-    <div className="page">
+    <div className="page doctor-page doctor-prescriptions-page">
       <div className="page-head">
         <div>
           <h1>Prescriptions</h1>

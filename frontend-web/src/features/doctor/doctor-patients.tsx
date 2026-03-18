@@ -78,7 +78,7 @@ export function DoctorPatientsPage() {
   }, [appointmentsQuery.data, labsQuery.data, prescriptionsQuery.data, search])
 
   return (
-    <div className="page doctor-patients-page">
+    <div className="page doctor-page doctor-patients-page">
       <div className="page-head">
         <h1>Patients</h1>
         <p>View and track patient treatment engagement from your doctor workflow.</p>

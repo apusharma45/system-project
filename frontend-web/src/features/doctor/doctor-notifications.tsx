@@ -99,7 +99,7 @@ export function DoctorNotificationsPage() {
   }, [notificationsQuery.data, filter])
 
   return (
-    <div className="page">
+    <div className="page doctor-page doctor-notifications-page">
       <div className="page-head">
         <div>
           <h1>Notifications</h1>
