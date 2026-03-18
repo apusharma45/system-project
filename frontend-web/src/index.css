@@ -1111,6 +1111,427 @@ textarea:focus {
   justify-content: flex-start;
 }
 
+.pharmacy-shell {
+  --pharmacy-deep: #0b2f33;
+  --pharmacy-deep-strong: #072326;
+  --pharmacy-deep-soft: #11525b;
+  --pharmacy-panel: #d8eef0;
+  --pharmacy-panel-strong: #c7e5e8;
+  --pharmacy-panel-soft: #edf9fa;
+  --pharmacy-accent: #1792a3;
+  --pharmacy-accent-soft: #97dce5;
+  --pharmacy-text: #12363b;
+  --pharmacy-text-soft: #5b8085;
+  position: relative;
+  background:
+    radial-gradient(circle at top left, rgba(23, 146, 163, 0.16), transparent 22%),
+    radial-gradient(circle at 100% 100%, rgba(82, 183, 194, 0.14), transparent 24%),
+    linear-gradient(180deg, #eef8f8 0%, #e1f0f2 52%, #f1f9f9 100%);
+}
+
+.pharmacy-shell::before,
+.pharmacy-shell::after {
+  content: '';
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(12px);
+}
+
+.pharmacy-shell::before {
+  width: 340px;
+  height: 340px;
+  top: -132px;
+  right: -120px;
+  background: rgba(23, 146, 163, 0.12);
+}
+
+.pharmacy-shell::after {
+  width: 260px;
+  height: 260px;
+  bottom: 48px;
+  left: 288px;
+  background: rgba(82, 183, 194, 0.12);
+}
+
+.pharmacy-shell .sidebar,
+.pharmacy-shell .main-column {
+  position: relative;
+  z-index: 1;
+}
+
+.pharmacy-shell .sidebar {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 24%),
+    linear-gradient(180deg, #072326 0%, #0b3940 55%, #11525b 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 18px 0 42px rgba(4, 19, 21, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.pharmacy-shell .brand {
+  padding: 1.6rem 1.25rem 1.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pharmacy-shell .brand-mark {
+  border-radius: 15px;
+  background: linear-gradient(135deg, #1792a3 0%, #7ad1dc 100%);
+  box-shadow: 0 14px 28px rgba(23, 146, 163, 0.24);
+}
+
+.pharmacy-shell .brand h2 {
+  color: #fff8f8;
+  font-size: 1.15rem;
+}
+
+.pharmacy-shell .brand p {
+  color: rgba(225, 246, 248, 0.74);
+}
+
+.pharmacy-shell .nav {
+  gap: 0.55rem;
+  padding: 1rem 0.9rem;
+}
+
+.pharmacy-shell .nav a {
+  padding: 0.86rem 0.95rem;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(238, 250, 251, 0.95);
+  font-weight: 500;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.pharmacy-shell .nav a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(2px);
+}
+
+.pharmacy-shell .nav a.active {
+  border-color: rgba(175, 228, 234, 0.52);
+  background: linear-gradient(135deg, #d9f0f2 0%, #bfe5e9 100%);
+  color: #12363b;
+  box-shadow: 0 18px 30px rgba(4, 19, 21, 0.22);
+}
+
+.pharmacy-shell .nav-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: #eefbfc;
+}
+
+.pharmacy-shell .nav a.active .nav-badge {
+  background: rgba(18, 54, 59, 0.1);
+  color: #12363b;
+}
+
+.pharmacy-shell .profile {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.04) 100%);
+}
+
+.pharmacy-shell .profile-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.06) 100%);
+  box-shadow: 0 16px 32px rgba(24, 6, 8, 0.18);
+}
+
+.pharmacy-shell .avatar {
+  background: linear-gradient(135deg, #1792a3 0%, #7ad1dc 100%);
+  box-shadow: 0 12px 24px rgba(23, 146, 163, 0.22);
+}
+
+.pharmacy-shell .profile strong {
+  color: #fff8f8;
+}
+
+.pharmacy-shell .profile p {
+  color: rgba(225, 246, 248, 0.74);
+}
+
+.pharmacy-shell .main-column {
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(239, 248, 249, 0.96) 0%, rgba(228, 242, 243, 0.92) 100%);
+}
+
+.pharmacy-shell .pharmacy-app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(18, 54, 59, 0.08);
+  background: rgba(223, 240, 242, 0.84);
+  backdrop-filter: blur(16px);
+}
+
+.pharmacy-shell .pharmacy-app-header .header-meta span {
+  padding: 0.48rem 0.78rem;
+  border: 1px solid rgba(18, 54, 59, 0.1);
+  border-radius: 999px;
+  background: rgba(241, 251, 252, 0.94);
+  color: #5f8287;
+}
+
+.pharmacy-shell .pharmacy-app-header .icon-btn {
+  border: 1px solid rgba(18, 54, 59, 0.1);
+  border-radius: 14px;
+  background: rgba(241, 251, 252, 0.84);
+  color: #12363b;
+}
+
+.pharmacy-shell .pharmacy-app-header .icon-btn:hover {
+  background: rgba(23, 146, 163, 0.08);
+}
+
+.pharmacy-shell .pharmacy-app-header .outline-btn {
+  border-color: rgba(18, 54, 59, 0.12);
+  border-radius: 14px;
+  background: rgba(241, 251, 252, 0.92);
+  color: #147f8f;
+}
+
+.pharmacy-shell .pharmacy-app-header .outline-btn:hover {
+  background: rgba(23, 146, 163, 0.08);
+}
+
+.pharmacy-shell .page {
+  position: relative;
+  z-index: 1;
+}
+
+.pharmacy-page {
+  color: var(--pharmacy-text);
+}
+
+.pharmacy-page .page-head {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+  padding: 1.55rem;
+  border: 1px solid rgba(18, 54, 59, 0.12);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 14% 22%, rgba(131, 214, 223, 0.34), transparent 22%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.16), transparent 28%),
+    linear-gradient(135deg, #082125 0%, #0b3a40 36%, #11636c 72%, #1792a3 100%);
+  box-shadow:
+    0 24px 56px rgba(8, 33, 37, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.pharmacy-page .page-head::before,
+.pharmacy-page .page-head::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pharmacy-page .page-head::before {
+  width: 240px;
+  height: 240px;
+  right: -60px;
+  top: -116px;
+}
+
+.pharmacy-page .page-head::after {
+  width: 210px;
+  height: 210px;
+  left: -74px;
+  bottom: -120px;
+}
+
+.pharmacy-page .page-head > * {
+  position: relative;
+  z-index: 1;
+}
+
+.pharmacy-page .page-head h1 {
+  color: #fff;
+}
+
+.pharmacy-page .page-head p {
+  color: rgba(232, 249, 250, 0.86);
+}
+
+.pharmacy-page .card,
+.pharmacy-page .kpi,
+.pharmacy-page .notifications-panel {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(18, 54, 59, 0.1);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(223, 241, 243, 0.98) 0%, rgba(207, 232, 235, 0.96) 100%);
+  box-shadow:
+    0 20px 44px rgba(8, 33, 37, 0.06),
+    inset 0 1px 0 rgba(246, 253, 253, 0.76);
+}
+
+.pharmacy-page .card::before,
+.pharmacy-page .kpi::before,
+.pharmacy-page .notifications-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(23, 146, 163, 0.22), rgba(23, 146, 163, 0));
+}
+
+.pharmacy-page .search-card {
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(218, 238, 240, 0.98) 0%, rgba(204, 230, 233, 0.96) 100%);
+}
+
+.pharmacy-page button {
+  border-radius: 14px;
+  background: linear-gradient(135deg, #147f8f 0%, #1792a3 100%);
+  box-shadow: 0 14px 24px rgba(23, 146, 163, 0.14);
+}
+
+.pharmacy-page button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #106d7a 0%, #147f8f 100%);
+}
+
+.pharmacy-page .outline-btn {
+  border-color: rgba(18, 54, 59, 0.12);
+  background: rgba(241, 251, 252, 0.92);
+  color: #147f8f;
+}
+
+.pharmacy-page .outline-btn:hover {
+  background: rgba(23, 146, 163, 0.08);
+}
+
+.pharmacy-page input,
+.pharmacy-page select,
+.pharmacy-page textarea {
+  background: linear-gradient(180deg, #eef8f8 0%, #e2f1f3 100%);
+  border: 1px solid rgba(18, 54, 59, 0.12);
+  border-radius: 16px;
+  color: #12363b;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 8px 18px rgba(8, 33, 37, 0.02);
+}
+
+.pharmacy-page input:disabled,
+.pharmacy-page textarea:disabled {
+  background: #d6e9eb;
+  color: #5f8085;
+}
+
+.pharmacy-page input:focus,
+.pharmacy-page select:focus,
+.pharmacy-page textarea:focus {
+  outline: none;
+  border-color: rgba(23, 146, 163, 0.32);
+  box-shadow:
+    0 0 0 4px rgba(23, 146, 163, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.pharmacy-page .tab {
+  border-radius: 999px;
+  border-color: rgba(18, 54, 59, 0.12);
+  background: linear-gradient(180deg, #d8eef0 0%, #c4e4e8 100%);
+  color: #147585;
+}
+
+.pharmacy-page .tab.active {
+  border-color: rgba(18, 54, 59, 0.2);
+  background: linear-gradient(135deg, #147f8f 0%, #1792a3 100%);
+  color: #fff;
+}
+
+.pharmacy-page .list li {
+  border: 1px solid rgba(18, 54, 59, 0.1);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #e5f3f4 0%, #d6ebed 100%);
+  box-shadow: 0 14px 30px rgba(8, 33, 37, 0.04);
+}
+
+.pharmacy-page .quick-link,
+.pharmacy-page .list a {
+  color: #147f8f;
+}
+
+.pharmacy-page .quick-link:hover,
+.pharmacy-page .list a:hover {
+  color: #106d7a;
+}
+
+.pharmacy-page .muted {
+  color: #5b8085;
+}
+
+.pharmacy-page .kpi h3,
+.pharmacy-page .kpi p,
+.pharmacy-page .card h3,
+.pharmacy-page .card h4 {
+  color: #12363b;
+}
+
+.pharmacy-page .icon-chip.blue,
+.pharmacy-page .icon-chip.green,
+.pharmacy-page .icon-chip.purple,
+.pharmacy-page .icon-chip.orange,
+.pharmacy-page .icon-chip.yellow {
+  background: linear-gradient(180deg, #d8f0f2 0%, #bae0e5 100%);
+  color: #1792a3;
+}
+
+.pharmacy-page .status-blue {
+  background: #dff3f5;
+  color: #147f8f;
+}
+
+.pharmacy-page .status-green {
+  background: #d6ecee;
+  color: #106d7a;
+}
+
+.pharmacy-page .status-yellow {
+  background: #e1f0ee;
+  color: #1e737f;
+}
+
+.pharmacy-page .status-red {
+  background: #dbe8ea;
+  color: #2c6770;
+}
+
+.pharmacy-page .status-gray {
+  background: #dce8ea;
+  color: #5d7b80;
+}
+
+.pharmacy-page .profile-avatar-editor {
+  border-style: solid;
+  border-color: rgba(18, 54, 59, 0.12);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(232, 245, 246, 0.9) 0%, rgba(215, 236, 238, 0.84) 100%);
+}
+
+.pharmacy-page .profile-avatar-preview {
+  background: linear-gradient(135deg, #147f8f 0%, #1792a3 100%);
+}
+
+.pharmacy-page .notifications-panel-heading {
+  margin: 1.1rem 0 0.8rem;
+}
+
+.pharmacy-page .notifications-panel-events li {
+  justify-content: flex-start;
+}
+
 .patient-page {
   color: #17382d;
 }
@@ -2098,6 +2519,10 @@ textarea:focus {
     left: 24px;
   }
 
+  .pharmacy-shell::after {
+    left: 24px;
+  }
+
   .page {
     padding: 1rem;
   }
@@ -2147,6 +2572,10 @@ textarea:focus {
   }
 
   .doctor-page .list li {
+    flex-direction: column;
+  }
+
+  .pharmacy-page .list li {
     flex-direction: column;
   }
 

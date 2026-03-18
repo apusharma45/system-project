@@ -40,7 +40,7 @@ export function PharmacyPrescriptionsPage() {
   )
 
   return (
-    <div className="page">
+    <div className="page pharmacy-page pharmacy-prescriptions-page">
       <div className="page-head">
         <h1>Prescriptions</h1>
         <p>Review queue and dispense prescriptions that are sent to your pharmacy.</p>
