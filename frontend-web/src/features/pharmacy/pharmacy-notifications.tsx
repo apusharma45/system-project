@@ -91,7 +91,7 @@ export function PharmacyNotificationsPage() {
   }
 
   return (
-    <div className="page">
+    <div className="page pharmacy-page pharmacy-notifications-page">
       <div className="page-head">
         <h1>Notifications</h1>
         <p>Pharmacy inbox with read-state controls and realtime updates.</p>

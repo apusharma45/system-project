@@ -105,11 +105,20 @@ export function AppLayout() {
   }, [diagnosticNotificationsQuery.data, notificationsQuery.data, pharmacyNotificationsQuery.data, user])
   const isPatient = user?.role === 'PATIENT'
   const isDoctor = user?.role === 'DOCTOR'
-  const shellClassName = isPatient ? 'shell patient-shell' : isDoctor ? 'shell doctor-shell' : 'shell'
+  const isPharmacy = user?.role === 'PHARMACY'
+  const shellClassName = isPatient
+    ? 'shell patient-shell'
+    : isDoctor
+      ? 'shell doctor-shell'
+      : isPharmacy
+        ? 'shell pharmacy-shell'
+        : 'shell'
   const headerClassName = isPatient
     ? 'app-header patient-app-header'
     : isDoctor
       ? 'app-header doctor-app-header'
+      : isPharmacy
+        ? 'app-header pharmacy-app-header'
       : 'app-header'
 
   return (

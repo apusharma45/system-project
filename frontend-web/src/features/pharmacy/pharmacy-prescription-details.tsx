@@ -26,7 +26,7 @@ export function PharmacyPrescriptionDetailsPage() {
   const prescription = detailsQuery.data
 
   return (
-    <div className="page">
+    <div className="page pharmacy-page pharmacy-prescription-details-page">
       <div className="page-head">
         <h1>Prescription Details</h1>
         <p>Review prescription context and complete dispensing workflow.</p>

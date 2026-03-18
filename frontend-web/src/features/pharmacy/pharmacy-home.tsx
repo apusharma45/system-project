@@ -33,7 +33,7 @@ export function PharmacyHome() {
   )
 
   return (
-    <div className="page">
+    <div className="page pharmacy-page pharmacy-dashboard-page">
       <div className="page-head">
         <h1>Pharmacy Dashboard</h1>
         <p>Operational summary for prescription dispensing workflow.</p>

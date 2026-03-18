@@ -75,7 +75,7 @@ export function PharmacyProfilePage() {
   const pharmacy = profileQuery.data?.pharmacy
 
   return (
-    <div className="page">
+    <div className="page pharmacy-page pharmacy-profile-page">
       <div className="page-head">
         <h1>Profile</h1>
         <p>Manage your pharmacy contact information.</p>
