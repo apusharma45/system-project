@@ -12,7 +12,7 @@ export function DiagnosticHome() {
   const priorityQueue = orders.filter((item) => !(item.latestReport || item.labResult || item.labReports?.length)).slice(0, 5)
 
   return (
-    <div className="page">
+    <div className="page diagnostic-page diagnostic-dashboard-page">
       <div className="page-head">
         <h1>Diagnostic Dashboard</h1>
         <p>Track pending reports and complete lab workflows quickly.</p>

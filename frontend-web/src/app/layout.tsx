@@ -106,10 +106,13 @@ export function AppLayout() {
   const isPatient = user?.role === 'PATIENT'
   const isDoctor = user?.role === 'DOCTOR'
   const isPharmacy = user?.role === 'PHARMACY'
+  const isDiagnostic = user?.role === 'DIAGNOSTIC'
   const shellClassName = isPatient
     ? 'shell patient-shell'
     : isDoctor
       ? 'shell doctor-shell'
+      : isDiagnostic
+        ? 'shell diagnostic-shell'
       : isPharmacy
         ? 'shell pharmacy-shell'
         : 'shell'
@@ -117,6 +120,8 @@ export function AppLayout() {
     ? 'app-header patient-app-header'
     : isDoctor
       ? 'app-header doctor-app-header'
+      : isDiagnostic
+        ? 'app-header diagnostic-app-header'
       : isPharmacy
         ? 'app-header pharmacy-app-header'
       : 'app-header'

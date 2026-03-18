@@ -31,7 +31,7 @@ export function DiagnosticLabOrdersPage() {
   }
 
   return (
-    <div className="page diagnostic-lab-orders-page">
+    <div className="page diagnostic-page diagnostic-lab-orders-page">
       <div className="page-head">
         <h1>Lab Orders</h1>
         <p>Review assigned orders quickly and open details for status updates, tests, and report uploads.</p>

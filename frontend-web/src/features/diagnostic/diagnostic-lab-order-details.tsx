@@ -58,7 +58,7 @@ export function DiagnosticLabOrderDetailsPage() {
 
   if (labOrdersQuery.isLoading) {
     return (
-      <div className="page">
+      <div className="page diagnostic-page diagnostic-lab-order-details-page">
         <p className="state">Loading lab order details...</p>
       </div>
     )
@@ -66,7 +66,7 @@ export function DiagnosticLabOrderDetailsPage() {
 
   if (!order) {
     return (
-      <div className="page">
+      <div className="page diagnostic-page diagnostic-lab-order-details-page">
         <p className="error">Lab order not found.</p>
         <Link to="/diagnostic/lab-orders" className="quick-link">
           Back to lab orders
@@ -102,7 +102,7 @@ export function DiagnosticLabOrderDetailsPage() {
   }
 
   return (
-    <div className="page diagnostic-lab-order-details-page">
+    <div className="page diagnostic-page diagnostic-lab-order-details-page">
       <div className="page-head">
         <div>
           <h1>Lab Order Details</h1>

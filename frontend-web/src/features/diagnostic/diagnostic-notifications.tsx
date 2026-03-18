@@ -83,7 +83,7 @@ export function DiagnosticNotificationsPage() {
   }, [filter, notificationsQuery.data])
 
   return (
-    <div className="page">
+    <div className="page diagnostic-page diagnostic-notifications-page">
       <div className="page-head">
         <h1>Notifications</h1>
         <p>Realtime updates for lab report delivery and workflow events.</p>

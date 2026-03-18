@@ -73,7 +73,7 @@ export function DiagnosticProfilePage() {
   const diagnostic = profileQuery.data?.diagnostic
 
   return (
-    <div className="page">
+    <div className="page diagnostic-page diagnostic-profile-page">
       <div className="page-head">
         <h1>Profile</h1>
         <p>Manage diagnostic contact details and view lab identity information.</p>
