@@ -28,19 +28,13 @@ import { DiagnosticLabOrdersPage } from '../features/diagnostic/diagnostic-lab-o
 import { DiagnosticLabOrderDetailsPage } from '../features/diagnostic/diagnostic-lab-order-details'
 import { DiagnosticNotificationsPage } from '../features/diagnostic/diagnostic-notifications'
 import { DiagnosticProfilePage } from '../features/diagnostic/diagnostic-profile'
-import { useAuth } from '../features/auth/auth-context'
-
-function RoleHomeRedirect() {
-  const { user, loading } = useAuth()
-  if (loading || !user) return <p className="state">Loading user session...</p>
-  if (user.role === 'DOCTOR') return <Navigate to="/doctor" replace />
-  if (user.role === 'PATIENT') return <Navigate to="/patient" replace />
-  if (user.role === 'PHARMACY') return <Navigate to="/pharmacy" replace />
-  if (user.role === 'DIAGNOSTIC') return <Navigate to="/diagnostic" replace />
-  return <Navigate to="/login" replace />
-}
+import { LandingPage } from '../features/marketing/landing-page'
 
 export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <LandingPage />,
+  },
   {
     path: '/login',
     element: <LoginPage />,
@@ -55,10 +49,6 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          {
-            path: '/',
-            element: <RoleHomeRedirect />,
-          },
           {
             element: <RequireRole roles={['PATIENT']} />,
             children: [
@@ -189,6 +179,6 @@ export const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <Navigate to="/login" replace />,
+    element: <Navigate to="/" replace />,
   },
 ])
