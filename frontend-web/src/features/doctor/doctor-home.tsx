@@ -104,7 +104,7 @@ export function DoctorHome() {
   const activities = notifications.slice(0, 3)
 
   return (
-    <div className="page">
+    <div className="page doctor-page doctor-dashboard-page">
       <div className="page-head">
         <h1>Dashboard</h1>
         <p>Welcome back. Here is what is happening with your care workflow today.</p>
@@ -138,12 +138,12 @@ export function DoctorHome() {
               <YAxis stroke="#6b7280" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
+                  backgroundColor: '#dce7f7',
+                  border: '1px solid #b8c9e8',
+                  borderRadius: '12px',
                 }}
               />
-              <Bar dataKey="value" fill="#10b981" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="value" fill="#2f6fdf" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </section>
@@ -159,17 +159,17 @@ export function DoctorHome() {
               <YAxis stroke="#6b7280" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
+                  backgroundColor: '#dce7f7',
+                  border: '1px solid #b8c9e8',
+                  borderRadius: '12px',
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="value"
-                stroke="#10b981"
+                stroke="#2f6fdf"
                 strokeWidth={2}
-                dot={{ fill: '#10b981', r: 4 }}
+                dot={{ fill: '#2f6fdf', r: 4 }}
               />
             </LineChart>
           </ResponsiveContainer>

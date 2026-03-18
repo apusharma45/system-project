@@ -215,7 +215,7 @@ export function DoctorAppointmentDetailsPage() {
 
   if (loading) {
     return (
-      <div className="page">
+      <div className="page doctor-page doctor-appointment-details-page">
         <p className="state">Loading appointment details...</p>
       </div>
     )
@@ -223,7 +223,7 @@ export function DoctorAppointmentDetailsPage() {
 
   if (!appointment) {
     return (
-      <div className="page">
+      <div className="page doctor-page doctor-appointment-details-page">
         <p className="error">Appointment not found.</p>
         <Link to="/doctor/appointments" className="quick-link">
           Back to appointments
@@ -306,7 +306,7 @@ export function DoctorAppointmentDetailsPage() {
   }
 
   return (
-    <div className="page">
+    <div className="page doctor-page doctor-appointment-details-page">
       <div className="page-head">
         <div>
           <h1>Appointment Details</h1>

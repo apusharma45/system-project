@@ -21,7 +21,7 @@ export function DoctorPatientProfilePage() {
   )
 
   return (
-    <div className="page">
+    <div className="page doctor-page doctor-patient-profile-page">
       <div className="page-head">
         <h1>Patient Profile</h1>
         <p>Complete patient context with medical profile and treatment history timeline.</p>
