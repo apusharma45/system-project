@@ -1,4 +1,5 @@
 import '../../../../core/api/api_client.dart';
+import '../../../../core/api/api_exception.dart';
 import '../../../../core/domain/models.dart';
 import '../mappers/patient_json_mapper.dart';
 import 'patient_repositories.dart';
@@ -13,6 +14,63 @@ class ApiAuthRepository implements AuthRepository {
     final json = await apiClient.getJson('/users/me');
     return mapCurrentUser(json);
   }
+
+  @override
+  Future<String> registerPatient(PatientSignUpRequest request) async {
+    final payload = <String, dynamic>{
+      'fullName': request.fullName.trim(),
+      'email': request.email.trim(),
+      'password': request.password,
+      'phone': request.phone.trim(),
+      'address': request.address.trim(),
+      'role': 'PATIENT',
+      'patientProfile': <String, dynamic>{
+        'gender': _mapGender(request.gender),
+        'dateOfBirth': _toIsoDate(request.dateOfBirth),
+      },
+    };
+
+    final json = await apiClient.postJson('/auth/register', payload);
+    final token = json['access_token'] as String?;
+    if (token == null || token.isEmpty) {
+      throw const ApiException('Missing access token in register response');
+    }
+    return token;
+  }
+
+  @override
+  Future<void> requestPasswordReset(ForgotPasswordRequest request) async {
+    await apiClient.postJson('/auth/forgot-password', <String, dynamic>{
+      'email': request.email.trim(),
+    });
+  }
+
+  @override
+  Future<void> resetPassword(ResetPasswordRequest request) async {
+    await apiClient.postJson('/auth/reset-password', <String, dynamic>{
+      'email': request.email.trim(),
+      'resetCode': request.resetCode.trim(),
+      'newPassword': request.newPassword,
+    });
+  }
+
+  String _mapGender(PatientRegistrationGender gender) {
+    switch (gender) {
+      case PatientRegistrationGender.male:
+        return 'MALE';
+      case PatientRegistrationGender.female:
+        return 'FEMALE';
+      case PatientRegistrationGender.other:
+        return 'OTHER';
+    }
+  }
+
+  String _toIsoDate(DateTime value) {
+    final y = value.year.toString().padLeft(4, '0');
+    final m = value.month.toString().padLeft(2, '0');
+    final d = value.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
 }
 
 class ApiDoctorsRepository implements DoctorsRepository {
@@ -26,6 +84,14 @@ class ApiDoctorsRepository implements DoctorsRepository {
     return list
         .map((item) => mapUserSummary((item as Map).cast<String, dynamic>()))
         .toList();
+  }
+
+  @override
+  Future<DoctorDetails?> getDoctorDetailsById(String doctorId) async {
+    final json = await apiClient.getJson('/users/doctors/$doctorId');
+    final details = mapDoctorDetails(json);
+    if (details.id.isEmpty) return null;
+    return details;
   }
 }
 
@@ -176,5 +242,23 @@ class ApiPatientProfileRepository implements PatientProfileRepository {
     };
     final json = await apiClient.patchJson('/patients/me/profile', payload);
     return mapPatientProfile(json);
+  }
+
+  @override
+  Future<PatientProfile> uploadMyAvatar(AvatarUploadRequest request) async {
+    await apiClient.patchMultipartFile(
+      path: '/users/me/avatar',
+      fieldName: 'file',
+      bytes: request.bytes,
+      fileName: request.fileName,
+      contentType: request.mimeType,
+    );
+    return getMyProfile();
+  }
+
+  @override
+  Future<PatientProfile> removeMyAvatar() async {
+    await apiClient.deleteJson('/users/me/avatar');
+    return getMyProfile();
   }
 }

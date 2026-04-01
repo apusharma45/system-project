@@ -31,6 +31,9 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
     get user(): Prisma.UserDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
+    get passwordResetCode(): Prisma.PasswordResetCodeDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
     get patientProfile(): Prisma.PatientProfileDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;

@@ -12,6 +12,7 @@ export declare const JsonNull: import("@prisma/client-runtime-utils").JsonNullCl
 export declare const AnyNull: import("@prisma/client-runtime-utils").AnyNullClass;
 export declare const ModelName: {
     readonly User: "User";
+    readonly PasswordResetCode: "PasswordResetCode";
     readonly PatientProfile: "PatientProfile";
     readonly ProfessionalProfile: "ProfessionalProfile";
     readonly Appointment: "Appointment";
@@ -45,6 +46,18 @@ export declare const UserScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum];
+export declare const PasswordResetCodeScalarFieldEnum: {
+    readonly id: "id";
+    readonly userId: "userId";
+    readonly email: "email";
+    readonly codeHash: "codeHash";
+    readonly expiresAt: "expiresAt";
+    readonly consumedAt: "consumedAt";
+    readonly attemptCount: "attemptCount";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type PasswordResetCodeScalarFieldEnum = (typeof PasswordResetCodeScalarFieldEnum)[keyof typeof PasswordResetCodeScalarFieldEnum];
 export declare const PatientProfileScalarFieldEnum: {
     readonly id: "id";
     readonly patientId: "patientId";

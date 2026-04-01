@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
 import 'app/app_dependencies.dart';
+import 'app/permissions/notification_permission_coordinator.dart';
 import 'app/state/session_controller.dart';
 import 'core/api/api_client.dart';
 import 'core/config/app_config.dart';
@@ -33,6 +34,10 @@ Future<void> main() async {
     realtimeService: notificationsRealtimeService,
     wsBaseUrl: config.wsBaseUrl,
   );
+  final notificationPermissionCoordinator = NotificationPermissionCoordinator(
+    preferences: preferences,
+    requester: const PermissionHandlerNotificationPermissionRequester(),
+  );
   final dependencies = AppDependencies(
     config: config,
     apiClient: apiClient,
@@ -46,6 +51,7 @@ Future<void> main() async {
     patientProfileRepository: ApiPatientProfileRepository(apiClient: apiClient),
     notificationsRealtimeService: notificationsRealtimeService,
     notificationsCenterController: notificationsCenterController,
+    notificationPermissionCoordinator: notificationPermissionCoordinator,
   );
 
   await session.bootstrap();

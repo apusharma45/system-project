@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/auth/presentation/pages/sign_up_page.dart';
 import '../../features/auth/presentation/pages/unsupported_role_page.dart';
 import '../../features/patient/presentation/pages/appointment_booking_page.dart';
 import '../../features/patient/presentation/pages/appointment_details_page.dart';
@@ -38,7 +40,18 @@ class AppRouter {
       path: '/loading',
       builder: (context, state) => const _LoadingPage(),
     ),
-    GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.signup,
+      builder: (context, state) => const SignUpPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.forgotPassword,
+      builder: (context, state) => const ForgotPasswordPage(),
+    ),
     GoRoute(
       path: '/unsupported-role',
       builder: (context, state) => const UnsupportedRolePage(),
@@ -114,12 +127,21 @@ class AppRouter {
       return path == '/loading' ? null : '/loading';
     }
     if (!isAuthed) {
-      return path == '/login' ? null : '/login';
+      if (path == AppRoutes.login ||
+          path == AppRoutes.signup ||
+          path == AppRoutes.forgotPassword) {
+        return null;
+      }
+      return AppRoutes.login;
     }
     if (!isPatient) {
       return path == '/unsupported-role' ? null : '/unsupported-role';
     }
-    if (path == '/login' || path == '/unsupported-role' || path == '/loading') {
+    if (path == AppRoutes.login ||
+        path == AppRoutes.signup ||
+        path == AppRoutes.forgotPassword ||
+        path == '/unsupported-role' ||
+        path == '/loading') {
       return AppRoutes.home;
     }
     return null;

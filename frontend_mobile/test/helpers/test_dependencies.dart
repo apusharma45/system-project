@@ -4,6 +4,7 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:frontend_mobile/app/app_dependencies.dart';
+import 'package:frontend_mobile/app/permissions/notification_permission_coordinator.dart';
 import 'package:frontend_mobile/app/app_scope.dart';
 import 'package:frontend_mobile/app/state/session_controller.dart';
 import 'package:frontend_mobile/core/api/api_client.dart';
@@ -41,15 +42,18 @@ Future<AppDependencies> makeTestDependencies() async {
 AppDependencies makeTestDependenciesWithSession({
   required SessionController session,
   required ApiClient apiClient,
+  AuthRepository? authRepository,
   DoctorsRepository? doctorsRepository,
   AppointmentsRepository? appointmentsRepository,
   LabsRepository? labsRepository,
   PrescriptionsRepository? prescriptionsRepository,
   NotificationsRepository? notificationsRepository,
+  PatientProfileRepository? patientProfileRepository,
   NotificationsRealtimeService? notificationsRealtimeService,
 }) {
   final resolvedDoctorsRepo =
       doctorsRepository ?? const _FakeDoctorsRepository();
+  final resolvedAuthRepository = authRepository ?? const _FakeAuthRepository();
   final resolvedAppointmentsRepo =
       appointmentsRepository ?? const _FakeAppointmentsRepository();
   final resolvedLabsRepo = labsRepository ?? const _FakeLabsRepository();
@@ -57,6 +61,8 @@ AppDependencies makeTestDependenciesWithSession({
       prescriptionsRepository ?? const _FakePrescriptionsRepository();
   final resolvedNotificationsRepo =
       notificationsRepository ?? const _FakeNotificationsRepository();
+  final resolvedProfileRepo =
+      patientProfileRepository ?? const _FakePatientProfileRepository();
   final resolvedRealtimeService =
       notificationsRealtimeService ?? const _FakeNotificationsRealtimeService();
 
@@ -67,13 +73,13 @@ AppDependencies makeTestDependenciesWithSession({
     ),
     apiClient: apiClient,
     session: session,
-    authRepository: const _FakeAuthRepository(),
+    authRepository: resolvedAuthRepository,
     doctorsRepository: resolvedDoctorsRepo,
     appointmentsRepository: resolvedAppointmentsRepo,
     labsRepository: resolvedLabsRepo,
     prescriptionsRepository: resolvedPrescriptionsRepo,
     notificationsRepository: resolvedNotificationsRepo,
-    patientProfileRepository: const _FakePatientProfileRepository(),
+    patientProfileRepository: resolvedProfileRepo,
     notificationsRealtimeService: resolvedRealtimeService,
     notificationsCenterController: NotificationsCenterController(
       session: session,
@@ -81,6 +87,10 @@ AppDependencies makeTestDependenciesWithSession({
       realtimeService: resolvedRealtimeService,
       wsBaseUrl: 'ws://localhost:3000',
       pollInterval: const Duration(milliseconds: 50),
+    ),
+    notificationPermissionCoordinator: NotificationPermissionCoordinator(
+      preferences: session.preferences,
+      requester: const _FakeNotificationPermissionRequester(),
     ),
   );
 }
@@ -104,6 +114,17 @@ class _FakeAuthRepository implements AuthRepository {
       fullName: 'Patient One',
     );
   }
+
+  @override
+  Future<String> registerPatient(PatientSignUpRequest request) async {
+    return 'fake-token';
+  }
+
+  @override
+  Future<void> requestPasswordReset(ForgotPasswordRequest request) async {}
+
+  @override
+  Future<void> resetPassword(ResetPasswordRequest request) async {}
 }
 
 class _FakeDoctorsRepository implements DoctorsRepository {
@@ -117,8 +138,36 @@ class _FakeDoctorsRepository implements DoctorsRepository {
         email: 'doctor@example.com',
         role: UserRole.doctor,
         fullName: 'Dr. Test',
+        specialization: 'Cardiology',
+        yearsOfExperience: 8,
       ),
     ];
+  }
+
+  @override
+  Future<DoctorDetails?> getDoctorDetailsById(String doctorId) async {
+    if (doctorId != 'd1') return null;
+    return const DoctorDetails(
+      id: 'd1',
+      email: 'doctor@example.com',
+      role: UserRole.doctor,
+      fullName: 'Dr. Test',
+      specialization: 'Cardiology',
+      yearsOfExperience: 8,
+      degrees: <String>['MBBS', 'MD'],
+      about: 'Patient-focused cardiology specialist.',
+      clinicName: 'Heart Care Clinic',
+      clinicAddress: '123 Main Street',
+      clinicPhone: '+15550003333',
+      availableTimeSlots: <DoctorAvailableTimeSlot>[
+        DoctorAvailableTimeSlot(
+          label: 'Mon 10:00 AM - 1:00 PM',
+          day: 'Mon',
+          startTime: '10:00 AM',
+          endTime: '1:00 PM',
+        ),
+      ],
+    );
   }
 }
 
@@ -219,6 +268,20 @@ class _FakePrescriptionsRepository implements PrescriptionsRepository {
       pharmacyId: 'ph1',
       notes: 'Take after meal',
       status: PrescriptionStatus.signed,
+      documentUrl: 'https://example.com/prescription.pdf',
+      documentMimeType: 'application/pdf',
+      medications: <PrescriptionMedication>[
+        PrescriptionMedication(
+          name: 'Atorvastatin',
+          dosage: '10mg',
+          frequency: 'Once daily',
+          duration: '30 days',
+        ),
+      ],
+      pharmacySnapshot: PharmacySnapshot(
+        name: 'Prime Pharmacy',
+        phone: '+15551234567',
+      ),
     );
   }
 
@@ -232,6 +295,20 @@ class _FakePrescriptionsRepository implements PrescriptionsRepository {
         pharmacyId: 'ph1',
         notes: 'Take after meal',
         status: PrescriptionStatus.signed,
+        documentUrl: 'https://example.com/prescription.pdf',
+        documentMimeType: 'application/pdf',
+        medications: <PrescriptionMedication>[
+          PrescriptionMedication(
+            name: 'Atorvastatin',
+            dosage: '10mg',
+            frequency: 'Once daily',
+            duration: '30 days',
+          ),
+        ],
+        pharmacySnapshot: PharmacySnapshot(
+          name: 'Prime Pharmacy',
+          phone: '+15551234567',
+        ),
       ),
     ];
   }
@@ -301,6 +378,43 @@ class _FakePatientProfileRepository implements PatientProfileRepository {
       emergencyContactRelation: request.emergencyContactRelation ?? 'Sibling',
     );
   }
+
+  @override
+  Future<PatientProfile> uploadMyAvatar(AvatarUploadRequest request) async {
+    return const PatientProfile(
+      id: 'u1',
+      email: 'patient@example.com',
+      role: UserRole.patient,
+      fullName: 'Patient One',
+      avatarUrl: 'https://example.com/avatar.png',
+      phone: '+15550001111',
+      address: 'Demo Address',
+      allergies: 'None',
+      chronicConditions: 'None',
+      currentMedications: 'None',
+      emergencyContactName: 'Contact',
+      emergencyContactPhone: '+15550002222',
+      emergencyContactRelation: 'Sibling',
+    );
+  }
+
+  @override
+  Future<PatientProfile> removeMyAvatar() async {
+    return const PatientProfile(
+      id: 'u1',
+      email: 'patient@example.com',
+      role: UserRole.patient,
+      fullName: 'Patient One',
+      phone: '+15550001111',
+      address: 'Demo Address',
+      allergies: 'None',
+      chronicConditions: 'None',
+      currentMedications: 'None',
+      emergencyContactName: 'Contact',
+      emergencyContactPhone: '+15550002222',
+      emergencyContactRelation: 'Sibling',
+    );
+  }
 }
 
 class _FakeNotificationsRealtimeService
@@ -323,4 +437,12 @@ class _FakeNotificationsRealtimeService
 
   @override
   void stop() {}
+}
+
+class _FakeNotificationPermissionRequester
+    implements NotificationPermissionRequester {
+  const _FakeNotificationPermissionRequester();
+
+  @override
+  Future<bool> requestNotificationPermission() async => false;
 }

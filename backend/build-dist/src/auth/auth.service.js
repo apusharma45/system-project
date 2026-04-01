@@ -41,17 +41,28 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var AuthService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = __importStar(require("bcrypt"));
+const crypto_1 = require("crypto");
+const prisma_service_1 = require("../prisma/prisma.service");
+const auth_email_service_1 = require("./auth-email.service");
 const users_service_1 = require("../users/users.service");
 let AuthService = class AuthService {
+    static { AuthService_1 = this; }
+    prisma;
     usersService;
+    authEmailService;
     jwtService;
-    constructor(usersService, jwtService) {
+    static RESET_CODE_EXPIRES_MINUTES = 10;
+    static RESET_CODE_MAX_ATTEMPTS = 5;
+    constructor(prisma, usersService, authEmailService, jwtService) {
+        this.prisma = prisma;
         this.usersService = usersService;
+        this.authEmailService = authEmailService;
         this.jwtService = jwtService;
     }
     async register(dto) {
@@ -113,6 +124,84 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         return this.signToken(user.id, user.email, user.role);
+    }
+    async requestPasswordReset(dto) {
+        const email = dto.email.trim().toLowerCase();
+        const user = await this.usersService.findByEmail(email);
+        if (!user) {
+            return {
+                message: 'If the email exists, a reset code has been sent.',
+            };
+        }
+        const code = (0, crypto_1.randomInt)(0, 1000000).toString().padStart(6, '0');
+        const codeHash = await bcrypt.hash(code, 10);
+        const expiresAt = new Date(Date.now() + AuthService_1.RESET_CODE_EXPIRES_MINUTES * 60 * 1000);
+        await this.prisma.passwordResetCode.create({
+            data: {
+                userId: user.id,
+                email,
+                codeHash,
+                expiresAt,
+            },
+        });
+        await this.authEmailService.sendPasswordResetCode({
+            toEmail: email,
+            fullName: user.fullName,
+            code,
+        });
+        return {
+            message: 'If the email exists, a reset code has been sent.',
+        };
+    }
+    async resetPassword(dto) {
+        const email = dto.email.trim().toLowerCase();
+        const resetCodeRecord = await this.prisma.passwordResetCode.findFirst({
+            where: {
+                email,
+                consumedAt: null,
+                expiresAt: {
+                    gt: new Date(),
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        if (!resetCodeRecord) {
+            throw new common_1.UnauthorizedException('Invalid or expired reset code');
+        }
+        if (resetCodeRecord.attemptCount >= AuthService_1.RESET_CODE_MAX_ATTEMPTS) {
+            throw new common_1.UnauthorizedException('Too many invalid attempts. Request a new reset code');
+        }
+        const validCode = await bcrypt.compare(dto.resetCode, resetCodeRecord.codeHash);
+        if (!validCode) {
+            await this.prisma.passwordResetCode.update({
+                where: { id: resetCodeRecord.id },
+                data: { attemptCount: { increment: 1 } },
+            });
+            throw new common_1.UnauthorizedException('Invalid or expired reset code');
+        }
+        const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+        const updatedCount = await this.prisma.user.updateMany({
+            where: { email },
+            data: { passwordHash },
+        });
+        if (updatedCount.count === 0) {
+            throw new common_1.UnauthorizedException('Invalid or expired reset code');
+        }
+        await this.prisma.passwordResetCode.update({
+            where: { id: resetCodeRecord.id },
+            data: { consumedAt: new Date() },
+        });
+        await this.prisma.passwordResetCode.deleteMany({
+            where: {
+                email,
+                consumedAt: null,
+            },
+        });
+        return {
+            message: 'Password reset successful',
+        };
     }
     async signToken(userId, email, role) {
         return {
@@ -184,9 +273,11 @@ let AuthService = class AuthService {
     }
 };
 exports.AuthService = AuthService;
-exports.AuthService = AuthService = __decorate([
+exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [users_service_1.UsersService,
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        users_service_1.UsersService,
+        auth_email_service_1.AuthEmailService,
         jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

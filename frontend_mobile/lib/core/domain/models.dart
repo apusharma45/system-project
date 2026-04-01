@@ -47,6 +47,8 @@ class UserSummary {
     required this.role,
     this.fullName,
     this.avatarUrl,
+    this.specialization,
+    this.yearsOfExperience,
   });
 
   final String id;
@@ -54,6 +56,54 @@ class UserSummary {
   final UserRole role;
   final String? fullName;
   final String? avatarUrl;
+  final String? specialization;
+  final int? yearsOfExperience;
+}
+
+class DoctorAvailableTimeSlot {
+  const DoctorAvailableTimeSlot({
+    required this.label,
+    this.day,
+    this.startTime,
+    this.endTime,
+  });
+
+  final String label;
+  final String? day;
+  final String? startTime;
+  final String? endTime;
+}
+
+class DoctorDetails {
+  const DoctorDetails({
+    required this.id,
+    required this.email,
+    required this.role,
+    this.fullName,
+    this.avatarUrl,
+    this.specialization,
+    this.yearsOfExperience,
+    this.degrees = const <String>[],
+    this.about,
+    this.clinicName,
+    this.clinicAddress,
+    this.clinicPhone,
+    this.availableTimeSlots = const <DoctorAvailableTimeSlot>[],
+  });
+
+  final String id;
+  final String email;
+  final UserRole role;
+  final String? fullName;
+  final String? avatarUrl;
+  final String? specialization;
+  final int? yearsOfExperience;
+  final List<String> degrees;
+  final String? about;
+  final String? clinicName;
+  final String? clinicAddress;
+  final String? clinicPhone;
+  final List<DoctorAvailableTimeSlot> availableTimeSlots;
 }
 
 class Appointment {
@@ -138,6 +188,8 @@ class Prescription {
     this.diagnosis,
     this.instructions,
     this.documentUrl,
+    this.documentMimeType,
+    this.medications = const <PrescriptionMedication>[],
     this.pharmacySnapshot,
   });
 
@@ -150,7 +202,23 @@ class Prescription {
   final String? diagnosis;
   final String? instructions;
   final String? documentUrl;
+  final String? documentMimeType;
+  final List<PrescriptionMedication> medications;
   final PharmacySnapshot? pharmacySnapshot;
+}
+
+class PrescriptionMedication {
+  const PrescriptionMedication({
+    required this.name,
+    this.dosage,
+    this.frequency,
+    this.duration,
+  });
+
+  final String name;
+  final String? dosage;
+  final String? frequency;
+  final String? duration;
 }
 
 class AppNotification {

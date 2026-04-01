@@ -20,8 +20,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Report ID: r1'), findsOneWidget);
-    expect(find.textContaining('Lab Order ID: l1'), findsOneWidget);
+    expect(find.byKey(const Key('report_details_back_button')), findsOneWidget);
+    expect(find.textContaining('Report r1'), findsOneWidget);
+    expect(find.textContaining('Lab Order: l1'), findsOneWidget);
+    expect(find.text('Diagnostic Center'), findsOneWidget);
+    expect(find.text('Report File'), findsOneWidget);
   });
 
   testWidgets('report details shows invalid fallback for unknown report id', (

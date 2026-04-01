@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'app_dependencies.dart';
@@ -21,6 +22,10 @@ class _PatientAppState extends State<PatientApp> {
   void initState() {
     super.initState();
     _appRouter = AppRouter(widget.dependencies.session);
+    unawaited(
+      widget.dependencies.notificationPermissionCoordinator
+          .promptOnFirstLaunchIfNeeded(),
+    );
   }
 
   @override

@@ -578,13 +578,6 @@ export type PrescriptionUncheckedUpdateManyWithoutAppointmentNestedInput = {
 export type EnumPrescriptionStatusFieldUpdateOperationsInput = {
     set?: $Enums.PrescriptionStatus;
 };
-export type IntFieldUpdateOperationsInput = {
-    set?: number;
-    increment?: number;
-    decrement?: number;
-    multiply?: number;
-    divide?: number;
-};
 export type PrescriptionCreateWithoutDoctorInput = {
     id?: string;
     notes: string;

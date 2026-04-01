@@ -18,6 +18,15 @@ class AppColors {
   static const Color amberLight = Color(0xFFFFF3E0);
   static const Color redLight = Color(0xFFFFEBEE);
   static const Color danger = Color(0xFFE53935);
+  static const Color authBackgroundTop = Color(0xFFEAF3FF);
+  static const Color authBackgroundBottom = Color(0xFFFFFFFF);
+  static const Color authSurface = Color(0xFFFFFFFF);
+  static const Color authInputBorder = Color(0xFFD6E4F5);
+  static const Color authInputFocus = Color(0xFF1976D2);
+  static const Color authInputFill = Color(0xFFF7FAFF);
+  static const Color authHint = Color(0xFF7F8EA3);
+  static const Color authLink = Color(0xFF1976D2);
+  static const Color authPrimaryButton = Color(0xFF1976D2);
 }
 
 class AppSpacing {
@@ -26,9 +35,15 @@ class AppSpacing {
   static const double md = 12;
   static const double lg = 16;
   static const double xl = 24;
+  static const double xxl = 32;
 }
 
 class AppRadius {
   static const BorderRadius md = BorderRadius.all(Radius.circular(12));
   static const BorderRadius lg = BorderRadius.all(Radius.circular(16));
+  static const BorderRadius xl = BorderRadius.all(Radius.circular(24));
+}
+
+class AppTypography {
+  static const String figmaFamily = 'Poppins';
 }

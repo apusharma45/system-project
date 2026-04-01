@@ -111,6 +111,9 @@ class _EmptyDoctorsRepository implements DoctorsRepository {
 
   @override
   Future<List<UserSummary>> listDoctors() async => const <UserSummary>[];
+
+  @override
+  Future<DoctorDetails?> getDoctorDetailsById(String doctorId) async => null;
 }
 
 class _EmptyAppointmentsRepository implements AppointmentsRepository {

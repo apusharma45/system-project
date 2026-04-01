@@ -2,14 +2,24 @@ import { BadRequestException, ConflictException, Injectable, UnauthorizedExcepti
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '../../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
+import { randomInt } from 'crypto';
+import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AuthEmailService } from './auth-email.service';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
+  private static readonly RESET_CODE_EXPIRES_MINUTES = 10;
+  private static readonly RESET_CODE_MAX_ATTEMPTS = 5;
+
   constructor(
+    private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
+    private readonly authEmailService: AuthEmailService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -81,6 +91,102 @@ export class AuthService {
     }
 
     return this.signToken(user.id, user.email, user.role);
+  }
+
+  async requestPasswordReset(dto: ForgotPasswordDto) {
+    const email = dto.email.trim().toLowerCase();
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      return {
+        message: 'If the email exists, a reset code has been sent.',
+      };
+    }
+
+    const code = randomInt(0, 1000000).toString().padStart(6, '0');
+    const codeHash = await bcrypt.hash(code, 10);
+    const expiresAt = new Date(
+      Date.now() + AuthService.RESET_CODE_EXPIRES_MINUTES * 60 * 1000,
+    );
+
+    await this.prisma.passwordResetCode.create({
+      data: {
+        userId: user.id,
+        email,
+        codeHash,
+        expiresAt,
+      },
+    });
+
+    await this.authEmailService.sendPasswordResetCode({
+      toEmail: email,
+      fullName: user.fullName,
+      code,
+    });
+
+    return {
+      message: 'If the email exists, a reset code has been sent.',
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const email = dto.email.trim().toLowerCase();
+
+    const resetCodeRecord = await this.prisma.passwordResetCode.findFirst({
+      where: {
+        email,
+        consumedAt: null,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (!resetCodeRecord) {
+      throw new UnauthorizedException('Invalid or expired reset code');
+    }
+
+    if (resetCodeRecord.attemptCount >= AuthService.RESET_CODE_MAX_ATTEMPTS) {
+      throw new UnauthorizedException('Too many invalid attempts. Request a new reset code');
+    }
+
+    const validCode = await bcrypt.compare(dto.resetCode, resetCodeRecord.codeHash);
+    if (!validCode) {
+      await this.prisma.passwordResetCode.update({
+        where: { id: resetCodeRecord.id },
+        data: { attemptCount: { increment: 1 } },
+      });
+      throw new UnauthorizedException('Invalid or expired reset code');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+    const updatedCount = await this.prisma.user.updateMany({
+      where: { email },
+      data: { passwordHash },
+    });
+
+    if (updatedCount.count === 0) {
+      throw new UnauthorizedException('Invalid or expired reset code');
+    }
+
+    await this.prisma.passwordResetCode.update({
+      where: { id: resetCodeRecord.id },
+      data: { consumedAt: new Date() },
+    });
+
+    await this.prisma.passwordResetCode.deleteMany({
+      where: {
+        email,
+        consumedAt: null,
+      },
+    });
+
+    return {
+      message: 'Password reset successful',
+    };
   }
 
   private async signToken(userId: string, email: string, role: Role) {

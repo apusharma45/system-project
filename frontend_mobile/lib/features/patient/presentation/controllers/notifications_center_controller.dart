@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import '../../../../app/state/session_controller.dart';
+import '../../../../core/api/user_facing_error.dart';
 import '../../../../core/domain/models.dart';
 import '../../data/realtime/notifications_realtime_service.dart';
 import '../../data/repositories/patient_repositories.dart';
@@ -198,7 +199,10 @@ class NotificationsCenterController extends ChangeNotifier
       final items = await notificationsRepository.listMyNotifications();
       _notifications = items;
     } catch (error) {
-      _errorMessage = '$error';
+      _errorMessage = userFacingErrorMessage(
+        error,
+        fallback: 'Unable to load notifications right now.',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();
