@@ -171,7 +171,7 @@ export type PrescriptionGroupByOutputType = {
     _min: PrescriptionMinAggregateOutputType | null;
     _max: PrescriptionMaxAggregateOutputType | null;
 };
-type GetPrescriptionGroupByPayload<T extends PrescriptionGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<PrescriptionGroupByOutputType, T['by']> & {
+export type GetPrescriptionGroupByPayload<T extends PrescriptionGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<PrescriptionGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof PrescriptionGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], PrescriptionGroupByOutputType[P]> : Prisma.GetScalarType<T[P], PrescriptionGroupByOutputType[P]>;
 }>>;
 export type PrescriptionWhereInput = {
@@ -1246,4 +1246,3 @@ export type PrescriptionDefaultArgs<ExtArgs extends runtime.Types.Extensions.Int
     omit?: Prisma.PrescriptionOmit<ExtArgs> | null;
     include?: Prisma.PrescriptionInclude<ExtArgs> | null;
 };
-export {};

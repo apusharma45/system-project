@@ -196,7 +196,7 @@ export type ProfessionalProfileGroupByOutputType = {
     _min: ProfessionalProfileMinAggregateOutputType | null;
     _max: ProfessionalProfileMaxAggregateOutputType | null;
 };
-type GetProfessionalProfileGroupByPayload<T extends ProfessionalProfileGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<ProfessionalProfileGroupByOutputType, T['by']> & {
+export type GetProfessionalProfileGroupByPayload<T extends ProfessionalProfileGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<ProfessionalProfileGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof ProfessionalProfileGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], ProfessionalProfileGroupByOutputType[P]> : Prisma.GetScalarType<T[P], ProfessionalProfileGroupByOutputType[P]>;
 }>>;
 export type ProfessionalProfileWhereInput = {
@@ -1006,4 +1006,3 @@ export type ProfessionalProfileDefaultArgs<ExtArgs extends runtime.Types.Extensi
     omit?: Prisma.ProfessionalProfileOmit<ExtArgs> | null;
     include?: Prisma.ProfessionalProfileInclude<ExtArgs> | null;
 };
-export {};

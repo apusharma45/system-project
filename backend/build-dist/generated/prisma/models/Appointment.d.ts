@@ -141,7 +141,7 @@ export type AppointmentGroupByOutputType = {
     _min: AppointmentMinAggregateOutputType | null;
     _max: AppointmentMaxAggregateOutputType | null;
 };
-type GetAppointmentGroupByPayload<T extends AppointmentGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<AppointmentGroupByOutputType, T['by']> & {
+export type GetAppointmentGroupByPayload<T extends AppointmentGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<AppointmentGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof AppointmentGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], AppointmentGroupByOutputType[P]> : Prisma.GetScalarType<T[P], AppointmentGroupByOutputType[P]>;
 }>>;
 export type AppointmentWhereInput = {
@@ -1241,4 +1241,3 @@ export type AppointmentDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inte
     omit?: Prisma.AppointmentOmit<ExtArgs> | null;
     include?: Prisma.AppointmentInclude<ExtArgs> | null;
 };
-export {};

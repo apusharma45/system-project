@@ -132,7 +132,7 @@ export type LabResultGroupByOutputType = {
     _min: LabResultMinAggregateOutputType | null;
     _max: LabResultMaxAggregateOutputType | null;
 };
-type GetLabResultGroupByPayload<T extends LabResultGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<LabResultGroupByOutputType, T['by']> & {
+export type GetLabResultGroupByPayload<T extends LabResultGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<LabResultGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof LabResultGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], LabResultGroupByOutputType[P]> : Prisma.GetScalarType<T[P], LabResultGroupByOutputType[P]>;
 }>>;
 export type LabResultWhereInput = {
@@ -708,4 +708,3 @@ export type LabResultDefaultArgs<ExtArgs extends runtime.Types.Extensions.Intern
     omit?: Prisma.LabResultOmit<ExtArgs> | null;
     include?: Prisma.LabResultInclude<ExtArgs> | null;
 };
-export {};

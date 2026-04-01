@@ -95,7 +95,7 @@ export type LabOrderGroupByOutputType = {
     _min: LabOrderMinAggregateOutputType | null;
     _max: LabOrderMaxAggregateOutputType | null;
 };
-type GetLabOrderGroupByPayload<T extends LabOrderGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<LabOrderGroupByOutputType, T['by']> & {
+export type GetLabOrderGroupByPayload<T extends LabOrderGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<LabOrderGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof LabOrderGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], LabOrderGroupByOutputType[P]> : Prisma.GetScalarType<T[P], LabOrderGroupByOutputType[P]>;
 }>>;
 export type LabOrderWhereInput = {
@@ -834,4 +834,3 @@ export type LabOrderDefaultArgs<ExtArgs extends runtime.Types.Extensions.Interna
     omit?: Prisma.LabOrderOmit<ExtArgs> | null;
     include?: Prisma.LabOrderInclude<ExtArgs> | null;
 };
-export {};

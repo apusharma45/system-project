@@ -99,7 +99,7 @@ export type NotificationGroupByOutputType = {
     _min: NotificationMinAggregateOutputType | null;
     _max: NotificationMaxAggregateOutputType | null;
 };
-type GetNotificationGroupByPayload<T extends NotificationGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<NotificationGroupByOutputType, T['by']> & {
+export type GetNotificationGroupByPayload<T extends NotificationGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<NotificationGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof NotificationGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], NotificationGroupByOutputType[P]> : Prisma.GetScalarType<T[P], NotificationGroupByOutputType[P]>;
 }>>;
 export type NotificationWhereInput = {
@@ -614,4 +614,3 @@ export type NotificationDefaultArgs<ExtArgs extends runtime.Types.Extensions.Int
     omit?: Prisma.NotificationOmit<ExtArgs> | null;
     include?: Prisma.NotificationInclude<ExtArgs> | null;
 };
-export {};

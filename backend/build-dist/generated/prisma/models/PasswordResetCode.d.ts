@@ -132,7 +132,7 @@ export type PasswordResetCodeGroupByOutputType = {
     _min: PasswordResetCodeMinAggregateOutputType | null;
     _max: PasswordResetCodeMaxAggregateOutputType | null;
 };
-type GetPasswordResetCodeGroupByPayload<T extends PasswordResetCodeGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<PasswordResetCodeGroupByOutputType, T['by']> & {
+export type GetPasswordResetCodeGroupByPayload<T extends PasswordResetCodeGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<PasswordResetCodeGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof PasswordResetCodeGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], PasswordResetCodeGroupByOutputType[P]> : Prisma.GetScalarType<T[P], PasswordResetCodeGroupByOutputType[P]>;
 }>>;
 export type PasswordResetCodeWhereInput = {
@@ -724,4 +724,3 @@ export type PasswordResetCodeDefaultArgs<ExtArgs extends runtime.Types.Extension
     omit?: Prisma.PasswordResetCodeOmit<ExtArgs> | null;
     include?: Prisma.PasswordResetCodeInclude<ExtArgs> | null;
 };
-export {};

@@ -101,7 +101,7 @@ export type AuditLogGroupByOutputType = {
     _min: AuditLogMinAggregateOutputType | null;
     _max: AuditLogMaxAggregateOutputType | null;
 };
-type GetAuditLogGroupByPayload<T extends AuditLogGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<AuditLogGroupByOutputType, T['by']> & {
+export type GetAuditLogGroupByPayload<T extends AuditLogGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<AuditLogGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof AuditLogGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], AuditLogGroupByOutputType[P]> : Prisma.GetScalarType<T[P], AuditLogGroupByOutputType[P]>;
 }>>;
 export type AuditLogWhereInput = {
@@ -645,4 +645,3 @@ export type AuditLogDefaultArgs<ExtArgs extends runtime.Types.Extensions.Interna
     omit?: Prisma.AuditLogOmit<ExtArgs> | null;
     include?: Prisma.AuditLogInclude<ExtArgs> | null;
 };
-export {};
