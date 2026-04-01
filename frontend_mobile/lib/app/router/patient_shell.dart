@@ -19,6 +19,8 @@ class PatientShell extends StatefulWidget {
 
 class _PatientShellState extends State<PatientShell> {
   StreamSubscription? _incomingSubscription;
+  final List<String> _tabHistory = <String>[];
+  bool _skipNextTabRecord = false;
 
   @override
   void didChangeDependencies() {
@@ -52,6 +54,20 @@ class _PatientShellState extends State<PatientShell> {
   }
 
   @override
+  void didUpdateWidget(covariant PatientShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldRoot = _tabRootForLocation(oldWidget.location);
+    final newRoot = _tabRootForLocation(widget.location);
+    if (oldRoot != newRoot) {
+      if (_skipNextTabRecord) {
+        _skipNextTabRecord = false;
+      } else if (_tabHistory.isEmpty || _tabHistory.last != oldRoot) {
+        _tabHistory.add(oldRoot);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final deps = AppScope.of(context);
     final controller = deps.notificationsCenterController;
@@ -59,78 +75,97 @@ class _PatientShellState extends State<PatientShell> {
       animation: Listenable.merge(<Listenable>[controller, deps.session]),
       builder: (context, child) {
         final sessionError = deps.session.errorMessage;
-        return Scaffold(
-          body: SafeArea(
-            child: Column(
-              children: <Widget>[
-                if (sessionError != null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(8),
-                    color: Theme.of(context).colorScheme.errorContainer,
-                    child: Text(
-                      sessionError,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            final router = GoRouter.of(context);
+            if (router.canPop()) {
+              router.pop();
+              return;
+            }
+            if (_tabHistory.isNotEmpty) {
+              final previous = _tabHistory.removeLast();
+              final current = _tabRootForLocation(widget.location);
+              if (previous != current) {
+                _skipNextTabRecord = true;
+                context.go(previous);
+              }
+            }
+          },
+          child: Scaffold(
+            body: SafeArea(
+              child: Column(
+                children: <Widget>[
+                  if (sessionError != null)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8),
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      child: Text(
+                        sessionError,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
                       ),
                     ),
-                  ),
-                Expanded(child: widget.child),
-              ],
+                  Expanded(child: widget.child),
+                ],
+              ),
             ),
-          ),
-          floatingActionButton:
-              widget.location == AppRoutes.home ||
-                  widget.location.startsWith(AppRoutes.notifications)
-              ? null
-              : FloatingActionButton(
-                  key: const Key('fab-notifications'),
-                  onPressed: () => _openNotifications(context),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: <Widget>[
-                      const Icon(Icons.notifications_outlined),
-                      if (controller.unreadCount > 0)
-                        Positioned(
-                          right: -6,
-                          top: -6,
-                          child: Container(
-                            key: const Key('fab-notifications-badge'),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.error,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              controller.unreadCount > 99
-                                  ? '99+'
-                                  : '${controller.unreadCount}',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onError,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
+            floatingActionButton:
+                widget.location == AppRoutes.home ||
+                    widget.location.startsWith(AppRoutes.notifications)
+                ? null
+                : FloatingActionButton(
+                    key: const Key('fab-notifications'),
+                    onPressed: () => _openNotifications(context),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: <Widget>[
+                        const Icon(Icons.notifications_outlined),
+                        if (controller.unreadCount > 0)
+                          Positioned(
+                            right: -6,
+                            top: -6,
+                            child: Container(
+                              key: const Key('fab-notifications-badge'),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.error,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                controller.unreadCount > 99
+                                    ? '99+'
+                                    : '${controller.unreadCount}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onError,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (index) =>
-                _goTo(context, _items[index].path),
-            destinations: _items
-                .map(
-                  (item) => NavigationDestination(
-                    icon: Icon(item.icon),
-                    label: item.label,
-                  ),
-                )
-                .toList(),
+            bottomNavigationBar: NavigationBar(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (index) =>
+                  _goTo(context, _items[index].path),
+              destinations: _items
+                  .map(
+                    (item) => NavigationDestination(
+                      icon: Icon(item.icon),
+                      label: item.label,
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         );
       },
@@ -161,6 +196,24 @@ class _PatientShellState extends State<PatientShell> {
 
   void _openNotifications(BuildContext context) {
     context.push(AppRoutes.notifications);
+  }
+
+  String _tabRootForLocation(String location) {
+    if (location == AppRoutes.home) return AppRoutes.home;
+    if (location.startsWith(AppRoutes.doctors) ||
+        location.startsWith(AppRoutes.booking)) {
+      return AppRoutes.doctors;
+    }
+    if (location.startsWith(AppRoutes.appointments)) {
+      return AppRoutes.appointments;
+    }
+    if (location.startsWith(AppRoutes.records) ||
+        location.startsWith(AppRoutes.prescriptions) ||
+        location.startsWith(AppRoutes.reports)) {
+      return AppRoutes.records;
+    }
+    if (location.startsWith(AppRoutes.profile)) return AppRoutes.profile;
+    return AppRoutes.home;
   }
 }
 
