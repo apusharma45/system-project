@@ -17,12 +17,16 @@ type UploadResult = {
   bytes: number;
 };
 
+type CloudinaryCredentials = {
+  cloudName?: string;
+  apiKey?: string;
+  apiSecret?: string;
+};
+
 @Injectable()
 export class CloudinaryService {
   async uploadBuffer(params: UploadParams): Promise<UploadResult> {
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.CLOUDINARY_API_KEY;
-    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    const { cloudName, apiKey, apiSecret } = this.getCredentials();
 
     // Local/dev fallback when cloudinary credentials are not configured yet.
     if (!cloudName || !apiKey || !apiSecret) {
@@ -56,7 +60,9 @@ export class CloudinaryService {
       body: formData,
     });
     if (!response.ok) {
-      throw new InternalServerErrorException('Cloudinary upload failed');
+      throw new InternalServerErrorException(
+        `Cloudinary upload failed: ${await this.extractErrorMessage(response)}`,
+      );
     }
 
     const payload = (await response.json()) as {
@@ -78,9 +84,7 @@ export class CloudinaryService {
   }
 
   async destroy(publicId: string, resourceType: 'image' | 'raw' | 'video' = 'raw') {
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.CLOUDINARY_API_KEY;
-    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    const { cloudName, apiKey, apiSecret } = this.getCredentials();
     if (!cloudName || !apiKey || !apiSecret) {
       return { result: 'not_configured' };
     }
@@ -98,8 +102,60 @@ export class CloudinaryService {
       body: formData,
     });
     if (!response.ok) {
-      throw new InternalServerErrorException('Cloudinary delete failed');
+      throw new InternalServerErrorException(
+        `Cloudinary delete failed: ${await this.extractErrorMessage(response)}`,
+      );
     }
     return response.json();
+  }
+
+  private getCredentials(): CloudinaryCredentials {
+    const fromVars = {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
+      apiKey: process.env.CLOUDINARY_API_KEY?.trim(),
+      apiSecret: process.env.CLOUDINARY_API_SECRET?.trim(),
+    };
+
+    if (fromVars.cloudName && fromVars.apiKey && fromVars.apiSecret) {
+      return fromVars;
+    }
+
+    const cloudinaryUrl = process.env.CLOUDINARY_URL?.trim();
+    if (!cloudinaryUrl) {
+      return fromVars;
+    }
+
+    try {
+      const parsed = new URL(cloudinaryUrl);
+      const cloudName = parsed.hostname?.trim();
+      const apiKey = decodeURIComponent(parsed.username || '').trim();
+      const apiSecret = decodeURIComponent(parsed.password || '').trim();
+
+      return {
+        cloudName: cloudName || fromVars.cloudName,
+        apiKey: apiKey || fromVars.apiKey,
+        apiSecret: apiSecret || fromVars.apiSecret,
+      };
+    } catch {
+      return fromVars;
+    }
+  }
+
+  private async extractErrorMessage(response: Response): Promise<string> {
+    const fallback = `${response.status} ${response.statusText}`.trim();
+
+    try {
+      const payload = (await response.json()) as {
+        error?: { message?: string };
+      };
+      return payload.error?.message || fallback;
+    } catch {
+      try {
+        const text = await response.text();
+        return text || fallback;
+      } catch {
+        return fallback;
+      }
+    }
   }
 }

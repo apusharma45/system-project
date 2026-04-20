@@ -51,7 +51,7 @@ describe('LoginPage', () => {
     )
 
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'bad-email' } })
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: '123' } })
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: '123' } })
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
 
     expect(await screen.findByText(/email/i)).toBeInTheDocument()
@@ -69,7 +69,7 @@ describe('LoginPage', () => {
     )
 
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'diag@example.com' } })
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'secret123' } })
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'secret123' } })
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
