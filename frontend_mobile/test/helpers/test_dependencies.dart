@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:frontend_mobile/app/app_dependencies.dart';
 import 'package:frontend_mobile/app/permissions/notification_permission_coordinator.dart';
+import 'package:frontend_mobile/app/permissions/storage_permission_coordinator.dart';
 import 'package:frontend_mobile/app/app_scope.dart';
 import 'package:frontend_mobile/app/state/session_controller.dart';
 import 'package:frontend_mobile/core/api/api_client.dart';
@@ -91,6 +92,10 @@ AppDependencies makeTestDependenciesWithSession({
     notificationPermissionCoordinator: NotificationPermissionCoordinator(
       preferences: session.preferences,
       requester: const _FakeNotificationPermissionRequester(),
+    ),
+    storagePermissionCoordinator: StoragePermissionCoordinator(
+      preferences: session.preferences,
+      requester: const _FakeStoragePermissionRequester(),
     ),
   );
 }
@@ -445,4 +450,11 @@ class _FakeNotificationPermissionRequester
 
   @override
   Future<bool> requestNotificationPermission() async => false;
+}
+
+class _FakeStoragePermissionRequester implements StoragePermissionRequester {
+  const _FakeStoragePermissionRequester();
+
+  @override
+  Future<bool> ensureStoragePermission() async => true;
 }
