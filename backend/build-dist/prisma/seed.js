@@ -50,33 +50,36 @@ async function main() {
     const now = new Date();
     const addDays = (base, days) => new Date(base.getTime() + days * 24 * 60 * 60 * 1000);
     try {
-        await prisma.$transaction([
-            prisma.labResult.deleteMany({}),
-            prisma.prescription.deleteMany({}),
-            prisma.labOrder.deleteMany({}),
-            prisma.appointment.deleteMany({}),
-            prisma.notification.deleteMany({}),
-            prisma.auditLog.deleteMany({}),
-            prisma.patientProfile.deleteMany({
+        await prisma.$transaction(async (tx) => {
+            await tx.labResult.deleteMany({});
+            await tx.prescription.deleteMany({});
+            await tx.labOrder.deleteMany({});
+            await tx.appointment.deleteMany({});
+            await tx.notification.deleteMany({});
+            await tx.auditLog.deleteMany({});
+            await tx.patientProfile.deleteMany({
                 where: {
                     patient: {
                         role: { in: rolesToReplace },
                     },
                 },
-            }),
-            prisma.professionalProfile.deleteMany({
+            });
+            await tx.professionalProfile.deleteMany({
                 where: {
                     user: {
                         role: { in: rolesToReplace },
                     },
                 },
-            }),
-            prisma.user.deleteMany({
+            });
+            await tx.user.deleteMany({
                 where: {
                     role: { in: rolesToReplace },
                 },
-            }),
-        ]);
+            });
+        }, {
+            maxWait: 20_000,
+            timeout: 60_000,
+        });
         await prisma.user.createMany({
             data: [
                 {

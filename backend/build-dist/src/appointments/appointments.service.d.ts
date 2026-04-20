@@ -13,6 +13,7 @@ export declare class AppointmentsService {
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -21,7 +22,6 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     listMine(userId: string, role: Role): Promise<{
         doctorSnapshot: {
@@ -33,6 +33,7 @@ export declare class AppointmentsService {
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -41,7 +42,6 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }[] | {
         patientSnapshot: {
             id: string;
@@ -53,9 +53,9 @@ export declare class AppointmentsService {
                 address: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                gender: string | null;
-                dateOfBirth: Date | null;
                 patientId: string;
+                dateOfBirth: Date | null;
+                gender: string | null;
                 allergies: string | null;
                 chronicConditions: string | null;
                 currentMedications: string | null;
@@ -76,6 +76,7 @@ export declare class AppointmentsService {
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -84,13 +85,13 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }[]>;
     confirmByDoctor(doctorId: string, appointmentId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -99,13 +100,13 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     scheduleByDoctor(doctorId: string, appointmentId: string, scheduledAt: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -114,13 +115,13 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     callByDoctor(doctorId: string, appointmentId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -129,13 +130,13 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     markInVisitByDoctor(doctorId: string, appointmentId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -144,13 +145,13 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     markExamDoneByDoctor(doctorId: string, appointmentId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -159,13 +160,13 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     closeByDoctor(doctorId: string, appointmentId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -174,13 +175,13 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     cancelByDoctor(doctorId: string, appointmentId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -189,13 +190,13 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     cancelByPatient(patientId: string, appointmentId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         patientId: string;
+        doctorId: string;
         status: AppointmentStatus;
         scheduledAt: Date | null;
         reason: string | null;
@@ -204,7 +205,6 @@ export declare class AppointmentsService {
         preferredTimeNote: string | null;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        doctorId: string;
     }>;
     private updateByDoctorTransition;
     private getAppointmentOrThrow;

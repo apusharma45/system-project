@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
+import { AlertCircle, Eye, EyeOff, Heart, Lock, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { api, getApiErrorMessage } from '../../lib/api'
@@ -15,6 +16,7 @@ export function LoginPage() {
   const { login, user } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -65,26 +67,94 @@ export function LoginPage() {
   }
 
   return (
-    <div className="auth-shell">
-      <form className="auth-card" onSubmit={onSubmit}>
-        <h1>MedFlow Sign In</h1>
-        <label htmlFor="email">Email</label>
-        <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error ? <p className="error">{error}</p> : null}
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Signing in...' : 'Sign In'}
-        </button>
-        <p>
-          No account yet? <Link to="/register">Create one</Link>
-        </p>
-      </form>
+    <div className="auth-shell auth-shell-blue">
+      <div className="auth-panel">
+        <div className="auth-brand">
+          <div className="auth-brand-mark" aria-hidden="true">
+            <Heart size={28} />
+          </div>
+          <h1>MedFlow</h1>
+          <p>Your Complete Healthcare Platform</p>
+        </div>
+
+        <div className="auth-hero-copy">
+          <h2>Welcome Back</h2>
+          <p>Sign in to continue to MedFlow</p>
+        </div>
+
+        <form className="auth-card auth-card-figma" onSubmit={onSubmit}>
+          <div className="auth-card-head">
+            <h3>Sign In</h3>
+            <p>Use your account credentials</p>
+          </div>
+
+          <div className="auth-form-grid">
+            <label className="auth-field" htmlFor="email">
+              <span className="auth-label">Email Address</span>
+              <span className="auth-input-wrap">
+                <Mail className="auth-input-icon" size={18} aria-hidden="true" />
+                <input
+                  id="email"
+                  className="auth-control auth-control-icon"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </span>
+            </label>
+
+            <label className="auth-field" htmlFor="password">
+              <span className="auth-label">Password</span>
+              <span className="auth-input-wrap">
+                <Lock className="auth-input-icon" size={18} aria-hidden="true" />
+                <input
+                  id="password"
+                  className="auth-control auth-control-icon auth-control-icon-trailing"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="auth-input-toggle"
+                  aria-label={showPassword ? 'Hide secret text' : 'Show secret text'}
+                  onClick={() => setShowPassword((current) => !current)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </span>
+            </label>
+
+            <div className="auth-row-end">
+              <button
+                type="button"
+                className="auth-text-link"
+                onClick={() => setError('Forgot password is not available yet.')}
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            {error ? (
+              <div className="auth-error-banner" role="alert">
+                <AlertCircle size={18} aria-hidden="true" />
+                <p>{error}</p>
+              </div>
+            ) : null}
+
+            <button className="auth-submit" type="submit" disabled={submitting}>
+              {submitting ? 'Signing in...' : 'Sign In'}
+            </button>
+
+            <p className="auth-switch-copy">
+              <span>No account yet? </span>
+              <Link to="/register">Create one</Link>
+            </p>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
