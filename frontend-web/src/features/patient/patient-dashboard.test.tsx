@@ -1,9 +1,10 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PatientAppointmentsPage } from './patient-appointments'
+import { createTestQueryClient } from '../../test/query-client'
 
 const getMock = vi.fn()
 const postMock = vi.fn()
@@ -21,6 +22,7 @@ vi.mock('../../lib/api', () => ({
 vi.mock('../../lib/socket', () => ({
   connectNotificationsSocket: () => ({
     on: vi.fn(),
+    off: vi.fn(),
     disconnect: vi.fn(),
   }),
 }))
@@ -32,12 +34,7 @@ vi.mock('../auth/auth-context', () => ({
 }))
 
 function renderAppointmentsPage() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
+  const queryClient = createTestQueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
@@ -170,5 +167,37 @@ describe('PatientAppointmentsPage', () => {
     expect(await screen.findByText('Result pending')).toBeInTheDocument()
     expect(screen.getByText('Test required')).toBeInTheDocument()
     expect(screen.getByText('No test required')).toBeInTheDocument()
+  })
+
+  it('shows doctor identity in appointment list and details link', async () => {
+    getMock.mockImplementation((url: string) => {
+      if (url === '/users/doctors') return Promise.resolve({ data: [] })
+      if (url === '/appointments/me') {
+        return Promise.resolve({
+          data: [
+            {
+              id: 'a1',
+              status: 'REQUESTED',
+              doctorId: 'd1',
+              patientId: 'p1',
+              scheduledAt: null,
+              requiresLab: false,
+              labFlowLocked: false,
+              doctorSnapshot: { id: 'd1', fullName: 'Dr. Alice', email: 'alice@example.com' },
+            },
+          ],
+        })
+      }
+      return Promise.resolve({ data: [] })
+    })
+
+    renderAppointmentsPage()
+
+    expect(await screen.findByText('Doctor: Dr. Alice')).toBeInTheDocument()
+    expect(screen.getByText('Email: alice@example.com')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'View Details' })).toHaveAttribute(
+      'href',
+      '/patient/appointments/a1',
+    )
   })
 })

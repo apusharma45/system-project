@@ -1,4 +1,5 @@
 export type * from './models/User';
+export type * from './models/PasswordResetCode';
 export type * from './models/PatientProfile';
 export type * from './models/ProfessionalProfile';
 export type * from './models/Appointment';

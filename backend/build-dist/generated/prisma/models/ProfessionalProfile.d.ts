@@ -19,6 +19,10 @@ export type ProfessionalProfileMinAggregateOutputType = {
     userId: string | null;
     licenseNumber: string | null;
     specialization: string | null;
+    about: string | null;
+    clinicName: string | null;
+    clinicAddress: string | null;
+    clinicPhone: string | null;
     pharmacyName: string | null;
     labName: string | null;
     gender: string | null;
@@ -33,6 +37,10 @@ export type ProfessionalProfileMaxAggregateOutputType = {
     userId: string | null;
     licenseNumber: string | null;
     specialization: string | null;
+    about: string | null;
+    clinicName: string | null;
+    clinicAddress: string | null;
+    clinicPhone: string | null;
     pharmacyName: string | null;
     labName: string | null;
     gender: string | null;
@@ -47,6 +55,11 @@ export type ProfessionalProfileCountAggregateOutputType = {
     userId: number;
     licenseNumber: number;
     specialization: number;
+    about: number;
+    clinicName: number;
+    clinicAddress: number;
+    clinicPhone: number;
+    availableTimeSlots: number;
     pharmacyName: number;
     labName: number;
     gender: number;
@@ -72,6 +85,10 @@ export type ProfessionalProfileMinAggregateInputType = {
     userId?: true;
     licenseNumber?: true;
     specialization?: true;
+    about?: true;
+    clinicName?: true;
+    clinicAddress?: true;
+    clinicPhone?: true;
     pharmacyName?: true;
     labName?: true;
     gender?: true;
@@ -86,6 +103,10 @@ export type ProfessionalProfileMaxAggregateInputType = {
     userId?: true;
     licenseNumber?: true;
     specialization?: true;
+    about?: true;
+    clinicName?: true;
+    clinicAddress?: true;
+    clinicPhone?: true;
     pharmacyName?: true;
     labName?: true;
     gender?: true;
@@ -100,6 +121,11 @@ export type ProfessionalProfileCountAggregateInputType = {
     userId?: true;
     licenseNumber?: true;
     specialization?: true;
+    about?: true;
+    clinicName?: true;
+    clinicAddress?: true;
+    clinicPhone?: true;
+    availableTimeSlots?: true;
     pharmacyName?: true;
     labName?: true;
     gender?: true;
@@ -147,6 +173,11 @@ export type ProfessionalProfileGroupByOutputType = {
     userId: string;
     licenseNumber: string | null;
     specialization: string | null;
+    about: string | null;
+    clinicName: string | null;
+    clinicAddress: string | null;
+    clinicPhone: string | null;
+    availableTimeSlots: runtime.JsonValue | null;
     pharmacyName: string | null;
     labName: string | null;
     gender: string | null;
@@ -165,7 +196,7 @@ export type ProfessionalProfileGroupByOutputType = {
     _min: ProfessionalProfileMinAggregateOutputType | null;
     _max: ProfessionalProfileMaxAggregateOutputType | null;
 };
-type GetProfessionalProfileGroupByPayload<T extends ProfessionalProfileGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<ProfessionalProfileGroupByOutputType, T['by']> & {
+export type GetProfessionalProfileGroupByPayload<T extends ProfessionalProfileGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<ProfessionalProfileGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof ProfessionalProfileGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], ProfessionalProfileGroupByOutputType[P]> : Prisma.GetScalarType<T[P], ProfessionalProfileGroupByOutputType[P]>;
 }>>;
 export type ProfessionalProfileWhereInput = {
@@ -176,6 +207,11 @@ export type ProfessionalProfileWhereInput = {
     userId?: Prisma.StringFilter<"ProfessionalProfile"> | string;
     licenseNumber?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
     specialization?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    about?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    clinicName?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    clinicAddress?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    clinicPhone?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    availableTimeSlots?: Prisma.JsonNullableFilter<"ProfessionalProfile">;
     pharmacyName?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
     labName?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
     gender?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
@@ -195,6 +231,11 @@ export type ProfessionalProfileOrderByWithRelationInput = {
     userId?: Prisma.SortOrder;
     licenseNumber?: Prisma.SortOrderInput | Prisma.SortOrder;
     specialization?: Prisma.SortOrderInput | Prisma.SortOrder;
+    about?: Prisma.SortOrderInput | Prisma.SortOrder;
+    clinicName?: Prisma.SortOrderInput | Prisma.SortOrder;
+    clinicAddress?: Prisma.SortOrderInput | Prisma.SortOrder;
+    clinicPhone?: Prisma.SortOrderInput | Prisma.SortOrder;
+    availableTimeSlots?: Prisma.SortOrderInput | Prisma.SortOrder;
     pharmacyName?: Prisma.SortOrderInput | Prisma.SortOrder;
     labName?: Prisma.SortOrderInput | Prisma.SortOrder;
     gender?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -217,6 +258,11 @@ export type ProfessionalProfileWhereUniqueInput = Prisma.AtLeast<{
     NOT?: Prisma.ProfessionalProfileWhereInput | Prisma.ProfessionalProfileWhereInput[];
     licenseNumber?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
     specialization?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    about?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    clinicName?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    clinicAddress?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    clinicPhone?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
+    availableTimeSlots?: Prisma.JsonNullableFilter<"ProfessionalProfile">;
     pharmacyName?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
     labName?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
     gender?: Prisma.StringNullableFilter<"ProfessionalProfile"> | string | null;
@@ -236,6 +282,11 @@ export type ProfessionalProfileOrderByWithAggregationInput = {
     userId?: Prisma.SortOrder;
     licenseNumber?: Prisma.SortOrderInput | Prisma.SortOrder;
     specialization?: Prisma.SortOrderInput | Prisma.SortOrder;
+    about?: Prisma.SortOrderInput | Prisma.SortOrder;
+    clinicName?: Prisma.SortOrderInput | Prisma.SortOrder;
+    clinicAddress?: Prisma.SortOrderInput | Prisma.SortOrder;
+    clinicPhone?: Prisma.SortOrderInput | Prisma.SortOrder;
+    availableTimeSlots?: Prisma.SortOrderInput | Prisma.SortOrder;
     pharmacyName?: Prisma.SortOrderInput | Prisma.SortOrder;
     labName?: Prisma.SortOrderInput | Prisma.SortOrder;
     gender?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -262,6 +313,11 @@ export type ProfessionalProfileScalarWhereWithAggregatesInput = {
     userId?: Prisma.StringWithAggregatesFilter<"ProfessionalProfile"> | string;
     licenseNumber?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
     specialization?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
+    about?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
+    clinicName?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
+    clinicAddress?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
+    clinicPhone?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
+    availableTimeSlots?: Prisma.JsonNullableWithAggregatesFilter<"ProfessionalProfile">;
     pharmacyName?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
     labName?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
     gender?: Prisma.StringNullableWithAggregatesFilter<"ProfessionalProfile"> | string | null;
@@ -279,6 +335,11 @@ export type ProfessionalProfileCreateInput = {
     id?: string;
     licenseNumber?: string | null;
     specialization?: string | null;
+    about?: string | null;
+    clinicName?: string | null;
+    clinicAddress?: string | null;
+    clinicPhone?: string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: string | null;
     labName?: string | null;
     gender?: string | null;
@@ -298,6 +359,11 @@ export type ProfessionalProfileUncheckedCreateInput = {
     userId: string;
     licenseNumber?: string | null;
     specialization?: string | null;
+    about?: string | null;
+    clinicName?: string | null;
+    clinicAddress?: string | null;
+    clinicPhone?: string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: string | null;
     labName?: string | null;
     gender?: string | null;
@@ -315,6 +381,11 @@ export type ProfessionalProfileUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     licenseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     labName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -334,6 +405,11 @@ export type ProfessionalProfileUncheckedUpdateInput = {
     userId?: Prisma.StringFieldUpdateOperationsInput | string;
     licenseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     labName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -352,6 +428,11 @@ export type ProfessionalProfileCreateManyInput = {
     userId: string;
     licenseNumber?: string | null;
     specialization?: string | null;
+    about?: string | null;
+    clinicName?: string | null;
+    clinicAddress?: string | null;
+    clinicPhone?: string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: string | null;
     labName?: string | null;
     gender?: string | null;
@@ -369,6 +450,11 @@ export type ProfessionalProfileUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     licenseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     labName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -387,6 +473,11 @@ export type ProfessionalProfileUncheckedUpdateManyInput = {
     userId?: Prisma.StringFieldUpdateOperationsInput | string;
     licenseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     labName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -409,6 +500,11 @@ export type ProfessionalProfileCountOrderByAggregateInput = {
     userId?: Prisma.SortOrder;
     licenseNumber?: Prisma.SortOrder;
     specialization?: Prisma.SortOrder;
+    about?: Prisma.SortOrder;
+    clinicName?: Prisma.SortOrder;
+    clinicAddress?: Prisma.SortOrder;
+    clinicPhone?: Prisma.SortOrder;
+    availableTimeSlots?: Prisma.SortOrder;
     pharmacyName?: Prisma.SortOrder;
     labName?: Prisma.SortOrder;
     gender?: Prisma.SortOrder;
@@ -430,6 +526,10 @@ export type ProfessionalProfileMaxOrderByAggregateInput = {
     userId?: Prisma.SortOrder;
     licenseNumber?: Prisma.SortOrder;
     specialization?: Prisma.SortOrder;
+    about?: Prisma.SortOrder;
+    clinicName?: Prisma.SortOrder;
+    clinicAddress?: Prisma.SortOrder;
+    clinicPhone?: Prisma.SortOrder;
     pharmacyName?: Prisma.SortOrder;
     labName?: Prisma.SortOrder;
     gender?: Prisma.SortOrder;
@@ -444,6 +544,10 @@ export type ProfessionalProfileMinOrderByAggregateInput = {
     userId?: Prisma.SortOrder;
     licenseNumber?: Prisma.SortOrder;
     specialization?: Prisma.SortOrder;
+    about?: Prisma.SortOrder;
+    clinicName?: Prisma.SortOrder;
+    clinicAddress?: Prisma.SortOrder;
+    clinicPhone?: Prisma.SortOrder;
     pharmacyName?: Prisma.SortOrder;
     labName?: Prisma.SortOrder;
     gender?: Prisma.SortOrder;
@@ -484,17 +588,15 @@ export type ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput = {
     connect?: Prisma.ProfessionalProfileWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.ProfessionalProfileUpdateToOneWithWhereWithoutUserInput, Prisma.ProfessionalProfileUpdateWithoutUserInput>, Prisma.ProfessionalProfileUncheckedUpdateWithoutUserInput>;
 };
-export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null;
-    increment?: number;
-    decrement?: number;
-    multiply?: number;
-    divide?: number;
-};
 export type ProfessionalProfileCreateWithoutUserInput = {
     id?: string;
     licenseNumber?: string | null;
     specialization?: string | null;
+    about?: string | null;
+    clinicName?: string | null;
+    clinicAddress?: string | null;
+    clinicPhone?: string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: string | null;
     labName?: string | null;
     gender?: string | null;
@@ -512,6 +614,11 @@ export type ProfessionalProfileUncheckedCreateWithoutUserInput = {
     id?: string;
     licenseNumber?: string | null;
     specialization?: string | null;
+    about?: string | null;
+    clinicName?: string | null;
+    clinicAddress?: string | null;
+    clinicPhone?: string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: string | null;
     labName?: string | null;
     gender?: string | null;
@@ -542,6 +649,11 @@ export type ProfessionalProfileUpdateWithoutUserInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     licenseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     labName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -559,6 +671,11 @@ export type ProfessionalProfileUncheckedUpdateWithoutUserInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     licenseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    clinicPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    availableTimeSlots?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
     pharmacyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     labName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -577,6 +694,11 @@ export type ProfessionalProfileSelect<ExtArgs extends runtime.Types.Extensions.I
     userId?: boolean;
     licenseNumber?: boolean;
     specialization?: boolean;
+    about?: boolean;
+    clinicName?: boolean;
+    clinicAddress?: boolean;
+    clinicPhone?: boolean;
+    availableTimeSlots?: boolean;
     pharmacyName?: boolean;
     labName?: boolean;
     gender?: boolean;
@@ -596,6 +718,11 @@ export type ProfessionalProfileSelectCreateManyAndReturn<ExtArgs extends runtime
     userId?: boolean;
     licenseNumber?: boolean;
     specialization?: boolean;
+    about?: boolean;
+    clinicName?: boolean;
+    clinicAddress?: boolean;
+    clinicPhone?: boolean;
+    availableTimeSlots?: boolean;
     pharmacyName?: boolean;
     labName?: boolean;
     gender?: boolean;
@@ -615,6 +742,11 @@ export type ProfessionalProfileSelectUpdateManyAndReturn<ExtArgs extends runtime
     userId?: boolean;
     licenseNumber?: boolean;
     specialization?: boolean;
+    about?: boolean;
+    clinicName?: boolean;
+    clinicAddress?: boolean;
+    clinicPhone?: boolean;
+    availableTimeSlots?: boolean;
     pharmacyName?: boolean;
     labName?: boolean;
     gender?: boolean;
@@ -634,6 +766,11 @@ export type ProfessionalProfileSelectScalar = {
     userId?: boolean;
     licenseNumber?: boolean;
     specialization?: boolean;
+    about?: boolean;
+    clinicName?: boolean;
+    clinicAddress?: boolean;
+    clinicPhone?: boolean;
+    availableTimeSlots?: boolean;
     pharmacyName?: boolean;
     labName?: boolean;
     gender?: boolean;
@@ -647,7 +784,7 @@ export type ProfessionalProfileSelectScalar = {
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type ProfessionalProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "licenseNumber" | "specialization" | "pharmacyName" | "labName" | "gender" | "dateOfBirth" | "degrees" | "certifications" | "yearsOfExperience" | "licenseAuthority" | "accreditations" | "availableTests" | "createdAt" | "updatedAt", ExtArgs["result"]["professionalProfile"]>;
+export type ProfessionalProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "licenseNumber" | "specialization" | "about" | "clinicName" | "clinicAddress" | "clinicPhone" | "availableTimeSlots" | "pharmacyName" | "labName" | "gender" | "dateOfBirth" | "degrees" | "certifications" | "yearsOfExperience" | "licenseAuthority" | "accreditations" | "availableTests" | "createdAt" | "updatedAt", ExtArgs["result"]["professionalProfile"]>;
 export type ProfessionalProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
 };
@@ -667,6 +804,11 @@ export type $ProfessionalProfilePayload<ExtArgs extends runtime.Types.Extensions
         userId: string;
         licenseNumber: string | null;
         specialization: string | null;
+        about: string | null;
+        clinicName: string | null;
+        clinicAddress: string | null;
+        clinicPhone: string | null;
+        availableTimeSlots: runtime.JsonValue | null;
         pharmacyName: string | null;
         labName: string | null;
         gender: string | null;
@@ -741,6 +883,11 @@ export interface ProfessionalProfileFieldRefs {
     readonly userId: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
     readonly licenseNumber: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
     readonly specialization: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
+    readonly about: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
+    readonly clinicName: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
+    readonly clinicAddress: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
+    readonly clinicPhone: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
+    readonly availableTimeSlots: Prisma.FieldRef<"ProfessionalProfile", 'Json'>;
     readonly pharmacyName: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
     readonly labName: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
     readonly gender: Prisma.FieldRef<"ProfessionalProfile", 'String'>;
@@ -859,4 +1006,3 @@ export type ProfessionalProfileDefaultArgs<ExtArgs extends runtime.Types.Extensi
     omit?: Prisma.ProfessionalProfileOmit<ExtArgs> | null;
     include?: Prisma.ProfessionalProfileInclude<ExtArgs> | null;
 };
-export {};

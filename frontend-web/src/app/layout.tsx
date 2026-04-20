@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../features/auth/auth-context'
 import { useDoctorNotifications } from '../features/doctor/doctor-shared'
+import { useDiagnosticNotifications } from '../features/diagnostic/diagnostic-shared'
 import { usePharmacyNotifications } from '../features/pharmacy/pharmacy-shared'
 
 export function AppLayout() {
@@ -21,6 +22,7 @@ export function AppLayout() {
   const location = useLocation()
   const [open, setOpen] = useState(true)
   const notificationsQuery = useDoctorNotifications()
+  const diagnosticNotificationsQuery = useDiagnosticNotifications()
   const pharmacyNotificationsQuery = usePharmacyNotifications()
   const todayLabel = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
@@ -30,11 +32,11 @@ export function AppLayout() {
   }).format(new Date())
   const userLabel =
     user?.role === 'DOCTOR'
-      ? 'Dr. User'
+      ? user?.fullName?.trim() || user?.email || 'Doctor User'
       : user?.role === 'PHARMACY'
-        ? 'Pharmacy User'
+        ? user?.fullName?.trim() || user?.email || 'Pharmacy User'
         : user?.role === 'DIAGNOSTIC'
-          ? 'Diagnostic User'
+          ? user?.fullName?.trim() || user?.email || 'Diagnostic User'
           : user?.fullName?.trim() || 'Patient User'
   const userSubtitle =
     user?.role === 'DOCTOR'
@@ -47,14 +49,24 @@ export function AppLayout() {
   const initials =
     user?.role === 'DOCTOR' ? 'DR' : user?.role === 'PHARMACY' ? 'PH' : user?.role === 'DIAGNOSTIC' ? 'LB' : 'PT'
 
+  const avatarNode = user?.avatarUrl ? (
+    <img src={user.avatarUrl} alt={userLabel} className="avatar-img" />
+  ) : (
+    <span>{initials}</span>
+  )
+
   const navItems = useMemo<Array<{ label: string; to: string; icon: typeof LayoutDashboard; badge?: number }>>(() => {
     if (!user) return []
     const unreadNotifications =
       user.role === 'DOCTOR' || user.role === 'DIAGNOSTIC'
-        ? (notificationsQuery.data ?? []).filter((item) => !item.read).length
+        ? (
+            user.role === 'DOCTOR'
+              ? (notificationsQuery.data ?? [])
+              : (diagnosticNotificationsQuery.data ?? [])
+          ).filter((item) => !item.read).length
         : user.role === 'PHARMACY'
           ? (pharmacyNotificationsQuery.data ?? []).filter((item) => !item.read).length
-        : 0
+          : 0
 
     if (user.role === 'DOCTOR') {
       return [
@@ -64,6 +76,7 @@ export function AppLayout() {
         { label: 'Prescriptions', to: '/doctor/prescriptions', icon: FileText },
         { label: 'Lab Orders', to: '/doctor/lab-orders', icon: FlaskConical },
         { label: 'Notifications', to: '/doctor/notifications', icon: Bell, badge: unreadNotifications },
+        { label: 'Profile', to: '/doctor/profile', icon: User },
       ]
     }
     if (user.role === 'PHARMACY') {
@@ -71,10 +84,16 @@ export function AppLayout() {
         { label: 'Dashboard', to: '/pharmacy', icon: LayoutDashboard },
         { label: 'Prescriptions', to: '/pharmacy/prescriptions', icon: FileText },
         { label: 'Notifications', to: '/pharmacy/notifications', icon: Bell, badge: unreadNotifications },
+        { label: 'Profile', to: '/pharmacy/profile', icon: User },
       ]
     }
     if (user.role === 'DIAGNOSTIC') {
-      return [{ label: 'Dashboard', to: '/diagnostic', icon: LayoutDashboard, badge: unreadNotifications }]
+      return [
+        { label: 'Dashboard', to: '/diagnostic', icon: LayoutDashboard },
+        { label: 'Lab Orders', to: '/diagnostic/lab-orders', icon: FlaskConical },
+        { label: 'Notifications', to: '/diagnostic/notifications', icon: Bell, badge: unreadNotifications },
+        { label: 'Profile', to: '/diagnostic/profile', icon: User },
+      ]
     }
     return [
       { label: 'Dashboard', to: '/patient', icon: LayoutDashboard },
@@ -83,7 +102,7 @@ export function AppLayout() {
       { label: 'Notifications', to: '/patient/notifications', icon: Bell },
       { label: 'Profile', to: '/patient/profile', icon: User },
     ]
-  }, [notificationsQuery.data, pharmacyNotificationsQuery.data, user])
+  }, [diagnosticNotificationsQuery.data, notificationsQuery.data, pharmacyNotificationsQuery.data, user])
 
   return (
     <div className="shell">
@@ -104,6 +123,7 @@ export function AppLayout() {
                 (item.to !== '/doctor' &&
                   item.to !== '/patient' &&
                   item.to !== '/pharmacy' &&
+                  item.to !== '/diagnostic' &&
                   location.pathname.startsWith(item.to))
               const Icon = item.icon
               return (
@@ -120,7 +140,37 @@ export function AppLayout() {
             {user?.role === 'PATIENT' ? (
               <Link to="/patient/profile" className="profile-card" aria-label="Open profile">
                 <div className="avatar">
-                  <span>{initials}</span>
+                  {avatarNode}
+                </div>
+                <div>
+                  <strong>{userLabel}</strong>
+                  <p>{userSubtitle}</p>
+                </div>
+              </Link>
+            ) : user?.role === 'DOCTOR' ? (
+              <Link to="/doctor/profile" className="profile-card" aria-label="Open profile">
+                <div className="avatar">
+                  {avatarNode}
+                </div>
+                <div>
+                  <strong>{userLabel}</strong>
+                  <p>{userSubtitle}</p>
+                </div>
+              </Link>
+            ) : user?.role === 'DIAGNOSTIC' ? (
+              <Link to="/diagnostic/profile" className="profile-card" aria-label="Open profile">
+                <div className="avatar">
+                  {avatarNode}
+                </div>
+                <div>
+                  <strong>{userLabel}</strong>
+                  <p>{userSubtitle}</p>
+                </div>
+              </Link>
+            ) : user?.role === 'PHARMACY' ? (
+              <Link to="/pharmacy/profile" className="profile-card" aria-label="Open profile">
+                <div className="avatar">
+                  {avatarNode}
                 </div>
                 <div>
                   <strong>{userLabel}</strong>
@@ -130,7 +180,7 @@ export function AppLayout() {
             ) : (
               <div className="profile-card">
                 <div className="avatar">
-                  <span>{initials}</span>
+                  {avatarNode}
                 </div>
                 <div>
                   <strong>{userLabel}</strong>

@@ -141,7 +141,7 @@ export type AppointmentGroupByOutputType = {
     _min: AppointmentMinAggregateOutputType | null;
     _max: AppointmentMaxAggregateOutputType | null;
 };
-type GetAppointmentGroupByPayload<T extends AppointmentGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<AppointmentGroupByOutputType, T['by']> & {
+export type GetAppointmentGroupByPayload<T extends AppointmentGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<AppointmentGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof AppointmentGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], AppointmentGroupByOutputType[P]> : Prisma.GetScalarType<T[P], AppointmentGroupByOutputType[P]>;
 }>>;
 export type AppointmentWhereInput = {
@@ -163,8 +163,8 @@ export type AppointmentWhereInput = {
     updatedAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string;
     patient?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
     doctor?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
-    labOrder?: Prisma.XOR<Prisma.LabOrderNullableScalarRelationFilter, Prisma.LabOrderWhereInput> | null;
-    prescription?: Prisma.XOR<Prisma.PrescriptionNullableScalarRelationFilter, Prisma.PrescriptionWhereInput> | null;
+    labOrders?: Prisma.LabOrderListRelationFilter;
+    prescriptions?: Prisma.PrescriptionListRelationFilter;
 };
 export type AppointmentOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
@@ -182,8 +182,8 @@ export type AppointmentOrderByWithRelationInput = {
     updatedAt?: Prisma.SortOrder;
     patient?: Prisma.UserOrderByWithRelationInput;
     doctor?: Prisma.UserOrderByWithRelationInput;
-    labOrder?: Prisma.LabOrderOrderByWithRelationInput;
-    prescription?: Prisma.PrescriptionOrderByWithRelationInput;
+    labOrders?: Prisma.LabOrderOrderByRelationAggregateInput;
+    prescriptions?: Prisma.PrescriptionOrderByRelationAggregateInput;
 };
 export type AppointmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string;
@@ -204,8 +204,8 @@ export type AppointmentWhereUniqueInput = Prisma.AtLeast<{
     updatedAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string;
     patient?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
     doctor?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
-    labOrder?: Prisma.XOR<Prisma.LabOrderNullableScalarRelationFilter, Prisma.LabOrderWhereInput> | null;
-    prescription?: Prisma.XOR<Prisma.PrescriptionNullableScalarRelationFilter, Prisma.PrescriptionWhereInput> | null;
+    labOrders?: Prisma.LabOrderListRelationFilter;
+    prescriptions?: Prisma.PrescriptionListRelationFilter;
 }, "id">;
 export type AppointmentOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
@@ -257,8 +257,8 @@ export type AppointmentCreateInput = {
     updatedAt?: Date | string;
     patient: Prisma.UserCreateNestedOneWithoutPatientAppointmentsInput;
     doctor: Prisma.UserCreateNestedOneWithoutDoctorAppointmentsInput;
-    labOrder?: Prisma.LabOrderCreateNestedOneWithoutAppointmentInput;
-    prescription?: Prisma.PrescriptionCreateNestedOneWithoutAppointmentInput;
+    labOrders?: Prisma.LabOrderCreateNestedManyWithoutAppointmentInput;
+    prescriptions?: Prisma.PrescriptionCreateNestedManyWithoutAppointmentInput;
 };
 export type AppointmentUncheckedCreateInput = {
     id?: string;
@@ -274,8 +274,8 @@ export type AppointmentUncheckedCreateInput = {
     labFlowLocked?: boolean;
     createdAt?: Date | string;
     updatedAt?: Date | string;
-    labOrder?: Prisma.LabOrderUncheckedCreateNestedOneWithoutAppointmentInput;
-    prescription?: Prisma.PrescriptionUncheckedCreateNestedOneWithoutAppointmentInput;
+    labOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutAppointmentInput;
+    prescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutAppointmentInput;
 };
 export type AppointmentUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -291,8 +291,8 @@ export type AppointmentUpdateInput = {
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     patient?: Prisma.UserUpdateOneRequiredWithoutPatientAppointmentsNestedInput;
     doctor?: Prisma.UserUpdateOneRequiredWithoutDoctorAppointmentsNestedInput;
-    labOrder?: Prisma.LabOrderUpdateOneWithoutAppointmentNestedInput;
-    prescription?: Prisma.PrescriptionUpdateOneWithoutAppointmentNestedInput;
+    labOrders?: Prisma.LabOrderUpdateManyWithoutAppointmentNestedInput;
+    prescriptions?: Prisma.PrescriptionUpdateManyWithoutAppointmentNestedInput;
 };
 export type AppointmentUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -308,8 +308,8 @@ export type AppointmentUncheckedUpdateInput = {
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-    labOrder?: Prisma.LabOrderUncheckedUpdateOneWithoutAppointmentNestedInput;
-    prescription?: Prisma.PrescriptionUncheckedUpdateOneWithoutAppointmentNestedInput;
+    labOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutAppointmentNestedInput;
+    prescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutAppointmentNestedInput;
 };
 export type AppointmentCreateManyInput = {
     id?: string;
@@ -493,29 +493,29 @@ export type EnumAppointmentStatusFieldUpdateOperationsInput = {
 export type BoolFieldUpdateOperationsInput = {
     set?: boolean;
 };
-export type AppointmentCreateNestedOneWithoutLabOrderInput = {
-    create?: Prisma.XOR<Prisma.AppointmentCreateWithoutLabOrderInput, Prisma.AppointmentUncheckedCreateWithoutLabOrderInput>;
-    connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutLabOrderInput;
+export type AppointmentCreateNestedOneWithoutLabOrdersInput = {
+    create?: Prisma.XOR<Prisma.AppointmentCreateWithoutLabOrdersInput, Prisma.AppointmentUncheckedCreateWithoutLabOrdersInput>;
+    connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutLabOrdersInput;
     connect?: Prisma.AppointmentWhereUniqueInput;
 };
-export type AppointmentUpdateOneRequiredWithoutLabOrderNestedInput = {
-    create?: Prisma.XOR<Prisma.AppointmentCreateWithoutLabOrderInput, Prisma.AppointmentUncheckedCreateWithoutLabOrderInput>;
-    connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutLabOrderInput;
-    upsert?: Prisma.AppointmentUpsertWithoutLabOrderInput;
+export type AppointmentUpdateOneRequiredWithoutLabOrdersNestedInput = {
+    create?: Prisma.XOR<Prisma.AppointmentCreateWithoutLabOrdersInput, Prisma.AppointmentUncheckedCreateWithoutLabOrdersInput>;
+    connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutLabOrdersInput;
+    upsert?: Prisma.AppointmentUpsertWithoutLabOrdersInput;
     connect?: Prisma.AppointmentWhereUniqueInput;
-    update?: Prisma.XOR<Prisma.XOR<Prisma.AppointmentUpdateToOneWithWhereWithoutLabOrderInput, Prisma.AppointmentUpdateWithoutLabOrderInput>, Prisma.AppointmentUncheckedUpdateWithoutLabOrderInput>;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.AppointmentUpdateToOneWithWhereWithoutLabOrdersInput, Prisma.AppointmentUpdateWithoutLabOrdersInput>, Prisma.AppointmentUncheckedUpdateWithoutLabOrdersInput>;
 };
-export type AppointmentCreateNestedOneWithoutPrescriptionInput = {
-    create?: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescriptionInput, Prisma.AppointmentUncheckedCreateWithoutPrescriptionInput>;
-    connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutPrescriptionInput;
+export type AppointmentCreateNestedOneWithoutPrescriptionsInput = {
+    create?: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescriptionsInput, Prisma.AppointmentUncheckedCreateWithoutPrescriptionsInput>;
+    connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutPrescriptionsInput;
     connect?: Prisma.AppointmentWhereUniqueInput;
 };
-export type AppointmentUpdateOneRequiredWithoutPrescriptionNestedInput = {
-    create?: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescriptionInput, Prisma.AppointmentUncheckedCreateWithoutPrescriptionInput>;
-    connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutPrescriptionInput;
-    upsert?: Prisma.AppointmentUpsertWithoutPrescriptionInput;
+export type AppointmentUpdateOneRequiredWithoutPrescriptionsNestedInput = {
+    create?: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescriptionsInput, Prisma.AppointmentUncheckedCreateWithoutPrescriptionsInput>;
+    connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutPrescriptionsInput;
+    upsert?: Prisma.AppointmentUpsertWithoutPrescriptionsInput;
     connect?: Prisma.AppointmentWhereUniqueInput;
-    update?: Prisma.XOR<Prisma.XOR<Prisma.AppointmentUpdateToOneWithWhereWithoutPrescriptionInput, Prisma.AppointmentUpdateWithoutPrescriptionInput>, Prisma.AppointmentUncheckedUpdateWithoutPrescriptionInput>;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.AppointmentUpdateToOneWithWhereWithoutPrescriptionsInput, Prisma.AppointmentUpdateWithoutPrescriptionsInput>, Prisma.AppointmentUncheckedUpdateWithoutPrescriptionsInput>;
 };
 export type AppointmentCreateWithoutPatientInput = {
     id?: string;
@@ -530,8 +530,8 @@ export type AppointmentCreateWithoutPatientInput = {
     createdAt?: Date | string;
     updatedAt?: Date | string;
     doctor: Prisma.UserCreateNestedOneWithoutDoctorAppointmentsInput;
-    labOrder?: Prisma.LabOrderCreateNestedOneWithoutAppointmentInput;
-    prescription?: Prisma.PrescriptionCreateNestedOneWithoutAppointmentInput;
+    labOrders?: Prisma.LabOrderCreateNestedManyWithoutAppointmentInput;
+    prescriptions?: Prisma.PrescriptionCreateNestedManyWithoutAppointmentInput;
 };
 export type AppointmentUncheckedCreateWithoutPatientInput = {
     id?: string;
@@ -546,8 +546,8 @@ export type AppointmentUncheckedCreateWithoutPatientInput = {
     labFlowLocked?: boolean;
     createdAt?: Date | string;
     updatedAt?: Date | string;
-    labOrder?: Prisma.LabOrderUncheckedCreateNestedOneWithoutAppointmentInput;
-    prescription?: Prisma.PrescriptionUncheckedCreateNestedOneWithoutAppointmentInput;
+    labOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutAppointmentInput;
+    prescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutAppointmentInput;
 };
 export type AppointmentCreateOrConnectWithoutPatientInput = {
     where: Prisma.AppointmentWhereUniqueInput;
@@ -570,8 +570,8 @@ export type AppointmentCreateWithoutDoctorInput = {
     createdAt?: Date | string;
     updatedAt?: Date | string;
     patient: Prisma.UserCreateNestedOneWithoutPatientAppointmentsInput;
-    labOrder?: Prisma.LabOrderCreateNestedOneWithoutAppointmentInput;
-    prescription?: Prisma.PrescriptionCreateNestedOneWithoutAppointmentInput;
+    labOrders?: Prisma.LabOrderCreateNestedManyWithoutAppointmentInput;
+    prescriptions?: Prisma.PrescriptionCreateNestedManyWithoutAppointmentInput;
 };
 export type AppointmentUncheckedCreateWithoutDoctorInput = {
     id?: string;
@@ -586,8 +586,8 @@ export type AppointmentUncheckedCreateWithoutDoctorInput = {
     labFlowLocked?: boolean;
     createdAt?: Date | string;
     updatedAt?: Date | string;
-    labOrder?: Prisma.LabOrderUncheckedCreateNestedOneWithoutAppointmentInput;
-    prescription?: Prisma.PrescriptionUncheckedCreateNestedOneWithoutAppointmentInput;
+    labOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutAppointmentInput;
+    prescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutAppointmentInput;
 };
 export type AppointmentCreateOrConnectWithoutDoctorInput = {
     where: Prisma.AppointmentWhereUniqueInput;
@@ -641,7 +641,7 @@ export type AppointmentUpdateManyWithWhereWithoutDoctorInput = {
     where: Prisma.AppointmentScalarWhereInput;
     data: Prisma.XOR<Prisma.AppointmentUpdateManyMutationInput, Prisma.AppointmentUncheckedUpdateManyWithoutDoctorInput>;
 };
-export type AppointmentCreateWithoutLabOrderInput = {
+export type AppointmentCreateWithoutLabOrdersInput = {
     id?: string;
     status?: $Enums.AppointmentStatus;
     scheduledAt?: Date | string | null;
@@ -655,9 +655,9 @@ export type AppointmentCreateWithoutLabOrderInput = {
     updatedAt?: Date | string;
     patient: Prisma.UserCreateNestedOneWithoutPatientAppointmentsInput;
     doctor: Prisma.UserCreateNestedOneWithoutDoctorAppointmentsInput;
-    prescription?: Prisma.PrescriptionCreateNestedOneWithoutAppointmentInput;
+    prescriptions?: Prisma.PrescriptionCreateNestedManyWithoutAppointmentInput;
 };
-export type AppointmentUncheckedCreateWithoutLabOrderInput = {
+export type AppointmentUncheckedCreateWithoutLabOrdersInput = {
     id?: string;
     patientId: string;
     doctorId: string;
@@ -671,22 +671,22 @@ export type AppointmentUncheckedCreateWithoutLabOrderInput = {
     labFlowLocked?: boolean;
     createdAt?: Date | string;
     updatedAt?: Date | string;
-    prescription?: Prisma.PrescriptionUncheckedCreateNestedOneWithoutAppointmentInput;
+    prescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutAppointmentInput;
 };
-export type AppointmentCreateOrConnectWithoutLabOrderInput = {
+export type AppointmentCreateOrConnectWithoutLabOrdersInput = {
     where: Prisma.AppointmentWhereUniqueInput;
-    create: Prisma.XOR<Prisma.AppointmentCreateWithoutLabOrderInput, Prisma.AppointmentUncheckedCreateWithoutLabOrderInput>;
+    create: Prisma.XOR<Prisma.AppointmentCreateWithoutLabOrdersInput, Prisma.AppointmentUncheckedCreateWithoutLabOrdersInput>;
 };
-export type AppointmentUpsertWithoutLabOrderInput = {
-    update: Prisma.XOR<Prisma.AppointmentUpdateWithoutLabOrderInput, Prisma.AppointmentUncheckedUpdateWithoutLabOrderInput>;
-    create: Prisma.XOR<Prisma.AppointmentCreateWithoutLabOrderInput, Prisma.AppointmentUncheckedCreateWithoutLabOrderInput>;
+export type AppointmentUpsertWithoutLabOrdersInput = {
+    update: Prisma.XOR<Prisma.AppointmentUpdateWithoutLabOrdersInput, Prisma.AppointmentUncheckedUpdateWithoutLabOrdersInput>;
+    create: Prisma.XOR<Prisma.AppointmentCreateWithoutLabOrdersInput, Prisma.AppointmentUncheckedCreateWithoutLabOrdersInput>;
     where?: Prisma.AppointmentWhereInput;
 };
-export type AppointmentUpdateToOneWithWhereWithoutLabOrderInput = {
+export type AppointmentUpdateToOneWithWhereWithoutLabOrdersInput = {
     where?: Prisma.AppointmentWhereInput;
-    data: Prisma.XOR<Prisma.AppointmentUpdateWithoutLabOrderInput, Prisma.AppointmentUncheckedUpdateWithoutLabOrderInput>;
+    data: Prisma.XOR<Prisma.AppointmentUpdateWithoutLabOrdersInput, Prisma.AppointmentUncheckedUpdateWithoutLabOrdersInput>;
 };
-export type AppointmentUpdateWithoutLabOrderInput = {
+export type AppointmentUpdateWithoutLabOrdersInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
     scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
@@ -700,9 +700,9 @@ export type AppointmentUpdateWithoutLabOrderInput = {
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     patient?: Prisma.UserUpdateOneRequiredWithoutPatientAppointmentsNestedInput;
     doctor?: Prisma.UserUpdateOneRequiredWithoutDoctorAppointmentsNestedInput;
-    prescription?: Prisma.PrescriptionUpdateOneWithoutAppointmentNestedInput;
+    prescriptions?: Prisma.PrescriptionUpdateManyWithoutAppointmentNestedInput;
 };
-export type AppointmentUncheckedUpdateWithoutLabOrderInput = {
+export type AppointmentUncheckedUpdateWithoutLabOrdersInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     patientId?: Prisma.StringFieldUpdateOperationsInput | string;
     doctorId?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -716,9 +716,9 @@ export type AppointmentUncheckedUpdateWithoutLabOrderInput = {
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-    prescription?: Prisma.PrescriptionUncheckedUpdateOneWithoutAppointmentNestedInput;
+    prescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutAppointmentNestedInput;
 };
-export type AppointmentCreateWithoutPrescriptionInput = {
+export type AppointmentCreateWithoutPrescriptionsInput = {
     id?: string;
     status?: $Enums.AppointmentStatus;
     scheduledAt?: Date | string | null;
@@ -732,9 +732,9 @@ export type AppointmentCreateWithoutPrescriptionInput = {
     updatedAt?: Date | string;
     patient: Prisma.UserCreateNestedOneWithoutPatientAppointmentsInput;
     doctor: Prisma.UserCreateNestedOneWithoutDoctorAppointmentsInput;
-    labOrder?: Prisma.LabOrderCreateNestedOneWithoutAppointmentInput;
+    labOrders?: Prisma.LabOrderCreateNestedManyWithoutAppointmentInput;
 };
-export type AppointmentUncheckedCreateWithoutPrescriptionInput = {
+export type AppointmentUncheckedCreateWithoutPrescriptionsInput = {
     id?: string;
     patientId: string;
     doctorId: string;
@@ -748,22 +748,22 @@ export type AppointmentUncheckedCreateWithoutPrescriptionInput = {
     labFlowLocked?: boolean;
     createdAt?: Date | string;
     updatedAt?: Date | string;
-    labOrder?: Prisma.LabOrderUncheckedCreateNestedOneWithoutAppointmentInput;
+    labOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutAppointmentInput;
 };
-export type AppointmentCreateOrConnectWithoutPrescriptionInput = {
+export type AppointmentCreateOrConnectWithoutPrescriptionsInput = {
     where: Prisma.AppointmentWhereUniqueInput;
-    create: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescriptionInput, Prisma.AppointmentUncheckedCreateWithoutPrescriptionInput>;
+    create: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescriptionsInput, Prisma.AppointmentUncheckedCreateWithoutPrescriptionsInput>;
 };
-export type AppointmentUpsertWithoutPrescriptionInput = {
-    update: Prisma.XOR<Prisma.AppointmentUpdateWithoutPrescriptionInput, Prisma.AppointmentUncheckedUpdateWithoutPrescriptionInput>;
-    create: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescriptionInput, Prisma.AppointmentUncheckedCreateWithoutPrescriptionInput>;
+export type AppointmentUpsertWithoutPrescriptionsInput = {
+    update: Prisma.XOR<Prisma.AppointmentUpdateWithoutPrescriptionsInput, Prisma.AppointmentUncheckedUpdateWithoutPrescriptionsInput>;
+    create: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescriptionsInput, Prisma.AppointmentUncheckedCreateWithoutPrescriptionsInput>;
     where?: Prisma.AppointmentWhereInput;
 };
-export type AppointmentUpdateToOneWithWhereWithoutPrescriptionInput = {
+export type AppointmentUpdateToOneWithWhereWithoutPrescriptionsInput = {
     where?: Prisma.AppointmentWhereInput;
-    data: Prisma.XOR<Prisma.AppointmentUpdateWithoutPrescriptionInput, Prisma.AppointmentUncheckedUpdateWithoutPrescriptionInput>;
+    data: Prisma.XOR<Prisma.AppointmentUpdateWithoutPrescriptionsInput, Prisma.AppointmentUncheckedUpdateWithoutPrescriptionsInput>;
 };
-export type AppointmentUpdateWithoutPrescriptionInput = {
+export type AppointmentUpdateWithoutPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus;
     scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
@@ -777,9 +777,9 @@ export type AppointmentUpdateWithoutPrescriptionInput = {
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     patient?: Prisma.UserUpdateOneRequiredWithoutPatientAppointmentsNestedInput;
     doctor?: Prisma.UserUpdateOneRequiredWithoutDoctorAppointmentsNestedInput;
-    labOrder?: Prisma.LabOrderUpdateOneWithoutAppointmentNestedInput;
+    labOrders?: Prisma.LabOrderUpdateManyWithoutAppointmentNestedInput;
 };
-export type AppointmentUncheckedUpdateWithoutPrescriptionInput = {
+export type AppointmentUncheckedUpdateWithoutPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     patientId?: Prisma.StringFieldUpdateOperationsInput | string;
     doctorId?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -793,7 +793,7 @@ export type AppointmentUncheckedUpdateWithoutPrescriptionInput = {
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-    labOrder?: Prisma.LabOrderUncheckedUpdateOneWithoutAppointmentNestedInput;
+    labOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutAppointmentNestedInput;
 };
 export type AppointmentCreateManyPatientInput = {
     id?: string;
@@ -836,8 +836,8 @@ export type AppointmentUpdateWithoutPatientInput = {
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     doctor?: Prisma.UserUpdateOneRequiredWithoutDoctorAppointmentsNestedInput;
-    labOrder?: Prisma.LabOrderUpdateOneWithoutAppointmentNestedInput;
-    prescription?: Prisma.PrescriptionUpdateOneWithoutAppointmentNestedInput;
+    labOrders?: Prisma.LabOrderUpdateManyWithoutAppointmentNestedInput;
+    prescriptions?: Prisma.PrescriptionUpdateManyWithoutAppointmentNestedInput;
 };
 export type AppointmentUncheckedUpdateWithoutPatientInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -852,8 +852,8 @@ export type AppointmentUncheckedUpdateWithoutPatientInput = {
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-    labOrder?: Prisma.LabOrderUncheckedUpdateOneWithoutAppointmentNestedInput;
-    prescription?: Prisma.PrescriptionUncheckedUpdateOneWithoutAppointmentNestedInput;
+    labOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutAppointmentNestedInput;
+    prescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutAppointmentNestedInput;
 };
 export type AppointmentUncheckedUpdateManyWithoutPatientInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -882,8 +882,8 @@ export type AppointmentUpdateWithoutDoctorInput = {
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     patient?: Prisma.UserUpdateOneRequiredWithoutPatientAppointmentsNestedInput;
-    labOrder?: Prisma.LabOrderUpdateOneWithoutAppointmentNestedInput;
-    prescription?: Prisma.PrescriptionUpdateOneWithoutAppointmentNestedInput;
+    labOrders?: Prisma.LabOrderUpdateManyWithoutAppointmentNestedInput;
+    prescriptions?: Prisma.PrescriptionUpdateManyWithoutAppointmentNestedInput;
 };
 export type AppointmentUncheckedUpdateWithoutDoctorInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -898,8 +898,8 @@ export type AppointmentUncheckedUpdateWithoutDoctorInput = {
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-    labOrder?: Prisma.LabOrderUncheckedUpdateOneWithoutAppointmentNestedInput;
-    prescription?: Prisma.PrescriptionUncheckedUpdateOneWithoutAppointmentNestedInput;
+    labOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutAppointmentNestedInput;
+    prescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutAppointmentNestedInput;
 };
 export type AppointmentUncheckedUpdateManyWithoutDoctorInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -914,6 +914,23 @@ export type AppointmentUncheckedUpdateManyWithoutDoctorInput = {
     labFlowLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+};
+export type AppointmentCountOutputType = {
+    labOrders: number;
+    prescriptions: number;
+};
+export type AppointmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    labOrders?: boolean | AppointmentCountOutputTypeCountLabOrdersArgs;
+    prescriptions?: boolean | AppointmentCountOutputTypeCountPrescriptionsArgs;
+};
+export type AppointmentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    select?: Prisma.AppointmentCountOutputTypeSelect<ExtArgs> | null;
+};
+export type AppointmentCountOutputTypeCountLabOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    where?: Prisma.LabOrderWhereInput;
+};
+export type AppointmentCountOutputTypeCountPrescriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    where?: Prisma.PrescriptionWhereInput;
 };
 export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
@@ -931,8 +948,9 @@ export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
     updatedAt?: boolean;
     patient?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
     doctor?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
-    labOrder?: boolean | Prisma.Appointment$labOrderArgs<ExtArgs>;
-    prescription?: boolean | Prisma.Appointment$prescriptionArgs<ExtArgs>;
+    labOrders?: boolean | Prisma.Appointment$labOrdersArgs<ExtArgs>;
+    prescriptions?: boolean | Prisma.Appointment$prescriptionsArgs<ExtArgs>;
+    _count?: boolean | Prisma.AppointmentCountOutputTypeDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["appointment"]>;
 export type AppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
@@ -987,8 +1005,9 @@ export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type AppointmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     patient?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
     doctor?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
-    labOrder?: boolean | Prisma.Appointment$labOrderArgs<ExtArgs>;
-    prescription?: boolean | Prisma.Appointment$prescriptionArgs<ExtArgs>;
+    labOrders?: boolean | Prisma.Appointment$labOrdersArgs<ExtArgs>;
+    prescriptions?: boolean | Prisma.Appointment$prescriptionsArgs<ExtArgs>;
+    _count?: boolean | Prisma.AppointmentCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type AppointmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     patient?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -1003,8 +1022,8 @@ export type $AppointmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
     objects: {
         patient: Prisma.$UserPayload<ExtArgs>;
         doctor: Prisma.$UserPayload<ExtArgs>;
-        labOrder: Prisma.$LabOrderPayload<ExtArgs> | null;
-        prescription: Prisma.$PrescriptionPayload<ExtArgs> | null;
+        labOrders: Prisma.$LabOrderPayload<ExtArgs>[];
+        prescriptions: Prisma.$PrescriptionPayload<ExtArgs>[];
     };
     scalars: runtime.Types.Extensions.GetPayloadResult<{
         id: string;
@@ -1074,8 +1093,8 @@ export interface Prisma__AppointmentClient<T, Null = never, ExtArgs extends runt
     readonly [Symbol.toStringTag]: "PrismaPromise";
     patient<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>;
     doctor<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>;
-    labOrder<T extends Prisma.Appointment$labOrderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Appointment$labOrderArgs<ExtArgs>>): Prisma.Prisma__LabOrderClient<runtime.Types.Result.GetResult<Prisma.$LabOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>;
-    prescription<T extends Prisma.Appointment$prescriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Appointment$prescriptionArgs<ExtArgs>>): Prisma.Prisma__PrescriptionClient<runtime.Types.Result.GetResult<Prisma.$PrescriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>;
+    labOrders<T extends Prisma.Appointment$labOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Appointment$labOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
+    prescriptions<T extends Prisma.Appointment$prescriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Appointment$prescriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PrescriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): runtime.Types.Utils.JsPromise<TResult1 | TResult2>;
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): runtime.Types.Utils.JsPromise<T | TResult>;
     finally(onfinally?: (() => void) | undefined | null): runtime.Types.Utils.JsPromise<T>;
@@ -1195,21 +1214,30 @@ export type AppointmentDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
     where?: Prisma.AppointmentWhereInput;
     limit?: number;
 };
-export type Appointment$labOrderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Appointment$labOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     select?: Prisma.LabOrderSelect<ExtArgs> | null;
     omit?: Prisma.LabOrderOmit<ExtArgs> | null;
     include?: Prisma.LabOrderInclude<ExtArgs> | null;
     where?: Prisma.LabOrderWhereInput;
+    orderBy?: Prisma.LabOrderOrderByWithRelationInput | Prisma.LabOrderOrderByWithRelationInput[];
+    cursor?: Prisma.LabOrderWhereUniqueInput;
+    take?: number;
+    skip?: number;
+    distinct?: Prisma.LabOrderScalarFieldEnum | Prisma.LabOrderScalarFieldEnum[];
 };
-export type Appointment$prescriptionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Appointment$prescriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     select?: Prisma.PrescriptionSelect<ExtArgs> | null;
     omit?: Prisma.PrescriptionOmit<ExtArgs> | null;
     include?: Prisma.PrescriptionInclude<ExtArgs> | null;
     where?: Prisma.PrescriptionWhereInput;
+    orderBy?: Prisma.PrescriptionOrderByWithRelationInput | Prisma.PrescriptionOrderByWithRelationInput[];
+    cursor?: Prisma.PrescriptionWhereUniqueInput;
+    take?: number;
+    skip?: number;
+    distinct?: Prisma.PrescriptionScalarFieldEnum | Prisma.PrescriptionScalarFieldEnum[];
 };
 export type AppointmentDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     select?: Prisma.AppointmentSelect<ExtArgs> | null;
     omit?: Prisma.AppointmentOmit<ExtArgs> | null;
     include?: Prisma.AppointmentInclude<ExtArgs> | null;
 };
-export {};

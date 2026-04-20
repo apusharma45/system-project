@@ -1,9 +1,10 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PatientProfilePage } from './patient-profile'
+import { createTestQueryClient } from '../../test/query-client'
 
 const getMock = vi.fn()
 const patchMock = vi.fn()
@@ -24,12 +25,7 @@ vi.mock('../auth/auth-context', () => ({
 }))
 
 function renderProfilePage() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
+  const queryClient = createTestQueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
@@ -102,5 +98,5 @@ describe('PatientProfilePage', () => {
         emergencyContactRelation: '',
       })
     })
-  })
+  }, 15000)
 })

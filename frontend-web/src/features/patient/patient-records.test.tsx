@@ -1,9 +1,10 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PatientRecordsPage } from './patient-records'
+import { createTestQueryClient } from '../../test/query-client'
 
 const getMock = vi.fn()
 
@@ -14,12 +15,7 @@ vi.mock('../../lib/api', () => ({
 }))
 
 function renderRecordsPage(initialEntry = '/patient/records') {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
+  const queryClient = createTestQueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[initialEntry]}>
@@ -44,6 +40,12 @@ describe('PatientRecordsPage', () => {
               instructions: 'After meal',
               status: 'SENT_TO_PATIENT',
               documentUrl: 'https://example.com/prescription.pdf',
+              pharmacySnapshot: {
+                id: 'ph-1',
+                name: 'Prime Pharmacy',
+                address: 'Dhanmondi, Dhaka',
+                phone: '+8801700001000',
+              },
             },
           ],
         })
@@ -54,9 +56,27 @@ describe('PatientRecordsPage', () => {
             {
               id: 'lab-1',
               appointmentId: 'apt-1',
-              status: 'RESULT_UPLOADED',
+              status: 'SENT',
               tests: [{ title: 'CBC' }],
-              labResult: { fileUrl: 'https://example.com/report.pdf' },
+              diagnosticSnapshot: {
+                name: 'City Diagnostic Lab',
+                address: 'Banani, Dhaka',
+                phone: '+8801700000099',
+              },
+              labReports: [
+                {
+                  id: 'rep-2',
+                  labOrderId: 'lab-1',
+                  fileUrl: 'https://example.com/report-2.pdf',
+                  uploadedAt: '2026-01-02T00:00:00.000Z',
+                },
+                {
+                  id: 'rep-1',
+                  labOrderId: 'lab-1',
+                  fileUrl: 'https://example.com/report-1.pdf',
+                  uploadedAt: '2026-01-01T00:00:00.000Z',
+                },
+              ],
             },
           ],
         })
@@ -73,6 +93,9 @@ describe('PatientRecordsPage', () => {
       'href',
       'https://example.com/prescription.pdf',
     )
+    expect(screen.getByText('Pharmacy: Prime Pharmacy')).toBeInTheDocument()
+    expect(screen.getByText('Address: Dhanmondi, Dhaka')).toBeInTheDocument()
+    expect(screen.getByText('Phone: +8801700001000')).toBeInTheDocument()
   })
 
   it('switches tabs and shows reports with file links', async () => {
@@ -82,16 +105,37 @@ describe('PatientRecordsPage', () => {
     await screen.findByText(/Prescription #rx-1/i)
     await user.click(screen.getByRole('button', { name: /Reports/i }))
 
-    expect(await screen.findByText(/Report for Lab Order #lab-1/i)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open Report' })).toHaveAttribute(
+    expect(await screen.findByText(/Reports for Lab Order #lab-1/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open Report 1' })).toHaveAttribute(
       'href',
-      'https://example.com/report.pdf',
+      'https://example.com/report-2.pdf',
+    )
+    expect(screen.getByRole('link', { name: 'Open Report 2' })).toHaveAttribute(
+      'href',
+      'https://example.com/report-1.pdf',
+    )
+  })
+
+  it('shows test title with description fallback in lab orders tab', async () => {
+    const user = userEvent.setup()
+    renderRecordsPage()
+
+    await screen.findByText(/Prescription #rx-1/i)
+    await user.click(screen.getByRole('button', { name: /Lab Orders/i }))
+
+    expect(await screen.findByText('CBC: Not specified')).toBeInTheDocument()
+    expect(screen.getByText('Lab: City Diagnostic Lab')).toBeInTheDocument()
+    expect(screen.getByText('Address: Banani, Dhaka')).toBeInTheDocument()
+    expect(screen.getByText('Phone: +8801700000099')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open Appointment' })).toHaveAttribute(
+      'href',
+      '/patient/appointments/apt-1',
     )
   })
 
   it('supports tab from query string', async () => {
     renderRecordsPage('/patient/records?tab=reports')
 
-    expect(await screen.findByText(/Report for Lab Order #lab-1/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Reports for Lab Order #lab-1/i)).toBeInTheDocument()
   })
 })

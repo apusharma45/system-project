@@ -132,7 +132,7 @@ export type LabResultGroupByOutputType = {
     _min: LabResultMinAggregateOutputType | null;
     _max: LabResultMaxAggregateOutputType | null;
 };
-type GetLabResultGroupByPayload<T extends LabResultGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<LabResultGroupByOutputType, T['by']> & {
+export type GetLabResultGroupByPayload<T extends LabResultGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<LabResultGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof LabResultGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], LabResultGroupByOutputType[P]> : Prisma.GetScalarType<T[P], LabResultGroupByOutputType[P]>;
 }>>;
 export type LabResultWhereInput = {
@@ -164,10 +164,10 @@ export type LabResultOrderByWithRelationInput = {
 };
 export type LabResultWhereUniqueInput = Prisma.AtLeast<{
     id?: string;
-    labOrderId?: string;
     AND?: Prisma.LabResultWhereInput | Prisma.LabResultWhereInput[];
     OR?: Prisma.LabResultWhereInput[];
     NOT?: Prisma.LabResultWhereInput | Prisma.LabResultWhereInput[];
+    labOrderId?: Prisma.StringFilter<"LabResult"> | string;
     fileUrl?: Prisma.StringFilter<"LabResult"> | string;
     filePublicId?: Prisma.StringNullableFilter<"LabResult"> | string | null;
     fileMimeType?: Prisma.StringNullableFilter<"LabResult"> | string | null;
@@ -176,7 +176,7 @@ export type LabResultWhereUniqueInput = Prisma.AtLeast<{
     createdAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
     labOrder?: Prisma.XOR<Prisma.LabOrderScalarRelationFilter, Prisma.LabOrderWhereInput>;
-}, "id" | "labOrderId">;
+}, "id">;
 export type LabResultOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
     labOrderId?: Prisma.SortOrder;
@@ -216,7 +216,7 @@ export type LabResultCreateInput = {
     uploadedAt?: Date | string;
     createdAt?: Date | string;
     updatedAt?: Date | string;
-    labOrder: Prisma.LabOrderCreateNestedOneWithoutLabResultInput;
+    labOrder: Prisma.LabOrderCreateNestedOneWithoutLabReportsInput;
 };
 export type LabResultUncheckedCreateInput = {
     id?: string;
@@ -238,7 +238,7 @@ export type LabResultUpdateInput = {
     uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-    labOrder?: Prisma.LabOrderUpdateOneRequiredWithoutLabResultNestedInput;
+    labOrder?: Prisma.LabOrderUpdateOneRequiredWithoutLabReportsNestedInput;
 };
 export type LabResultUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -283,9 +283,13 @@ export type LabResultUncheckedUpdateManyInput = {
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
-export type LabResultNullableScalarRelationFilter = {
-    is?: Prisma.LabResultWhereInput | null;
-    isNot?: Prisma.LabResultWhereInput | null;
+export type LabResultListRelationFilter = {
+    every?: Prisma.LabResultWhereInput;
+    some?: Prisma.LabResultWhereInput;
+    none?: Prisma.LabResultWhereInput;
+};
+export type LabResultOrderByRelationAggregateInput = {
+    _count?: Prisma.SortOrder;
 };
 export type LabResultCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
@@ -326,33 +330,43 @@ export type LabResultMinOrderByAggregateInput = {
 export type LabResultSumOrderByAggregateInput = {
     fileSizeBytes?: Prisma.SortOrder;
 };
-export type LabResultCreateNestedOneWithoutLabOrderInput = {
-    create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput>;
-    connectOrCreate?: Prisma.LabResultCreateOrConnectWithoutLabOrderInput;
-    connect?: Prisma.LabResultWhereUniqueInput;
+export type LabResultCreateNestedManyWithoutLabOrderInput = {
+    create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput> | Prisma.LabResultCreateWithoutLabOrderInput[] | Prisma.LabResultUncheckedCreateWithoutLabOrderInput[];
+    connectOrCreate?: Prisma.LabResultCreateOrConnectWithoutLabOrderInput | Prisma.LabResultCreateOrConnectWithoutLabOrderInput[];
+    createMany?: Prisma.LabResultCreateManyLabOrderInputEnvelope;
+    connect?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
 };
-export type LabResultUncheckedCreateNestedOneWithoutLabOrderInput = {
-    create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput>;
-    connectOrCreate?: Prisma.LabResultCreateOrConnectWithoutLabOrderInput;
-    connect?: Prisma.LabResultWhereUniqueInput;
+export type LabResultUncheckedCreateNestedManyWithoutLabOrderInput = {
+    create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput> | Prisma.LabResultCreateWithoutLabOrderInput[] | Prisma.LabResultUncheckedCreateWithoutLabOrderInput[];
+    connectOrCreate?: Prisma.LabResultCreateOrConnectWithoutLabOrderInput | Prisma.LabResultCreateOrConnectWithoutLabOrderInput[];
+    createMany?: Prisma.LabResultCreateManyLabOrderInputEnvelope;
+    connect?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
 };
-export type LabResultUpdateOneWithoutLabOrderNestedInput = {
-    create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput>;
-    connectOrCreate?: Prisma.LabResultCreateOrConnectWithoutLabOrderInput;
-    upsert?: Prisma.LabResultUpsertWithoutLabOrderInput;
-    disconnect?: Prisma.LabResultWhereInput | boolean;
-    delete?: Prisma.LabResultWhereInput | boolean;
-    connect?: Prisma.LabResultWhereUniqueInput;
-    update?: Prisma.XOR<Prisma.XOR<Prisma.LabResultUpdateToOneWithWhereWithoutLabOrderInput, Prisma.LabResultUpdateWithoutLabOrderInput>, Prisma.LabResultUncheckedUpdateWithoutLabOrderInput>;
+export type LabResultUpdateManyWithoutLabOrderNestedInput = {
+    create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput> | Prisma.LabResultCreateWithoutLabOrderInput[] | Prisma.LabResultUncheckedCreateWithoutLabOrderInput[];
+    connectOrCreate?: Prisma.LabResultCreateOrConnectWithoutLabOrderInput | Prisma.LabResultCreateOrConnectWithoutLabOrderInput[];
+    upsert?: Prisma.LabResultUpsertWithWhereUniqueWithoutLabOrderInput | Prisma.LabResultUpsertWithWhereUniqueWithoutLabOrderInput[];
+    createMany?: Prisma.LabResultCreateManyLabOrderInputEnvelope;
+    set?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
+    disconnect?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
+    delete?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
+    connect?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
+    update?: Prisma.LabResultUpdateWithWhereUniqueWithoutLabOrderInput | Prisma.LabResultUpdateWithWhereUniqueWithoutLabOrderInput[];
+    updateMany?: Prisma.LabResultUpdateManyWithWhereWithoutLabOrderInput | Prisma.LabResultUpdateManyWithWhereWithoutLabOrderInput[];
+    deleteMany?: Prisma.LabResultScalarWhereInput | Prisma.LabResultScalarWhereInput[];
 };
-export type LabResultUncheckedUpdateOneWithoutLabOrderNestedInput = {
-    create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput>;
-    connectOrCreate?: Prisma.LabResultCreateOrConnectWithoutLabOrderInput;
-    upsert?: Prisma.LabResultUpsertWithoutLabOrderInput;
-    disconnect?: Prisma.LabResultWhereInput | boolean;
-    delete?: Prisma.LabResultWhereInput | boolean;
-    connect?: Prisma.LabResultWhereUniqueInput;
-    update?: Prisma.XOR<Prisma.XOR<Prisma.LabResultUpdateToOneWithWhereWithoutLabOrderInput, Prisma.LabResultUpdateWithoutLabOrderInput>, Prisma.LabResultUncheckedUpdateWithoutLabOrderInput>;
+export type LabResultUncheckedUpdateManyWithoutLabOrderNestedInput = {
+    create?: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput> | Prisma.LabResultCreateWithoutLabOrderInput[] | Prisma.LabResultUncheckedCreateWithoutLabOrderInput[];
+    connectOrCreate?: Prisma.LabResultCreateOrConnectWithoutLabOrderInput | Prisma.LabResultCreateOrConnectWithoutLabOrderInput[];
+    upsert?: Prisma.LabResultUpsertWithWhereUniqueWithoutLabOrderInput | Prisma.LabResultUpsertWithWhereUniqueWithoutLabOrderInput[];
+    createMany?: Prisma.LabResultCreateManyLabOrderInputEnvelope;
+    set?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
+    disconnect?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
+    delete?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
+    connect?: Prisma.LabResultWhereUniqueInput | Prisma.LabResultWhereUniqueInput[];
+    update?: Prisma.LabResultUpdateWithWhereUniqueWithoutLabOrderInput | Prisma.LabResultUpdateWithWhereUniqueWithoutLabOrderInput[];
+    updateMany?: Prisma.LabResultUpdateManyWithWhereWithoutLabOrderInput | Prisma.LabResultUpdateManyWithWhereWithoutLabOrderInput[];
+    deleteMany?: Prisma.LabResultScalarWhereInput | Prisma.LabResultScalarWhereInput[];
 };
 export type LabResultCreateWithoutLabOrderInput = {
     id?: string;
@@ -378,14 +392,46 @@ export type LabResultCreateOrConnectWithoutLabOrderInput = {
     where: Prisma.LabResultWhereUniqueInput;
     create: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput>;
 };
-export type LabResultUpsertWithoutLabOrderInput = {
+export type LabResultCreateManyLabOrderInputEnvelope = {
+    data: Prisma.LabResultCreateManyLabOrderInput | Prisma.LabResultCreateManyLabOrderInput[];
+    skipDuplicates?: boolean;
+};
+export type LabResultUpsertWithWhereUniqueWithoutLabOrderInput = {
+    where: Prisma.LabResultWhereUniqueInput;
     update: Prisma.XOR<Prisma.LabResultUpdateWithoutLabOrderInput, Prisma.LabResultUncheckedUpdateWithoutLabOrderInput>;
     create: Prisma.XOR<Prisma.LabResultCreateWithoutLabOrderInput, Prisma.LabResultUncheckedCreateWithoutLabOrderInput>;
-    where?: Prisma.LabResultWhereInput;
 };
-export type LabResultUpdateToOneWithWhereWithoutLabOrderInput = {
-    where?: Prisma.LabResultWhereInput;
+export type LabResultUpdateWithWhereUniqueWithoutLabOrderInput = {
+    where: Prisma.LabResultWhereUniqueInput;
     data: Prisma.XOR<Prisma.LabResultUpdateWithoutLabOrderInput, Prisma.LabResultUncheckedUpdateWithoutLabOrderInput>;
+};
+export type LabResultUpdateManyWithWhereWithoutLabOrderInput = {
+    where: Prisma.LabResultScalarWhereInput;
+    data: Prisma.XOR<Prisma.LabResultUpdateManyMutationInput, Prisma.LabResultUncheckedUpdateManyWithoutLabOrderInput>;
+};
+export type LabResultScalarWhereInput = {
+    AND?: Prisma.LabResultScalarWhereInput | Prisma.LabResultScalarWhereInput[];
+    OR?: Prisma.LabResultScalarWhereInput[];
+    NOT?: Prisma.LabResultScalarWhereInput | Prisma.LabResultScalarWhereInput[];
+    id?: Prisma.StringFilter<"LabResult"> | string;
+    labOrderId?: Prisma.StringFilter<"LabResult"> | string;
+    fileUrl?: Prisma.StringFilter<"LabResult"> | string;
+    filePublicId?: Prisma.StringNullableFilter<"LabResult"> | string | null;
+    fileMimeType?: Prisma.StringNullableFilter<"LabResult"> | string | null;
+    fileSizeBytes?: Prisma.IntNullableFilter<"LabResult"> | number | null;
+    uploadedAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
+    createdAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
+    updatedAt?: Prisma.DateTimeFilter<"LabResult"> | Date | string;
+};
+export type LabResultCreateManyLabOrderInput = {
+    id?: string;
+    fileUrl: string;
+    filePublicId?: string | null;
+    fileMimeType?: string | null;
+    fileSizeBytes?: number | null;
+    uploadedAt?: Date | string;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
 };
 export type LabResultUpdateWithoutLabOrderInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -398,6 +444,16 @@ export type LabResultUpdateWithoutLabOrderInput = {
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type LabResultUncheckedUpdateWithoutLabOrderInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fileUrl?: Prisma.StringFieldUpdateOperationsInput | string;
+    filePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+};
+export type LabResultUncheckedUpdateManyWithoutLabOrderInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fileUrl?: Prisma.StringFieldUpdateOperationsInput | string;
     filePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -652,4 +708,3 @@ export type LabResultDefaultArgs<ExtArgs extends runtime.Types.Extensions.Intern
     omit?: Prisma.LabResultOmit<ExtArgs> | null;
     include?: Prisma.LabResultInclude<ExtArgs> | null;
 };
-export {};

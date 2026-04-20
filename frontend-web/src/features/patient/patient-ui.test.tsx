@@ -1,14 +1,16 @@
 import type { ReactNode } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AppLayout } from '../../app/layout'
 import { PatientAppointmentsPage } from './patient-appointments'
+import { PatientAppointmentDetailsPage } from './patient-appointment-details'
 import { PatientNotificationsPage } from './patient-notifications'
 import { PatientProfilePage } from './patient-profile'
 import { PatientRecordsPage } from './patient-records'
+import { createTestQueryClient } from '../../test/query-client'
 
 vi.mock('../auth/auth-context', () => ({
   useAuth: () => ({
@@ -23,6 +25,10 @@ vi.mock('../auth/auth-context', () => ({
 
 vi.mock('../doctor/doctor-shared', () => ({
   useDoctorNotifications: () => ({ data: [] }),
+}))
+
+vi.mock('../diagnostic/diagnostic-shared', () => ({
+  useDiagnosticNotifications: () => ({ data: [] }),
 }))
 
 vi.mock('../pharmacy/pharmacy-shared', () => ({
@@ -63,17 +69,13 @@ vi.mock('../../lib/api', () => ({
 vi.mock('../../lib/socket', () => ({
   connectNotificationsSocket: () => ({
     on: vi.fn(),
+    off: vi.fn(),
     disconnect: vi.fn(),
   }),
 }))
 
 function renderPatientRoute(path: string, element: ReactNode) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
+  const queryClient = createTestQueryClient()
 
   return render(
     <QueryClientProvider client={queryClient}>
@@ -82,6 +84,7 @@ function renderPatientRoute(path: string, element: ReactNode) {
           <Route element={<AppLayout />}>
             <Route path="/patient" element={<PatientAppointmentsPage />} />
             <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
+            <Route path="/patient/appointments/:appointmentId" element={<PatientAppointmentDetailsPage />} />
             <Route path="/patient/records" element={<PatientRecordsPage />} />
             <Route path="/patient/notifications" element={<PatientNotificationsPage />} />
             <Route path="/patient/profile" element={<PatientProfilePage />} />
@@ -160,5 +163,10 @@ describe('patient navigation', () => {
   it('dashboard route renders appointments content', async () => {
     renderPatientRoute('/patient', <div />)
     expect(await screen.findByRole('heading', { name: 'Appointments' })).toBeInTheDocument()
+  })
+
+  it('patient appointment details route is guarded and renders details page', async () => {
+    renderPatientRoute('/patient/appointments/missing', <div />)
+    expect(await screen.findByRole('heading', { name: 'Appointment Details' })).toBeInTheDocument()
   })
 })

@@ -21,6 +21,9 @@ const notifications_module_1 = require("./notifications/notifications.module");
 const audit_module_1 = require("./audit/audit.module");
 const patients_module_1 = require("./patients/patients.module");
 const cloudinary_module_1 = require("./cloudinary/cloudinary.module");
+const doctors_module_1 = require("./doctors/doctors.module");
+const diagnostic_module_1 = require("./diagnostic/diagnostic.module");
+const pharmacies_module_1 = require("./pharmacies/pharmacies.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -38,6 +41,9 @@ exports.AppModule = AppModule = __decorate([
             notifications_module_1.NotificationsModule,
             audit_module_1.AuditModule,
             patients_module_1.PatientsModule,
+            doctors_module_1.DoctorsModule,
+            diagnostic_module_1.DiagnosticModule,
+            pharmacies_module_1.PharmaciesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

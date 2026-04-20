@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defineExtension = exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.ProfessionalProfileScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
+exports.defineExtension = exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.ProfessionalProfileScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.PasswordResetCodeScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/client"));
 exports.PrismaClientKnownRequestError = runtime.PrismaClientKnownRequestError;
 exports.PrismaClientUnknownRequestError = runtime.PrismaClientUnknownRequestError;
@@ -48,8 +48,8 @@ exports.Sql = runtime.Sql;
 exports.Decimal = runtime.Decimal;
 exports.getExtensionContext = runtime.Extensions.getExtensionContext;
 exports.prismaVersion = {
-    client: "7.3.0",
-    engine: "9d6ad21cbbceab97458517b147a6a09ff43aa735"
+    client: "7.6.0",
+    engine: "75cbdc1eb7150937890ad5465d861175c6624711"
 };
 exports.NullTypes = {
     DbNull: runtime.NullTypes.DbNull,
@@ -61,6 +61,7 @@ exports.JsonNull = runtime.JsonNull;
 exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
     User: 'User',
+    PasswordResetCode: 'PasswordResetCode',
     PatientProfile: 'PatientProfile',
     ProfessionalProfile: 'ProfessionalProfile',
     Appointment: 'Appointment',
@@ -79,11 +80,26 @@ exports.TransactionIsolationLevel = runtime.makeStrictEnum({
 exports.UserScalarFieldEnum = {
     id: 'id',
     fullName: 'fullName',
+    avatarUrl: 'avatarUrl',
+    avatarPublicId: 'avatarPublicId',
+    avatarMimeType: 'avatarMimeType',
+    avatarSizeBytes: 'avatarSizeBytes',
     email: 'email',
     phone: 'phone',
     address: 'address',
     passwordHash: 'passwordHash',
     role: 'role',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.PasswordResetCodeScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    email: 'email',
+    codeHash: 'codeHash',
+    expiresAt: 'expiresAt',
+    consumedAt: 'consumedAt',
+    attemptCount: 'attemptCount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -108,6 +124,11 @@ exports.ProfessionalProfileScalarFieldEnum = {
     userId: 'userId',
     licenseNumber: 'licenseNumber',
     specialization: 'specialization',
+    about: 'about',
+    clinicName: 'clinicName',
+    clinicAddress: 'clinicAddress',
+    clinicPhone: 'clinicPhone',
+    availableTimeSlots: 'availableTimeSlots',
     pharmacyName: 'pharmacyName',
     labName: 'labName',
     gender: 'gender',

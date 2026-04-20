@@ -15,33 +15,81 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        patientId: string;
     }>;
     listMine(req: {
         user: RequestUser;
     }): Promise<{
+        doctorSnapshot: {
+            id: string;
+            fullName: string | null;
+            email: string;
+        };
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
+    }[] | {
+        patientSnapshot: {
+            id: string;
+            fullName: string | null;
+            email: string;
+            profile: {
+                id: string;
+                phone: string | null;
+                address: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                patientId: string;
+                dateOfBirth: Date | null;
+                gender: string | null;
+                allergies: string | null;
+                chronicConditions: string | null;
+                currentMedications: string | null;
+                emergencyContactName: string | null;
+                emergencyContactPhone: string | null;
+                emergencyContactRelation: string | null;
+            } | null;
+        };
+        patientHistorySummary: {
+            appointmentCount: number;
+            labOrderCount: number;
+            prescriptionCount: number;
+            latestAppointmentAt: Date | null;
+            latestLabResultAt: Date | null;
+            latestPrescriptionAt: Date | null;
+        };
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
         patientId: string;
+        doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
+        preferredDateFrom: Date | null;
+        preferredDateTo: Date | null;
+        preferredTimeNote: string | null;
+        requiresLab: boolean;
+        labFlowLocked: boolean;
     }[]>;
     confirm(req: {
         user: RequestUser;
@@ -49,16 +97,16 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        patientId: string;
     }>;
     schedule(req: {
         user: RequestUser;
@@ -66,16 +114,16 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        patientId: string;
     }>;
     call(req: {
         user: RequestUser;
@@ -83,16 +131,16 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        patientId: string;
     }>;
     markInVisit(req: {
         user: RequestUser;
@@ -100,16 +148,16 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        patientId: string;
     }>;
     markExamDone(req: {
         user: RequestUser;
@@ -117,16 +165,16 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        patientId: string;
     }>;
     close(req: {
         user: RequestUser;
@@ -134,16 +182,16 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        patientId: string;
     }>;
     cancel(req: {
         user: RequestUser;
@@ -151,16 +199,16 @@ export declare class AppointmentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        patientId: string;
         doctorId: string;
+        status: import("../../generated/prisma/enums").AppointmentStatus;
+        scheduledAt: Date | null;
+        reason: string | null;
         preferredDateFrom: Date | null;
         preferredDateTo: Date | null;
-        reason: string | null;
         preferredTimeNote: string | null;
-        scheduledAt: Date | null;
-        status: import("../../generated/prisma/enums").AppointmentStatus;
         requiresLab: boolean;
         labFlowLocked: boolean;
-        patientId: string;
     }>;
 }
 export {};

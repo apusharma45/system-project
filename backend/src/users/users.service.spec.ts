@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Role } from '../../generated/prisma/client';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from './users.service';
 
@@ -9,7 +10,12 @@ describe('UsersService', () => {
     user: {
       findUnique: jest.fn(),
       create: jest.fn(),
+      findMany: jest.fn(),
     },
+  };
+  const cloudinaryMock = {
+    uploadBuffer: jest.fn(),
+    destroy: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -20,6 +26,10 @@ describe('UsersService', () => {
         {
           provide: PrismaService,
           useValue: prismaMock,
+        },
+        {
+          provide: CloudinaryService,
+          useValue: cloudinaryMock,
         },
       ],
     }).compile();
@@ -64,8 +74,82 @@ describe('UsersService', () => {
         id: true,
         email: true,
         role: true,
+        avatarUrl: true,
       },
     });
     expect(user).toEqual({ id: 'u2', email: 'new@x.com' });
+  });
+
+  it('listDoctorsForPatients returns enriched doctor summary fields', async () => {
+    prismaMock.user.findMany.mockResolvedValueOnce([
+      {
+        id: 'd1',
+        fullName: 'Dr. Alice',
+        avatarUrl: 'https://example.com/avatar.png',
+        email: 'alice@example.com',
+        role: Role.DOCTOR,
+        professionalProfile: {
+          specialization: 'Cardiology',
+          yearsOfExperience: 8,
+        },
+      },
+    ]);
+
+    const result = await service.listDoctorsForPatients();
+
+    expect(prismaMock.user.findMany).toHaveBeenCalledWith({
+      where: { role: Role.DOCTOR },
+      select: {
+        id: true,
+        fullName: true,
+        avatarUrl: true,
+        email: true,
+        role: true,
+        professionalProfile: {
+          select: {
+            specialization: true,
+            yearsOfExperience: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    expect(result[0]).toMatchObject({
+      id: 'd1',
+      specialization: 'Cardiology',
+      yearsOfExperience: 8,
+    });
+  });
+
+  it('getDoctorDetailsForPatients returns patient-facing details payload', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({
+      id: 'd1',
+      fullName: 'Dr. Alice',
+      avatarUrl: 'https://example.com/avatar.png',
+      email: 'alice@example.com',
+      role: Role.DOCTOR,
+      phone: '+8801700000001',
+      address: 'Dhaka',
+      professionalProfile: {
+        specialization: 'Cardiology',
+        yearsOfExperience: 8,
+        degrees: ['MBBS'],
+        about: 'Senior consultant',
+        clinicName: 'Heart Care',
+        clinicAddress: 'Dhaka',
+        clinicPhone: '+8801711111111',
+        availableTimeSlots: [{ day: 'MONDAY', startTime: '09:00', endTime: '12:00' }],
+      },
+    });
+
+    const result = await service.getDoctorDetailsForPatients('d1');
+
+    expect(result.doctor.id).toBe('d1');
+    expect(result.doctor.clinicName).toBe('Heart Care');
+    expect(result.doctor.availableTimeSlots).toEqual([
+      { day: 'MONDAY', startTime: '09:00', endTime: '12:00' },
+    ]);
   });
 });

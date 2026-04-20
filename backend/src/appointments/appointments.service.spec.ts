@@ -28,7 +28,8 @@ describe('AppointmentsService', () => {
     user: {
       findUnique: jest.fn(),
     },
-    labResult: {
+    labOrder: {
+      count: jest.fn(),
       findFirst: jest.fn(),
     },
     appointment: {
@@ -41,7 +42,8 @@ describe('AppointmentsService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    prismaMock.labResult.findFirst.mockResolvedValue(null);
+    prismaMock.labOrder.count.mockResolvedValue(0);
+    prismaMock.labOrder.findFirst.mockResolvedValue(null);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AppointmentsService,
@@ -264,26 +266,40 @@ describe('AppointmentsService', () => {
     await expect(service.closeByDoctor('d1', 'a1')).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('closeByDoctor rejects closing when lab required but no result exists', async () => {
+  it('closeByDoctor rejects closing when lab required but no order exists', async () => {
     prismaMock.appointment.findUnique.mockResolvedValueOnce({
       ...baseAppointment,
       status: AppointmentStatus.EXAM_DONE,
       requiresLab: true,
       labFlowLocked: false,
     });
-    prismaMock.labResult.findFirst.mockResolvedValueOnce(null);
+    prismaMock.labOrder.count.mockResolvedValueOnce(0);
 
     await expect(service.closeByDoctor('d1', 'a1')).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('closeByDoctor allows closing when lab required and result exists', async () => {
+  it('closeByDoctor rejects closing when any lab order is pending result', async () => {
     prismaMock.appointment.findUnique.mockResolvedValueOnce({
       ...baseAppointment,
       status: AppointmentStatus.EXAM_DONE,
       requiresLab: true,
       labFlowLocked: false,
     });
-    prismaMock.labResult.findFirst.mockResolvedValueOnce({ id: 'r1' });
+    prismaMock.labOrder.count.mockResolvedValueOnce(2);
+    prismaMock.labOrder.findFirst.mockResolvedValueOnce({ id: 'pending-order' });
+
+    await expect(service.closeByDoctor('d1', 'a1')).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('closeByDoctor allows closing when all lab orders have results', async () => {
+    prismaMock.appointment.findUnique.mockResolvedValueOnce({
+      ...baseAppointment,
+      status: AppointmentStatus.EXAM_DONE,
+      requiresLab: true,
+      labFlowLocked: false,
+    });
+    prismaMock.labOrder.count.mockResolvedValueOnce(2);
+    prismaMock.labOrder.findFirst.mockResolvedValueOnce(null);
     prismaMock.appointment.update.mockResolvedValueOnce({
       ...baseAppointment,
       status: AppointmentStatus.CLOSED,
@@ -408,5 +424,42 @@ describe('AppointmentsService', () => {
       status: AppointmentStatus.CONFIRMED,
     });
     await expect(service.cancelByDoctor('d1', 'a1')).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('listMine for patient returns doctorSnapshot', async () => {
+    prismaMock.appointment.findMany.mockResolvedValueOnce([
+      {
+        id: 'a1',
+        patientId: 'p1',
+        doctorId: 'd1',
+        status: AppointmentStatus.REQUESTED,
+        scheduledAt: null,
+        doctor: {
+          id: 'd1',
+          fullName: 'Dr. Alice',
+          email: 'alice@example.com',
+        },
+      },
+    ]);
+
+    const result = await service.listMine('p1', Role.PATIENT);
+    expect(prismaMock.appointment.findMany).toHaveBeenCalledWith({
+      where: { patientId: 'p1' },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { scheduledAt: 'asc' },
+    });
+    expect((result as any)[0].doctorSnapshot).toEqual({
+      id: 'd1',
+      fullName: 'Dr. Alice',
+      email: 'alice@example.com',
+    });
   });
 });

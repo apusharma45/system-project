@@ -6,6 +6,7 @@ import type {
   LabOrder,
   PatientProfileResponse,
   Prescription,
+  MyDoctorProfileResponse,
   UserSummary,
 } from '../../types'
 
@@ -56,5 +57,12 @@ export function useDoctorPatientProfile(patientId: string | undefined) {
     queryKey: ['patients', 'doctor-profile', patientId],
     queryFn: async () => (await api.get<PatientProfileResponse>(`/patients/${patientId}/profile`)).data,
     enabled: Boolean(patientId),
+  })
+}
+
+export function useDoctorMyProfile() {
+  return useQuery({
+    queryKey: ['doctor-profile', 'me'],
+    queryFn: async () => (await api.get<MyDoctorProfileResponse>('/doctors/me/profile')).data,
   })
 }

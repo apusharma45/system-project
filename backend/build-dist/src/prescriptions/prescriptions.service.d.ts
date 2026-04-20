@@ -23,11 +23,16 @@ export declare class PrescriptionsService {
     sendToPharmacyByDoctor(doctorId: string, prescriptionId: string): Promise<any>;
     dispenseByPharmacy(pharmacyId: string, prescriptionId: string): Promise<any>;
     uploadDocumentByDoctor(doctorId: string, prescriptionId: string, file: UploadedPrescriptionFile | undefined): Promise<any>;
+    generateDocumentByDoctor(doctorId: string, prescriptionId: string): Promise<any>;
     listMine(userId: string, role: Role): any;
     getOne(userId: string, role: Role, prescriptionId: string): Promise<any>;
     private getPrescriptionWithAppointmentOrThrow;
+    private getPrescriptionForDocumentGenerationOrThrow;
     private assertDoctorOwnership;
     private transitionOrThrow;
     private assertLabDependencySatisfied;
+    private withPharmacySnapshot;
+    private getPharmacySnapshot;
+    private buildPrescriptionPdfBuffer;
 }
 export {};

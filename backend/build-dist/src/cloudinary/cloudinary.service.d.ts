@@ -15,5 +15,7 @@ type UploadResult = {
 export declare class CloudinaryService {
     uploadBuffer(params: UploadParams): Promise<UploadResult>;
     destroy(publicId: string, resourceType?: 'image' | 'raw' | 'video'): Promise<any>;
+    private getCredentials;
+    private extractErrorMessage;
 }
 export {};

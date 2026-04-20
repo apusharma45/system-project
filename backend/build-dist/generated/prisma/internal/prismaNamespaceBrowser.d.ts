@@ -12,6 +12,7 @@ export declare const JsonNull: import("@prisma/client-runtime-utils").JsonNullCl
 export declare const AnyNull: import("@prisma/client-runtime-utils").AnyNullClass;
 export declare const ModelName: {
     readonly User: "User";
+    readonly PasswordResetCode: "PasswordResetCode";
     readonly PatientProfile: "PatientProfile";
     readonly ProfessionalProfile: "ProfessionalProfile";
     readonly Appointment: "Appointment";
@@ -32,6 +33,10 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export declare const UserScalarFieldEnum: {
     readonly id: "id";
     readonly fullName: "fullName";
+    readonly avatarUrl: "avatarUrl";
+    readonly avatarPublicId: "avatarPublicId";
+    readonly avatarMimeType: "avatarMimeType";
+    readonly avatarSizeBytes: "avatarSizeBytes";
     readonly email: "email";
     readonly phone: "phone";
     readonly address: "address";
@@ -41,6 +46,18 @@ export declare const UserScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum];
+export declare const PasswordResetCodeScalarFieldEnum: {
+    readonly id: "id";
+    readonly userId: "userId";
+    readonly email: "email";
+    readonly codeHash: "codeHash";
+    readonly expiresAt: "expiresAt";
+    readonly consumedAt: "consumedAt";
+    readonly attemptCount: "attemptCount";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type PasswordResetCodeScalarFieldEnum = (typeof PasswordResetCodeScalarFieldEnum)[keyof typeof PasswordResetCodeScalarFieldEnum];
 export declare const PatientProfileScalarFieldEnum: {
     readonly id: "id";
     readonly patientId: "patientId";
@@ -63,6 +80,11 @@ export declare const ProfessionalProfileScalarFieldEnum: {
     readonly userId: "userId";
     readonly licenseNumber: "licenseNumber";
     readonly specialization: "specialization";
+    readonly about: "about";
+    readonly clinicName: "clinicName";
+    readonly clinicAddress: "clinicAddress";
+    readonly clinicPhone: "clinicPhone";
+    readonly availableTimeSlots: "availableTimeSlots";
     readonly pharmacyName: "pharmacyName";
     readonly labName: "labName";
     readonly gender: "gender";

@@ -6,6 +6,7 @@ import { NotificationsGateway } from './notifications.gateway';
 
 const EVENT_BY_TYPE: Record<NotificationType, string> = {
   APPOINTMENT_CALLED: 'appointment.called',
+  LAB_ASSIGNED: 'lab.assigned',
   LAB_RESULT_UPLOADED: 'lab.result_uploaded',
   PRESCRIPTION_READY: 'prescription.ready',
 };

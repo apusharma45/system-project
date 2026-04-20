@@ -13,7 +13,6 @@ export type LabOrderStatus =
   | 'CREATED'
   | 'ASSIGNED'
   | 'SAMPLE_COLLECTED'
-  | 'RESULT_UPLOADED'
   | 'SENT'
 
 export type PrescriptionStatus =
@@ -25,14 +24,44 @@ export type PrescriptionStatus =
 
 export type NotificationType =
   | 'APPOINTMENT_CALLED'
+  | 'LAB_ASSIGNED'
   | 'LAB_RESULT_UPLOADED'
   | 'PRESCRIPTION_READY'
 
 export type UserSummary = {
   id: string
   fullName?: string | null
+  avatarUrl?: string | null
   email: string
   role: Role
+  specialization?: string | null
+  yearsOfExperience?: number | null
+}
+
+export type DoctorAvailabilitySlot = {
+  day: string
+  startTime: string
+  endTime: string
+}
+
+export type PatientDoctorDetailsResponse = {
+  doctor: {
+    id: string
+    fullName?: string | null
+    avatarUrl?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    specialization?: string | null
+    yearsOfExperience?: number | null
+    degrees?: string[] | null
+    about?: string | null
+    clinicName?: string | null
+    clinicAddress?: string | null
+    clinicPhone?: string | null
+    availableTimeSlots?: DoctorAvailabilitySlot[] | null
+  }
 }
 
 export type CurrentUser = {
@@ -40,12 +69,18 @@ export type CurrentUser = {
   email: string
   role: Role
   fullName?: string | null
+  avatarUrl?: string | null
 }
 
 export type Appointment = {
   id: string
   patientId: string
   patient?: {
+    id: string
+    fullName?: string | null
+    email?: string | null
+  }
+  doctor?: {
     id: string
     fullName?: string | null
     email?: string | null
@@ -73,12 +108,20 @@ export type Appointment = {
     latestLabResultAt: string | null
     latestPrescriptionAt: string | null
   }
+  doctorSnapshot?: {
+    id: string
+    fullName?: string | null
+    email?: string | null
+  }
 }
 
-export type LabResult = {
+export type LabReport = {
   id: string
   labOrderId: string
   fileUrl: string
+  filePublicId?: string | null
+  fileMimeType?: string | null
+  fileSizeBytes?: number | null
   uploadedAt: string
 }
 
@@ -94,7 +137,22 @@ export type LabOrder = {
   status: LabOrderStatus
   tests?: LabTestItem[] | null
   appointment?: Appointment
-  labResult?: LabResult | null
+  patientClinicalSnapshot?: {
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    gender?: string | null
+    ageYears?: number | null
+  }
+  diagnosticSnapshot?: {
+    name: string
+    address?: string | null
+    phone?: string | null
+  }
+  labReports?: LabReport[]
+  latestReport?: LabReport | null
+  // compatibility field during migration to multi-report UI
+  labResult?: LabReport | null
 }
 
 export type Prescription = {
@@ -118,6 +176,15 @@ export type Prescription = {
   documentMimeType?: string | null
   documentVersion?: number
   appointment?: Appointment
+  pharmacySnapshot?: {
+    id: string
+    name?: string
+    pharmacyName?: string | null
+    fullName?: string | null
+    email?: string | null
+    address?: string | null
+    phone?: string | null
+  }
 }
 
 export type AppNotification = {
@@ -146,6 +213,7 @@ export type PatientProfileResponse = {
   patient: {
     id: string
     fullName?: string | null
+    avatarUrl?: string | null
     email: string
     joinedAt: string
     profile?: PatientMedicalProfile | null
@@ -166,11 +234,81 @@ export type MyPatientProfileResponse = {
   patient: {
     id: string
     fullName?: string | null
+    avatarUrl?: string | null
     email: string
     role: Role
     phone?: string | null
     address?: string | null
     joinedAt: string
     profile?: PatientMedicalProfile | null
+  }
+}
+
+export type DoctorProfessionalProfile = {
+  licenseNumber?: string | null
+  specialization?: string | null
+  dateOfBirth?: string | null
+  gender?: string | null
+  degrees?: string[] | null
+  certifications?: string[] | null
+  yearsOfExperience?: number | null
+}
+
+export type MyDoctorProfileResponse = {
+  doctor: {
+    id: string
+    fullName?: string | null
+    avatarUrl?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    joinedAt: string
+    profile?: DoctorProfessionalProfile | null
+  }
+}
+
+export type DiagnosticProfessionalProfile = {
+  labName?: string | null
+  licenseNumber?: string | null
+  dateOfBirth?: string | null
+  gender?: string | null
+  accreditations?: string[] | null
+  availableTests?: string[] | null
+}
+
+export type MyDiagnosticProfileResponse = {
+  diagnostic: {
+    id: string
+    fullName?: string | null
+    avatarUrl?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    joinedAt: string
+    profile?: DiagnosticProfessionalProfile | null
+  }
+}
+
+export type PharmacyProfessionalProfile = {
+  pharmacyName?: string | null
+  licenseNumber?: string | null
+  dateOfBirth?: string | null
+  gender?: string | null
+  licenseAuthority?: string | null
+}
+
+export type MyPharmacyProfileResponse = {
+  pharmacy: {
+    id: string
+    fullName?: string | null
+    avatarUrl?: string | null
+    email: string
+    role: Role
+    phone?: string | null
+    address?: string | null
+    joinedAt: string
+    profile?: PharmacyProfessionalProfile | null
   }
 }

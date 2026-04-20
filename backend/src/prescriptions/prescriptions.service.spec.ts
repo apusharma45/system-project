@@ -121,7 +121,6 @@ describe('PrescriptionsService', () => {
       id: 'p1',
       role: Role.PHARMACY,
     });
-    prismaMock.prescription.findUnique.mockResolvedValueOnce(null);
     prismaMock.prescription.create.mockResolvedValueOnce({
       id: 'rx1',
       appointmentId: 'a1',
@@ -139,7 +138,156 @@ describe('PrescriptionsService', () => {
     expect(result.status).toBe(PrescriptionStatus.DRAFT);
   });
 
-  it('createDraft rejects invalid ownership/state/pharmacy/duplicate', async () => {
+  it('createDraft allows multiple prescriptions for the same appointment', async () => {
+    prismaMock.appointment.findUnique.mockResolvedValue({
+      id: 'a1',
+      doctorId: 'd1',
+      status: AppointmentStatus.EXAM_DONE,
+    });
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: 'p1',
+      role: Role.PHARMACY,
+    });
+    prismaMock.prescription.create
+      .mockResolvedValueOnce({
+        id: 'rx1',
+        appointmentId: 'a1',
+        doctorId: 'd1',
+        pharmacyId: 'p1',
+        notes: 'dose 1',
+        status: PrescriptionStatus.DRAFT,
+      })
+      .mockResolvedValueOnce({
+        id: 'rx2',
+        appointmentId: 'a1',
+        doctorId: 'd1',
+        pharmacyId: 'p1',
+        notes: 'dose 2',
+        status: PrescriptionStatus.DRAFT,
+      });
+
+    const first = await service.createDraft('d1', {
+      appointmentId: 'a1',
+      pharmacyId: 'p1',
+      notes: 'dose 1',
+    });
+    const second = await service.createDraft('d1', {
+      appointmentId: 'a1',
+      pharmacyId: 'p1',
+      notes: 'dose 2',
+    });
+
+    expect(first.id).toBe('rx1');
+    expect(second.id).toBe('rx2');
+    expect(prismaMock.prescription.create).toHaveBeenCalledTimes(2);
+  });
+
+  it('generateDocumentByDoctor creates pdf document and updates metadata', async () => {
+    prismaMock.prescription.findUnique.mockResolvedValueOnce({
+      id: 'rx1',
+      appointmentId: 'a1',
+      doctorId: 'd1',
+      status: PrescriptionStatus.SIGNED,
+      notes: 'Take after meal',
+      diagnosis: 'Hypertension',
+      instructions: 'Morning and evening',
+      medications: [{ name: 'Amlodipine', dosage: '5mg', frequency: 'BID', duration: '30 days' }],
+      documentVersion: 0,
+      documentPublicId: null,
+      documentMimeType: null,
+      appointment: {
+        patient: { fullName: 'John Doe', email: 'john@example.com' },
+        doctor: { fullName: 'Dr. Alice', email: 'alice@example.com' },
+      },
+      pharmacy: {
+        fullName: 'Prime Rx',
+        email: 'prime@example.com',
+        address: 'Dhaka',
+        phone: '+8801700000002',
+        professionalProfile: { pharmacyName: 'Prime Pharmacy' },
+      },
+    });
+    cloudinaryMock.uploadBuffer.mockResolvedValueOnce({
+      url: 'https://example.com/rx1.pdf',
+      publicId: 'prescriptions/rx1.pdf',
+      version: 3,
+      mimeType: 'application/pdf',
+      bytes: 4096,
+    });
+    prismaMock.prescription.update.mockResolvedValueOnce({
+      id: 'rx1',
+      documentUrl: 'https://example.com/rx1.pdf',
+      documentPublicId: 'prescriptions/rx1.pdf',
+      documentVersion: 1,
+      documentMimeType: 'application/pdf',
+    });
+
+    const result = await service.generateDocumentByDoctor('d1', 'rx1');
+
+    expect(cloudinaryMock.uploadBuffer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contentType: 'application/pdf',
+        resourceType: 'raw',
+      }),
+    );
+    expect(prismaMock.prescription.update).toHaveBeenCalledWith({
+      where: { id: 'rx1' },
+      data: {
+        documentUrl: 'https://example.com/rx1.pdf',
+        documentPublicId: 'prescriptions/rx1.pdf',
+        documentMimeType: 'application/pdf',
+        documentVersion: 1,
+      },
+    });
+    expect(result.documentMimeType).toBe('application/pdf');
+  });
+
+  it('generateDocumentByDoctor replaces existing stored document', async () => {
+    prismaMock.prescription.findUnique.mockResolvedValueOnce({
+      id: 'rx2',
+      appointmentId: 'a2',
+      doctorId: 'd1',
+      status: PrescriptionStatus.SIGNED,
+      notes: 'Use as prescribed',
+      diagnosis: null,
+      instructions: null,
+      medications: [],
+      documentVersion: 2,
+      documentPublicId: 'prescriptions/old-rx2.pdf',
+      documentMimeType: 'application/pdf',
+      appointment: {
+        patient: { fullName: 'Jane Doe', email: 'jane@example.com' },
+        doctor: { fullName: 'Dr. Alice', email: 'alice@example.com' },
+      },
+      pharmacy: {
+        fullName: 'Prime Rx',
+        email: 'prime@example.com',
+        address: null,
+        phone: null,
+        professionalProfile: { pharmacyName: 'Prime Pharmacy' },
+      },
+    });
+    cloudinaryMock.uploadBuffer.mockResolvedValueOnce({
+      url: 'https://example.com/rx2.pdf',
+      publicId: 'prescriptions/rx2.pdf',
+      version: 4,
+      mimeType: 'application/pdf',
+      bytes: 2048,
+    });
+    prismaMock.prescription.update.mockResolvedValueOnce({
+      id: 'rx2',
+      documentUrl: 'https://example.com/rx2.pdf',
+      documentPublicId: 'prescriptions/rx2.pdf',
+      documentVersion: 3,
+      documentMimeType: 'application/pdf',
+    });
+
+    await service.generateDocumentByDoctor('d1', 'rx2');
+
+    expect(cloudinaryMock.destroy).toHaveBeenCalledWith('prescriptions/old-rx2.pdf', 'raw');
+  });
+
+  it('createDraft rejects invalid ownership/state/pharmacy', async () => {
     prismaMock.appointment.findUnique
       .mockResolvedValueOnce({
         id: 'a1',
@@ -170,9 +318,6 @@ describe('PrescriptionsService', () => {
         id: 'p1',
         role: Role.PHARMACY,
       });
-    prismaMock.prescription.findUnique.mockResolvedValueOnce({
-      id: 'existing',
-    });
 
     await expect(
       service.createDraft('d1', {
@@ -198,13 +343,6 @@ describe('PrescriptionsService', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
-    await expect(
-      service.createDraft('d1', {
-        appointmentId: 'a1',
-        pharmacyId: 'p1',
-        notes: 'n',
-      }),
-    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('signByDoctor allows no-lab appointments', async () => {
@@ -359,6 +497,65 @@ describe('PrescriptionsService', () => {
             },
           },
         },
+        pharmacy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            professionalProfile: {
+              select: {
+                pharmacyName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(prismaMock.prescription.findMany).toHaveBeenNthCalledWith(2, {
+      where: { pharmacyId: 'p1' },
+      include: {
+        appointment: {
+          include: {
+            patient: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+            doctor: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(prismaMock.prescription.findMany).toHaveBeenNthCalledWith(3, {
+      where: {
+        appointment: { patientId: 'u1' },
+      },
+      include: {
+        appointment: true,
+        pharmacy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            address: true,
+            phone: true,
+            professionalProfile: {
+              select: {
+                pharmacyName: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -369,6 +566,12 @@ describe('PrescriptionsService', () => {
         id: 'rx1',
         doctorId: 'd1',
         pharmacyId: 'ph1',
+        pharmacy: {
+          id: 'ph1',
+          fullName: 'Prime Rx',
+          email: 'prime@example.com',
+          professionalProfile: { pharmacyName: 'Prime Pharmacy' },
+        },
         appointment: { patientId: 'pt1' },
       })
       .mockResolvedValueOnce({
@@ -381,6 +584,15 @@ describe('PrescriptionsService', () => {
 
     const allowed = await service.getOne('d1', Role.DOCTOR, 'rx1');
     expect(allowed.id).toBe('rx1');
+    expect(allowed.pharmacySnapshot).toEqual({
+      id: 'ph1',
+      name: 'Prime Pharmacy',
+      pharmacyName: 'Prime Pharmacy',
+      fullName: 'Prime Rx',
+      email: 'prime@example.com',
+      address: null,
+      phone: null,
+    });
     await expect(service.getOne('other', Role.DOCTOR, 'rx1')).rejects.toBeInstanceOf(
       ForbiddenException,
     );

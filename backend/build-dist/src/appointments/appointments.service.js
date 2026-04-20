@@ -80,10 +80,27 @@ let AppointmentsService = class AppointmentsService {
     }
     async listMine(userId, role) {
         if (role === client_1.Role.PATIENT) {
-            return this.prisma.appointment.findMany({
+            const appointments = await this.prisma.appointment.findMany({
                 where: { patientId: userId },
+                include: {
+                    doctor: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            email: true,
+                        },
+                    },
+                },
                 orderBy: { scheduledAt: 'asc' },
             });
+            return appointments.map(({ doctor, ...appointment }) => ({
+                ...appointment,
+                doctorSnapshot: {
+                    id: doctor.id,
+                    fullName: doctor.fullName,
+                    email: doctor.email,
+                },
+            }));
         }
         if (role === client_1.Role.DOCTOR) {
             const appointments = await this.prisma.appointment.findMany({
@@ -281,15 +298,23 @@ let AppointmentsService = class AppointmentsService {
             throw new common_1.BadRequestException('Cannot close appointment while lab workflow is pending result upload');
         }
         const db = this.prisma;
-        const result = await db.labResult.findFirst({
+        const labOrderCount = await db.labOrder.count({
             where: {
-                labOrder: {
-                    appointmentId: appointment.id,
-                },
+                appointmentId: appointment.id,
             },
         });
-        if (!result) {
-            throw new common_1.BadRequestException('Cannot close appointment before lab result is uploaded');
+        if (labOrderCount === 0) {
+            throw new common_1.BadRequestException('Cannot close appointment before creating a lab order');
+        }
+        const pendingOrder = await db.labOrder.findFirst({
+            where: {
+                appointmentId: appointment.id,
+                labReports: { none: {} },
+            },
+            select: { id: true },
+        });
+        if (pendingOrder) {
+            throw new common_1.BadRequestException('Cannot close appointment before all lab results are uploaded');
         }
     }
 };

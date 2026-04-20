@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
 const client_1 = require("../../generated/prisma/client");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
@@ -27,8 +28,17 @@ let UsersController = class UsersController {
     me(req) {
         return req.user;
     }
+    uploadAvatar(req, file) {
+        return this.usersService.uploadMyAvatar(req.user.userId, file);
+    }
+    removeAvatar(req) {
+        return this.usersService.removeMyAvatar(req.user.userId);
+    }
     listDoctors() {
-        return this.usersService.listByRole(client_1.Role.DOCTOR);
+        return this.usersService.listDoctorsForPatients();
+    }
+    getDoctorDetails(doctorId) {
+        return this.usersService.getDoctorDetailsForPatients(doctorId);
     }
     listPharmacies() {
         return this.usersService.listByRole(client_1.Role.PHARMACY);
@@ -49,12 +59,41 @@ __decorate([
 ], UsersController.prototype, "me", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.PATIENT, client_1.Role.DOCTOR, client_1.Role.DIAGNOSTIC, client_1.Role.PHARMACY, client_1.Role.ADMIN),
+    (0, common_1.Patch)('me/avatar'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "uploadAvatar", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.PATIENT, client_1.Role.DOCTOR, client_1.Role.DIAGNOSTIC, client_1.Role.PHARMACY, client_1.Role.ADMIN),
+    (0, common_1.Delete)('me/avatar'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "removeAvatar", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.PATIENT, client_1.Role.ADMIN),
     (0, common_1.Get)('doctors'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "listDoctors", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.PATIENT, client_1.Role.ADMIN),
+    (0, common_1.Get)('doctors/:doctorId'),
+    __param(0, (0, common_1.Param)('doctorId', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "getDoctorDetails", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.DOCTOR, client_1.Role.ADMIN),

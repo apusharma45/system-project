@@ -203,7 +203,7 @@ export function DoctorLabOrdersPage() {
         </article>
         <article className="kpi">
           <p>Results Uploaded</p>
-          <h3>{(labOrdersQuery.data ?? []).filter((item) => item.status === 'RESULT_UPLOADED').length}</h3>
+          <h3>{(labOrdersQuery.data ?? []).filter((item) => item.status === 'SENT').length}</h3>
         </article>
         <article className="kpi">
           <p>Shared</p>
@@ -241,7 +241,7 @@ export function DoctorLabOrdersPage() {
 }
 
 const statusClass = (status: string) => {
-  if (status === 'SENT' || status === 'RESULT_UPLOADED') return 'status status-green'
+  if (status === 'SENT') return 'status status-green'
   if (status === 'ASSIGNED' || status === 'SAMPLE_COLLECTED') return 'status status-blue'
   if (status === 'CREATED') return 'status status-yellow'
   return 'status status-gray'

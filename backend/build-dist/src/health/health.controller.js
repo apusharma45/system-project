@@ -17,11 +17,20 @@ let HealthController = class HealthController {
     constructor(healthService) {
         this.healthService = healthService;
     }
+    checkApp() {
+        return { status: 'ok' };
+    }
     checkDb() {
         return this.healthService.checkDatabase();
     }
 };
 exports.HealthController = HealthController;
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HealthController.prototype, "checkApp", null);
 __decorate([
     (0, common_1.Get)('db'),
     __metadata("design:type", Function),

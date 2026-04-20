@@ -4,12 +4,24 @@ import type * as Prisma from "../internal/prismaNamespace";
 export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayload>;
 export type AggregateUser = {
     _count: UserCountAggregateOutputType | null;
+    _avg: UserAvgAggregateOutputType | null;
+    _sum: UserSumAggregateOutputType | null;
     _min: UserMinAggregateOutputType | null;
     _max: UserMaxAggregateOutputType | null;
+};
+export type UserAvgAggregateOutputType = {
+    avatarSizeBytes: number | null;
+};
+export type UserSumAggregateOutputType = {
+    avatarSizeBytes: number | null;
 };
 export type UserMinAggregateOutputType = {
     id: string | null;
     fullName: string | null;
+    avatarUrl: string | null;
+    avatarPublicId: string | null;
+    avatarMimeType: string | null;
+    avatarSizeBytes: number | null;
     email: string | null;
     phone: string | null;
     address: string | null;
@@ -21,6 +33,10 @@ export type UserMinAggregateOutputType = {
 export type UserMaxAggregateOutputType = {
     id: string | null;
     fullName: string | null;
+    avatarUrl: string | null;
+    avatarPublicId: string | null;
+    avatarMimeType: string | null;
+    avatarSizeBytes: number | null;
     email: string | null;
     phone: string | null;
     address: string | null;
@@ -32,6 +48,10 @@ export type UserMaxAggregateOutputType = {
 export type UserCountAggregateOutputType = {
     id: number;
     fullName: number;
+    avatarUrl: number;
+    avatarPublicId: number;
+    avatarMimeType: number;
+    avatarSizeBytes: number;
     email: number;
     phone: number;
     address: number;
@@ -41,9 +61,19 @@ export type UserCountAggregateOutputType = {
     updatedAt: number;
     _all: number;
 };
+export type UserAvgAggregateInputType = {
+    avatarSizeBytes?: true;
+};
+export type UserSumAggregateInputType = {
+    avatarSizeBytes?: true;
+};
 export type UserMinAggregateInputType = {
     id?: true;
     fullName?: true;
+    avatarUrl?: true;
+    avatarPublicId?: true;
+    avatarMimeType?: true;
+    avatarSizeBytes?: true;
     email?: true;
     phone?: true;
     address?: true;
@@ -55,6 +85,10 @@ export type UserMinAggregateInputType = {
 export type UserMaxAggregateInputType = {
     id?: true;
     fullName?: true;
+    avatarUrl?: true;
+    avatarPublicId?: true;
+    avatarMimeType?: true;
+    avatarSizeBytes?: true;
     email?: true;
     phone?: true;
     address?: true;
@@ -66,6 +100,10 @@ export type UserMaxAggregateInputType = {
 export type UserCountAggregateInputType = {
     id?: true;
     fullName?: true;
+    avatarUrl?: true;
+    avatarPublicId?: true;
+    avatarMimeType?: true;
+    avatarSizeBytes?: true;
     email?: true;
     phone?: true;
     address?: true;
@@ -82,6 +120,8 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
     take?: number;
     skip?: number;
     _count?: true | UserCountAggregateInputType;
+    _avg?: UserAvgAggregateInputType;
+    _sum?: UserSumAggregateInputType;
     _min?: UserMinAggregateInputType;
     _max?: UserMaxAggregateInputType;
 };
@@ -96,12 +136,18 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
     take?: number;
     skip?: number;
     _count?: UserCountAggregateInputType | true;
+    _avg?: UserAvgAggregateInputType;
+    _sum?: UserSumAggregateInputType;
     _min?: UserMinAggregateInputType;
     _max?: UserMaxAggregateInputType;
 };
 export type UserGroupByOutputType = {
     id: string;
     fullName: string | null;
+    avatarUrl: string | null;
+    avatarPublicId: string | null;
+    avatarMimeType: string | null;
+    avatarSizeBytes: number | null;
     email: string;
     phone: string | null;
     address: string | null;
@@ -110,10 +156,12 @@ export type UserGroupByOutputType = {
     createdAt: Date;
     updatedAt: Date;
     _count: UserCountAggregateOutputType | null;
+    _avg: UserAvgAggregateOutputType | null;
+    _sum: UserSumAggregateOutputType | null;
     _min: UserMinAggregateOutputType | null;
     _max: UserMaxAggregateOutputType | null;
 };
-type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<UserGroupByOutputType, T['by']> & {
+export type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<UserGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof UserGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], UserGroupByOutputType[P]> : Prisma.GetScalarType<T[P], UserGroupByOutputType[P]>;
 }>>;
 export type UserWhereInput = {
@@ -122,6 +170,10 @@ export type UserWhereInput = {
     NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
     id?: Prisma.StringFilter<"User"> | string;
     fullName?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarPublicId?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarMimeType?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarSizeBytes?: Prisma.IntNullableFilter<"User"> | number | null;
     email?: Prisma.StringFilter<"User"> | string;
     phone?: Prisma.StringNullableFilter<"User"> | string | null;
     address?: Prisma.StringNullableFilter<"User"> | string | null;
@@ -138,10 +190,15 @@ export type UserWhereInput = {
     auditLogs?: Prisma.AuditLogListRelationFilter;
     patientProfile?: Prisma.XOR<Prisma.PatientProfileNullableScalarRelationFilter, Prisma.PatientProfileWhereInput> | null;
     professionalProfile?: Prisma.XOR<Prisma.ProfessionalProfileNullableScalarRelationFilter, Prisma.ProfessionalProfileWhereInput> | null;
+    passwordResetCodes?: Prisma.PasswordResetCodeListRelationFilter;
 };
 export type UserOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrderInput | Prisma.SortOrder;
     address?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -158,6 +215,7 @@ export type UserOrderByWithRelationInput = {
     auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput;
     patientProfile?: Prisma.PatientProfileOrderByWithRelationInput;
     professionalProfile?: Prisma.ProfessionalProfileOrderByWithRelationInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeOrderByRelationAggregateInput;
 };
 export type UserWhereUniqueInput = Prisma.AtLeast<{
     id?: string;
@@ -166,6 +224,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
     OR?: Prisma.UserWhereInput[];
     NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
     fullName?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarPublicId?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarMimeType?: Prisma.StringNullableFilter<"User"> | string | null;
+    avatarSizeBytes?: Prisma.IntNullableFilter<"User"> | number | null;
     phone?: Prisma.StringNullableFilter<"User"> | string | null;
     address?: Prisma.StringNullableFilter<"User"> | string | null;
     passwordHash?: Prisma.StringFilter<"User"> | string;
@@ -181,10 +243,15 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
     auditLogs?: Prisma.AuditLogListRelationFilter;
     patientProfile?: Prisma.XOR<Prisma.PatientProfileNullableScalarRelationFilter, Prisma.PatientProfileWhereInput> | null;
     professionalProfile?: Prisma.XOR<Prisma.ProfessionalProfileNullableScalarRelationFilter, Prisma.ProfessionalProfileWhereInput> | null;
+    passwordResetCodes?: Prisma.PasswordResetCodeListRelationFilter;
 }, "id" | "email">;
 export type UserOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrderInput | Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrderInput | Prisma.SortOrder;
     address?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -193,8 +260,10 @@ export type UserOrderByWithAggregationInput = {
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     _count?: Prisma.UserCountOrderByAggregateInput;
+    _avg?: Prisma.UserAvgOrderByAggregateInput;
     _max?: Prisma.UserMaxOrderByAggregateInput;
     _min?: Prisma.UserMinOrderByAggregateInput;
+    _sum?: Prisma.UserSumOrderByAggregateInput;
 };
 export type UserScalarWhereWithAggregatesInput = {
     AND?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[];
@@ -202,6 +271,10 @@ export type UserScalarWhereWithAggregatesInput = {
     NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[];
     id?: Prisma.StringWithAggregatesFilter<"User"> | string;
     fullName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    avatarPublicId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    avatarMimeType?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
+    avatarSizeBytes?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null;
     email?: Prisma.StringWithAggregatesFilter<"User"> | string;
     phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
     address?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null;
@@ -213,6 +286,10 @@ export type UserScalarWhereWithAggregatesInput = {
 export type UserCreateInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -229,10 +306,15 @@ export type UserCreateInput = {
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -249,10 +331,15 @@ export type UserUncheckedCreateInput = {
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -269,10 +356,15 @@ export type UserUpdateInput = {
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -289,10 +381,15 @@ export type UserUncheckedUpdateInput = {
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserCreateManyInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -304,6 +401,10 @@ export type UserCreateManyInput = {
 export type UserUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -315,6 +416,10 @@ export type UserUpdateManyMutationInput = {
 export type UserUncheckedUpdateManyInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -326,6 +431,10 @@ export type UserUncheckedUpdateManyInput = {
 export type UserCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrder;
     address?: Prisma.SortOrder;
@@ -334,9 +443,16 @@ export type UserCountOrderByAggregateInput = {
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
+export type UserAvgOrderByAggregateInput = {
+    avatarSizeBytes?: Prisma.SortOrder;
+};
 export type UserMaxOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrder;
     address?: Prisma.SortOrder;
@@ -348,6 +464,10 @@ export type UserMaxOrderByAggregateInput = {
 export type UserMinOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     fullName?: Prisma.SortOrder;
+    avatarUrl?: Prisma.SortOrder;
+    avatarPublicId?: Prisma.SortOrder;
+    avatarMimeType?: Prisma.SortOrder;
+    avatarSizeBytes?: Prisma.SortOrder;
     email?: Prisma.SortOrder;
     phone?: Prisma.SortOrder;
     address?: Prisma.SortOrder;
@@ -356,13 +476,16 @@ export type UserMinOrderByAggregateInput = {
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
-export type UserScalarRelationFilter = {
-    is?: Prisma.UserWhereInput;
-    isNot?: Prisma.UserWhereInput;
+export type UserSumOrderByAggregateInput = {
+    avatarSizeBytes?: Prisma.SortOrder;
 };
 export type UserNullableScalarRelationFilter = {
     is?: Prisma.UserWhereInput | null;
     isNot?: Prisma.UserWhereInput | null;
+};
+export type UserScalarRelationFilter = {
+    is?: Prisma.UserWhereInput;
+    isNot?: Prisma.UserWhereInput;
 };
 export type StringFieldUpdateOperationsInput = {
     set?: string;
@@ -370,11 +493,32 @@ export type StringFieldUpdateOperationsInput = {
 export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null;
 };
+export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null;
+    increment?: number;
+    decrement?: number;
+    multiply?: number;
+    divide?: number;
+};
 export type EnumRoleFieldUpdateOperationsInput = {
     set?: $Enums.Role;
 };
 export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string;
+};
+export type UserCreateNestedOneWithoutPasswordResetCodesInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetCodesInput, Prisma.UserUncheckedCreateWithoutPasswordResetCodesInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetCodesInput;
+    connect?: Prisma.UserWhereUniqueInput;
+};
+export type UserUpdateOneWithoutPasswordResetCodesNestedInput = {
+    create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetCodesInput, Prisma.UserUncheckedCreateWithoutPasswordResetCodesInput>;
+    connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetCodesInput;
+    upsert?: Prisma.UserUpsertWithoutPasswordResetCodesInput;
+    disconnect?: Prisma.UserWhereInput | boolean;
+    delete?: Prisma.UserWhereInput | boolean;
+    connect?: Prisma.UserWhereUniqueInput;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPasswordResetCodesInput, Prisma.UserUpdateWithoutPasswordResetCodesInput>, Prisma.UserUncheckedUpdateWithoutPasswordResetCodesInput>;
 };
 export type UserCreateNestedOneWithoutPatientProfileInput = {
     create?: Prisma.XOR<Prisma.UserCreateWithoutPatientProfileInput, Prisma.UserUncheckedCreateWithoutPatientProfileInput>;
@@ -486,9 +630,122 @@ export type UserUpdateOneWithoutAuditLogsNestedInput = {
     connect?: Prisma.UserWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>;
 };
+export type UserCreateWithoutPasswordResetCodesInput = {
+    id?: string;
+    fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+};
+export type UserUncheckedCreateWithoutPasswordResetCodesInput = {
+    id?: string;
+    fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash: string;
+    role: $Enums.Role;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutPatientInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutDoctorInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedCreateNestedManyWithoutDiagnosticInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutDoctorInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedCreateNestedManyWithoutPharmacyInput;
+    notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
+    auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
+    patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+};
+export type UserCreateOrConnectWithoutPasswordResetCodesInput = {
+    where: Prisma.UserWhereUniqueInput;
+    create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetCodesInput, Prisma.UserUncheckedCreateWithoutPasswordResetCodesInput>;
+};
+export type UserUpsertWithoutPasswordResetCodesInput = {
+    update: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetCodesInput, Prisma.UserUncheckedUpdateWithoutPasswordResetCodesInput>;
+    create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetCodesInput, Prisma.UserUncheckedCreateWithoutPasswordResetCodesInput>;
+    where?: Prisma.UserWhereInput;
+};
+export type UserUpdateToOneWithWhereWithoutPasswordResetCodesInput = {
+    where?: Prisma.UserWhereInput;
+    data: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetCodesInput, Prisma.UserUncheckedUpdateWithoutPasswordResetCodesInput>;
+};
+export type UserUpdateWithoutPasswordResetCodesInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+};
+export type UserUncheckedUpdateWithoutPasswordResetCodesInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    email?: Prisma.StringFieldUpdateOperationsInput | string;
+    phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    passwordHash?: Prisma.StringFieldUpdateOperationsInput | string;
+    role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    patientAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutPatientNestedInput;
+    doctorAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutDoctorNestedInput;
+    diagnosticLabOrders?: Prisma.LabOrderUncheckedUpdateManyWithoutDiagnosticNestedInput;
+    doctorPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput;
+    pharmacyPrescriptions?: Prisma.PrescriptionUncheckedUpdateManyWithoutPharmacyNestedInput;
+    notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
+    auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
+    patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+};
 export type UserCreateWithoutPatientProfileInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -504,10 +761,15 @@ export type UserCreateWithoutPatientProfileInput = {
     notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutPatientProfileInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -523,6 +785,7 @@ export type UserUncheckedCreateWithoutPatientProfileInput = {
     notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutPatientProfileInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -540,6 +803,10 @@ export type UserUpdateToOneWithWhereWithoutPatientProfileInput = {
 export type UserUpdateWithoutPatientProfileInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -555,10 +822,15 @@ export type UserUpdateWithoutPatientProfileInput = {
     notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutPatientProfileInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -574,10 +846,15 @@ export type UserUncheckedUpdateWithoutPatientProfileInput = {
     notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserCreateWithoutProfessionalProfileInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -593,10 +870,15 @@ export type UserCreateWithoutProfessionalProfileInput = {
     notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutProfessionalProfileInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -612,6 +894,7 @@ export type UserUncheckedCreateWithoutProfessionalProfileInput = {
     notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutProfessionalProfileInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -629,6 +912,10 @@ export type UserUpdateToOneWithWhereWithoutProfessionalProfileInput = {
 export type UserUpdateWithoutProfessionalProfileInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -644,10 +931,15 @@ export type UserUpdateWithoutProfessionalProfileInput = {
     notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutProfessionalProfileInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -663,10 +955,15 @@ export type UserUncheckedUpdateWithoutProfessionalProfileInput = {
     notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserCreateWithoutPatientAppointmentsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -682,10 +979,15 @@ export type UserCreateWithoutPatientAppointmentsInput = {
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutPatientAppointmentsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -701,6 +1003,7 @@ export type UserUncheckedCreateWithoutPatientAppointmentsInput = {
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutPatientAppointmentsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -709,6 +1012,10 @@ export type UserCreateOrConnectWithoutPatientAppointmentsInput = {
 export type UserCreateWithoutDoctorAppointmentsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -724,10 +1031,15 @@ export type UserCreateWithoutDoctorAppointmentsInput = {
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutDoctorAppointmentsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -743,6 +1055,7 @@ export type UserUncheckedCreateWithoutDoctorAppointmentsInput = {
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutDoctorAppointmentsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -760,6 +1073,10 @@ export type UserUpdateToOneWithWhereWithoutPatientAppointmentsInput = {
 export type UserUpdateWithoutPatientAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -775,10 +1092,15 @@ export type UserUpdateWithoutPatientAppointmentsInput = {
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutPatientAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -794,6 +1116,7 @@ export type UserUncheckedUpdateWithoutPatientAppointmentsInput = {
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserUpsertWithoutDoctorAppointmentsInput = {
     update: Prisma.XOR<Prisma.UserUpdateWithoutDoctorAppointmentsInput, Prisma.UserUncheckedUpdateWithoutDoctorAppointmentsInput>;
@@ -807,6 +1130,10 @@ export type UserUpdateToOneWithWhereWithoutDoctorAppointmentsInput = {
 export type UserUpdateWithoutDoctorAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -822,10 +1149,15 @@ export type UserUpdateWithoutDoctorAppointmentsInput = {
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutDoctorAppointmentsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -841,10 +1173,15 @@ export type UserUncheckedUpdateWithoutDoctorAppointmentsInput = {
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserCreateWithoutDiagnosticLabOrdersInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -860,10 +1197,15 @@ export type UserCreateWithoutDiagnosticLabOrdersInput = {
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutDiagnosticLabOrdersInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -879,6 +1221,7 @@ export type UserUncheckedCreateWithoutDiagnosticLabOrdersInput = {
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutDiagnosticLabOrdersInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -896,6 +1239,10 @@ export type UserUpdateToOneWithWhereWithoutDiagnosticLabOrdersInput = {
 export type UserUpdateWithoutDiagnosticLabOrdersInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -911,10 +1258,15 @@ export type UserUpdateWithoutDiagnosticLabOrdersInput = {
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutDiagnosticLabOrdersInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -930,10 +1282,15 @@ export type UserUncheckedUpdateWithoutDiagnosticLabOrdersInput = {
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserCreateWithoutDoctorPrescriptionsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -949,10 +1306,15 @@ export type UserCreateWithoutDoctorPrescriptionsInput = {
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutDoctorPrescriptionsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -968,6 +1330,7 @@ export type UserUncheckedCreateWithoutDoctorPrescriptionsInput = {
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutDoctorPrescriptionsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -976,6 +1339,10 @@ export type UserCreateOrConnectWithoutDoctorPrescriptionsInput = {
 export type UserCreateWithoutPharmacyPrescriptionsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -991,10 +1358,15 @@ export type UserCreateWithoutPharmacyPrescriptionsInput = {
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutPharmacyPrescriptionsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1010,6 +1382,7 @@ export type UserUncheckedCreateWithoutPharmacyPrescriptionsInput = {
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutPharmacyPrescriptionsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -1027,6 +1400,10 @@ export type UserUpdateToOneWithWhereWithoutDoctorPrescriptionsInput = {
 export type UserUpdateWithoutDoctorPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1042,10 +1419,15 @@ export type UserUpdateWithoutDoctorPrescriptionsInput = {
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutDoctorPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1061,6 +1443,7 @@ export type UserUncheckedUpdateWithoutDoctorPrescriptionsInput = {
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserUpsertWithoutPharmacyPrescriptionsInput = {
     update: Prisma.XOR<Prisma.UserUpdateWithoutPharmacyPrescriptionsInput, Prisma.UserUncheckedUpdateWithoutPharmacyPrescriptionsInput>;
@@ -1074,6 +1457,10 @@ export type UserUpdateToOneWithWhereWithoutPharmacyPrescriptionsInput = {
 export type UserUpdateWithoutPharmacyPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1089,10 +1476,15 @@ export type UserUpdateWithoutPharmacyPrescriptionsInput = {
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutPharmacyPrescriptionsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1108,10 +1500,15 @@ export type UserUncheckedUpdateWithoutPharmacyPrescriptionsInput = {
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserCreateWithoutNotificationsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1127,10 +1524,15 @@ export type UserCreateWithoutNotificationsInput = {
     auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutNotificationsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1146,6 +1548,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
     auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutNotificationsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -1163,6 +1566,10 @@ export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
 export type UserUpdateWithoutNotificationsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1178,10 +1585,15 @@ export type UserUpdateWithoutNotificationsInput = {
     auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutNotificationsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1197,10 +1609,15 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
     auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserCreateWithoutAuditLogsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1216,10 +1633,15 @@ export type UserCreateWithoutAuditLogsInput = {
     notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
     patientProfile?: Prisma.PatientProfileCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeCreateNestedManyWithoutUserInput;
 };
 export type UserUncheckedCreateWithoutAuditLogsInput = {
     id?: string;
     fullName?: string | null;
+    avatarUrl?: string | null;
+    avatarPublicId?: string | null;
+    avatarMimeType?: string | null;
+    avatarSizeBytes?: number | null;
     email: string;
     phone?: string | null;
     address?: string | null;
@@ -1235,6 +1657,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
     notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput;
     patientProfile?: Prisma.PatientProfileUncheckedCreateNestedOneWithoutPatientInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedCreateNestedOneWithoutUserInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedCreateNestedManyWithoutUserInput;
 };
 export type UserCreateOrConnectWithoutAuditLogsInput = {
     where: Prisma.UserWhereUniqueInput;
@@ -1252,6 +1675,10 @@ export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
 export type UserUpdateWithoutAuditLogsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1267,10 +1694,15 @@ export type UserUpdateWithoutAuditLogsInput = {
     notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput;
     patientProfile?: Prisma.PatientProfileUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUpdateManyWithoutUserNestedInput;
 };
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    avatarSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
     email?: Prisma.StringFieldUpdateOperationsInput | string;
     phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1286,6 +1718,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
     notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput;
     patientProfile?: Prisma.PatientProfileUncheckedUpdateOneWithoutPatientNestedInput;
     professionalProfile?: Prisma.ProfessionalProfileUncheckedUpdateOneWithoutUserNestedInput;
+    passwordResetCodes?: Prisma.PasswordResetCodeUncheckedUpdateManyWithoutUserNestedInput;
 };
 export type UserCountOutputType = {
     patientAppointments: number;
@@ -1295,6 +1728,7 @@ export type UserCountOutputType = {
     pharmacyPrescriptions: number;
     notifications: number;
     auditLogs: number;
+    passwordResetCodes: number;
 };
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     patientAppointments?: boolean | UserCountOutputTypeCountPatientAppointmentsArgs;
@@ -1304,6 +1738,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
     pharmacyPrescriptions?: boolean | UserCountOutputTypeCountPharmacyPrescriptionsArgs;
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs;
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs;
+    passwordResetCodes?: boolean | UserCountOutputTypeCountPasswordResetCodesArgs;
 };
 export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null;
@@ -1329,9 +1764,16 @@ export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Ty
 export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     where?: Prisma.AuditLogWhereInput;
 };
+export type UserCountOutputTypeCountPasswordResetCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    where?: Prisma.PasswordResetCodeWhereInput;
+};
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     fullName?: boolean;
+    avatarUrl?: boolean;
+    avatarPublicId?: boolean;
+    avatarMimeType?: boolean;
+    avatarSizeBytes?: boolean;
     email?: boolean;
     phone?: boolean;
     address?: boolean;
@@ -1348,11 +1790,16 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
     auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>;
     patientProfile?: boolean | Prisma.User$patientProfileArgs<ExtArgs>;
     professionalProfile?: boolean | Prisma.User$professionalProfileArgs<ExtArgs>;
+    passwordResetCodes?: boolean | Prisma.User$passwordResetCodesArgs<ExtArgs>;
     _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["user"]>;
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     fullName?: boolean;
+    avatarUrl?: boolean;
+    avatarPublicId?: boolean;
+    avatarMimeType?: boolean;
+    avatarSizeBytes?: boolean;
     email?: boolean;
     phone?: boolean;
     address?: boolean;
@@ -1364,6 +1811,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     fullName?: boolean;
+    avatarUrl?: boolean;
+    avatarPublicId?: boolean;
+    avatarMimeType?: boolean;
+    avatarSizeBytes?: boolean;
     email?: boolean;
     phone?: boolean;
     address?: boolean;
@@ -1375,6 +1826,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectScalar = {
     id?: boolean;
     fullName?: boolean;
+    avatarUrl?: boolean;
+    avatarPublicId?: boolean;
+    avatarMimeType?: boolean;
+    avatarSizeBytes?: boolean;
     email?: boolean;
     phone?: boolean;
     address?: boolean;
@@ -1383,7 +1838,7 @@ export type UserSelectScalar = {
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "address" | "passwordHash" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>;
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "avatarUrl" | "avatarPublicId" | "avatarMimeType" | "avatarSizeBytes" | "email" | "phone" | "address" | "passwordHash" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>;
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     patientAppointments?: boolean | Prisma.User$patientAppointmentsArgs<ExtArgs>;
     doctorAppointments?: boolean | Prisma.User$doctorAppointmentsArgs<ExtArgs>;
@@ -1394,6 +1849,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>;
     patientProfile?: boolean | Prisma.User$patientProfileArgs<ExtArgs>;
     professionalProfile?: boolean | Prisma.User$professionalProfileArgs<ExtArgs>;
+    passwordResetCodes?: boolean | Prisma.User$passwordResetCodesArgs<ExtArgs>;
     _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {};
@@ -1410,10 +1866,15 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
         auditLogs: Prisma.$AuditLogPayload<ExtArgs>[];
         patientProfile: Prisma.$PatientProfilePayload<ExtArgs> | null;
         professionalProfile: Prisma.$ProfessionalProfilePayload<ExtArgs> | null;
+        passwordResetCodes: Prisma.$PasswordResetCodePayload<ExtArgs>[];
     };
     scalars: runtime.Types.Extensions.GetPayloadResult<{
         id: string;
         fullName: string | null;
+        avatarUrl: string | null;
+        avatarPublicId: string | null;
+        avatarMimeType: string | null;
+        avatarSizeBytes: number | null;
         email: string;
         phone: string | null;
         address: string | null;
@@ -1482,6 +1943,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
     auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     patientProfile<T extends Prisma.User$patientProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$patientProfileArgs<ExtArgs>>): Prisma.Prisma__PatientProfileClient<runtime.Types.Result.GetResult<Prisma.$PatientProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>;
     professionalProfile<T extends Prisma.User$professionalProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$professionalProfileArgs<ExtArgs>>): Prisma.Prisma__ProfessionalProfileClient<runtime.Types.Result.GetResult<Prisma.$ProfessionalProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>;
+    passwordResetCodes<T extends Prisma.User$passwordResetCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): runtime.Types.Utils.JsPromise<TResult1 | TResult2>;
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): runtime.Types.Utils.JsPromise<T | TResult>;
     finally(onfinally?: (() => void) | undefined | null): runtime.Types.Utils.JsPromise<T>;
@@ -1489,6 +1951,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface UserFieldRefs {
     readonly id: Prisma.FieldRef<"User", 'String'>;
     readonly fullName: Prisma.FieldRef<"User", 'String'>;
+    readonly avatarUrl: Prisma.FieldRef<"User", 'String'>;
+    readonly avatarPublicId: Prisma.FieldRef<"User", 'String'>;
+    readonly avatarMimeType: Prisma.FieldRef<"User", 'String'>;
+    readonly avatarSizeBytes: Prisma.FieldRef<"User", 'Int'>;
     readonly email: Prisma.FieldRef<"User", 'String'>;
     readonly phone: Prisma.FieldRef<"User", 'String'>;
     readonly address: Prisma.FieldRef<"User", 'String'>;
@@ -1684,9 +2150,19 @@ export type User$professionalProfileArgs<ExtArgs extends runtime.Types.Extension
     include?: Prisma.ProfessionalProfileInclude<ExtArgs> | null;
     where?: Prisma.ProfessionalProfileWhereInput;
 };
+export type User$passwordResetCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    select?: Prisma.PasswordResetCodeSelect<ExtArgs> | null;
+    omit?: Prisma.PasswordResetCodeOmit<ExtArgs> | null;
+    include?: Prisma.PasswordResetCodeInclude<ExtArgs> | null;
+    where?: Prisma.PasswordResetCodeWhereInput;
+    orderBy?: Prisma.PasswordResetCodeOrderByWithRelationInput | Prisma.PasswordResetCodeOrderByWithRelationInput[];
+    cursor?: Prisma.PasswordResetCodeWhereUniqueInput;
+    take?: number;
+    skip?: number;
+    distinct?: Prisma.PasswordResetCodeScalarFieldEnum | Prisma.PasswordResetCodeScalarFieldEnum[];
+};
 export type UserDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     select?: Prisma.UserSelect<ExtArgs> | null;
     omit?: Prisma.UserOmit<ExtArgs> | null;
     include?: Prisma.UserInclude<ExtArgs> | null;
 };
-export {};

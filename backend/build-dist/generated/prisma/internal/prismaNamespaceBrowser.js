@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.ProfessionalProfileScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AuditLogScalarFieldEnum = exports.NotificationScalarFieldEnum = exports.PrescriptionScalarFieldEnum = exports.LabResultScalarFieldEnum = exports.LabOrderScalarFieldEnum = exports.AppointmentScalarFieldEnum = exports.ProfessionalProfileScalarFieldEnum = exports.PatientProfileScalarFieldEnum = exports.PasswordResetCodeScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -46,6 +46,7 @@ exports.JsonNull = runtime.JsonNull;
 exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
     User: 'User',
+    PasswordResetCode: 'PasswordResetCode',
     PatientProfile: 'PatientProfile',
     ProfessionalProfile: 'ProfessionalProfile',
     Appointment: 'Appointment',
@@ -64,11 +65,26 @@ exports.TransactionIsolationLevel = runtime.makeStrictEnum({
 exports.UserScalarFieldEnum = {
     id: 'id',
     fullName: 'fullName',
+    avatarUrl: 'avatarUrl',
+    avatarPublicId: 'avatarPublicId',
+    avatarMimeType: 'avatarMimeType',
+    avatarSizeBytes: 'avatarSizeBytes',
     email: 'email',
     phone: 'phone',
     address: 'address',
     passwordHash: 'passwordHash',
     role: 'role',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.PasswordResetCodeScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    email: 'email',
+    codeHash: 'codeHash',
+    expiresAt: 'expiresAt',
+    consumedAt: 'consumedAt',
+    attemptCount: 'attemptCount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -93,6 +109,11 @@ exports.ProfessionalProfileScalarFieldEnum = {
     userId: 'userId',
     licenseNumber: 'licenseNumber',
     specialization: 'specialization',
+    about: 'about',
+    clinicName: 'clinicName',
+    clinicAddress: 'clinicAddress',
+    clinicPhone: 'clinicPhone',
+    availableTimeSlots: 'availableTimeSlots',
     pharmacyName: 'pharmacyName',
     labName: 'labName',
     gender: 'gender',

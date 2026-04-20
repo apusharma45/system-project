@@ -13,6 +13,7 @@ export class PatientsService {
       select: {
         id: true,
         fullName: true,
+        avatarUrl: true,
         email: true,
         role: true,
         phone: true,
@@ -30,6 +31,7 @@ export class PatientsService {
       patient: {
         id: patient.id,
         fullName: patient.fullName,
+        avatarUrl: patient.avatarUrl,
         email: patient.email,
         role: patient.role,
         phone: patient.phone,
@@ -101,6 +103,7 @@ export class PatientsService {
       select: {
         id: true,
         fullName: true,
+        avatarUrl: true,
         email: true,
         role: true,
         createdAt: true,
@@ -126,7 +129,7 @@ export class PatientsService {
         },
         include: {
           appointment: true,
-          labResult: true,
+          labReports: { orderBy: { uploadedAt: 'desc' } },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -147,6 +150,7 @@ export class PatientsService {
       patient: {
         id: patient.id,
         fullName: patient.fullName,
+        avatarUrl: patient.avatarUrl,
         email: patient.email,
         joinedAt: patient.createdAt,
         profile: patient.patientProfile,
@@ -158,7 +162,11 @@ export class PatientsService {
       },
       history: {
         appointments,
-        labOrders,
+        labOrders: labOrders.map((item: any) => ({
+          ...item,
+          latestReport: item.labReports?.[0] ?? null,
+          labResult: item.labReports?.[0] ?? null,
+        })),
         prescriptions,
       },
     };

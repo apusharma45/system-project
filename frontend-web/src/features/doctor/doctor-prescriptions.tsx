@@ -16,6 +16,17 @@ function getPatientLabel(item: Prescription): string {
   return patientId ?? 'Unknown patient'
 }
 
+function getPharmacyLabel(item: Prescription): string {
+  const pharmacyName = item.pharmacySnapshot?.pharmacyName?.trim()
+  const fullName = item.pharmacySnapshot?.fullName?.trim()
+  const email = item.pharmacySnapshot?.email?.trim()
+
+  if (pharmacyName) return pharmacyName
+  if (fullName) return fullName
+  if (email) return email
+  return 'Not assigned'
+}
+
 export function DoctorPrescriptionsPage() {
   const queryClient = useQueryClient()
   const prescriptionsQuery = useDoctorPrescriptions()
@@ -64,6 +75,7 @@ export function DoctorPrescriptionsPage() {
                   <span className={statusClass(item.status)}>{item.status}</span>
                 </p>
                 <p className="muted">Patient: {getPatientLabel(item)}</p>
+                <p className="muted">Sent to: {getPharmacyLabel(item)}</p>
                 <p className="muted row-meta">
                   <Pill size={14} /> {item.notes}
                 </p>

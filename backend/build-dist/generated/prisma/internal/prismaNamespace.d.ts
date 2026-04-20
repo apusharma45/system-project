@@ -158,6 +158,7 @@ export type FieldRef<Model, FieldType> = runtime.FieldRef<Model, FieldType>;
 type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRef<Model, FieldType>;
 export declare const ModelName: {
     readonly User: "User";
+    readonly PasswordResetCode: "PasswordResetCode";
     readonly PatientProfile: "PatientProfile";
     readonly ProfessionalProfile: "ProfessionalProfile";
     readonly Appointment: "Appointment";
@@ -178,7 +179,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         omit: GlobalOmitOptions;
     };
     meta: {
-        modelProps: "user" | "patientProfile" | "professionalProfile" | "appointment" | "labOrder" | "labResult" | "prescription" | "notification" | "auditLog";
+        modelProps: "user" | "passwordResetCode" | "patientProfile" | "professionalProfile" | "appointment" | "labOrder" | "labResult" | "prescription" | "notification" | "auditLog";
         txIsolationLevel: TransactionIsolationLevel;
     };
     model: {
@@ -253,6 +254,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
                 count: {
                     args: Prisma.UserCountArgs<ExtArgs>;
                     result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number;
+                };
+            };
+        };
+        PasswordResetCode: {
+            payload: Prisma.$PasswordResetCodePayload<ExtArgs>;
+            fields: Prisma.PasswordResetCodeFieldRefs;
+            operations: {
+                findUnique: {
+                    args: Prisma.PasswordResetCodeFindUniqueArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload> | null;
+                };
+                findUniqueOrThrow: {
+                    args: Prisma.PasswordResetCodeFindUniqueOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>;
+                };
+                findFirst: {
+                    args: Prisma.PasswordResetCodeFindFirstArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload> | null;
+                };
+                findFirstOrThrow: {
+                    args: Prisma.PasswordResetCodeFindFirstOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>;
+                };
+                findMany: {
+                    args: Prisma.PasswordResetCodeFindManyArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>[];
+                };
+                create: {
+                    args: Prisma.PasswordResetCodeCreateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>;
+                };
+                createMany: {
+                    args: Prisma.PasswordResetCodeCreateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                createManyAndReturn: {
+                    args: Prisma.PasswordResetCodeCreateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>[];
+                };
+                delete: {
+                    args: Prisma.PasswordResetCodeDeleteArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>;
+                };
+                update: {
+                    args: Prisma.PasswordResetCodeUpdateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>;
+                };
+                deleteMany: {
+                    args: Prisma.PasswordResetCodeDeleteManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateMany: {
+                    args: Prisma.PasswordResetCodeUpdateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateManyAndReturn: {
+                    args: Prisma.PasswordResetCodeUpdateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>[];
+                };
+                upsert: {
+                    args: Prisma.PasswordResetCodeUpsertArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetCodePayload>;
+                };
+                aggregate: {
+                    args: Prisma.PasswordResetCodeAggregateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.AggregatePasswordResetCode>;
+                };
+                groupBy: {
+                    args: Prisma.PasswordResetCodeGroupByArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.PasswordResetCodeGroupByOutputType>[];
+                };
+                count: {
+                    args: Prisma.PasswordResetCodeCountArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.PasswordResetCodeCountAggregateOutputType> | number;
                 };
             };
         };
@@ -882,6 +957,10 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export declare const UserScalarFieldEnum: {
     readonly id: "id";
     readonly fullName: "fullName";
+    readonly avatarUrl: "avatarUrl";
+    readonly avatarPublicId: "avatarPublicId";
+    readonly avatarMimeType: "avatarMimeType";
+    readonly avatarSizeBytes: "avatarSizeBytes";
     readonly email: "email";
     readonly phone: "phone";
     readonly address: "address";
@@ -891,6 +970,18 @@ export declare const UserScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum];
+export declare const PasswordResetCodeScalarFieldEnum: {
+    readonly id: "id";
+    readonly userId: "userId";
+    readonly email: "email";
+    readonly codeHash: "codeHash";
+    readonly expiresAt: "expiresAt";
+    readonly consumedAt: "consumedAt";
+    readonly attemptCount: "attemptCount";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type PasswordResetCodeScalarFieldEnum = (typeof PasswordResetCodeScalarFieldEnum)[keyof typeof PasswordResetCodeScalarFieldEnum];
 export declare const PatientProfileScalarFieldEnum: {
     readonly id: "id";
     readonly patientId: "patientId";
@@ -913,6 +1004,11 @@ export declare const ProfessionalProfileScalarFieldEnum: {
     readonly userId: "userId";
     readonly licenseNumber: "licenseNumber";
     readonly specialization: "specialization";
+    readonly about: "about";
+    readonly clinicName: "clinicName";
+    readonly clinicAddress: "clinicAddress";
+    readonly clinicPhone: "clinicPhone";
+    readonly availableTimeSlots: "availableTimeSlots";
     readonly pharmacyName: "pharmacyName";
     readonly labName: "labName";
     readonly gender: "gender";
@@ -1032,14 +1128,14 @@ export declare const JsonNullValueFilter: {
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter];
 export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>;
 export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>;
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>;
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>;
 export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>;
 export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>;
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>;
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>;
 export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>;
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>;
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>;
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>;
 export type EnumAppointmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AppointmentStatus'>;
 export type ListEnumAppointmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AppointmentStatus[]'>;
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>;
@@ -1076,6 +1172,7 @@ export type PrismaClientOptions = ({
 };
 export type GlobalOmitConfig = {
     user?: Prisma.UserOmit;
+    passwordResetCode?: Prisma.PasswordResetCodeOmit;
     patientProfile?: Prisma.PatientProfileOmit;
     professionalProfile?: Prisma.ProfessionalProfileOmit;
     appointment?: Prisma.AppointmentOmit;

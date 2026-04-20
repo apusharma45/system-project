@@ -29,7 +29,6 @@ enum LabOrderStatus {
   CREATED
   ASSIGNED
   SAMPLE_COLLECTED
-  RESULT_UPLOADED
   SENT
 }
 
@@ -43,6 +42,7 @@ enum PrescriptionStatus {
 
 enum NotificationType {
   APPOINTMENT_CALLED
+  LAB_ASSIGNED
   LAB_RESULT_UPLOADED
   PRESCRIPTION_READY
 }
@@ -50,6 +50,10 @@ enum NotificationType {
 model User {
   id           String   @id @default(uuid())
   fullName     String?
+  avatarUrl    String?
+  avatarPublicId String?
+  avatarMimeType String?
+  avatarSizeBytes Int?
   email        String   @unique
   phone        String?
   address      String?
@@ -67,6 +71,25 @@ model User {
   auditLogs AuditLog[] @relation("ActorAuditLogs")
   patientProfile PatientProfile?
   professionalProfile ProfessionalProfile?
+  passwordResetCodes PasswordResetCode[]
+}
+
+model PasswordResetCode {
+  id String @id @default(uuid())
+
+  userId String?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  email String
+  codeHash String
+  expiresAt DateTime
+  consumedAt DateTime?
+  attemptCount Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email, createdAt])
+  @@index([userId, createdAt])
 }
 
 model PatientProfile {
@@ -99,6 +122,11 @@ model ProfessionalProfile {
 
   licenseNumber String?
   specialization String?
+  about String?
+  clinicName String?
+  clinicAddress String?
+  clinicPhone String?
+  availableTimeSlots Json?
   pharmacyName String?
   labName String?
   gender String?
@@ -136,8 +164,8 @@ model Appointment {
   labFlowLocked Boolean         @default(false)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  labOrder    LabOrder?
-  prescription Prescription?
+  labOrders     LabOrder[]
+  prescriptions Prescription[]
 
   @@index([patientId])
   @@index([doctorId])
@@ -149,7 +177,7 @@ model Appointment {
 model LabOrder {
   id String @id @default(uuid())
 
-  appointmentId String      @unique
+  appointmentId String
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
 
   diagnosticId String
@@ -160,9 +188,10 @@ model LabOrder {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
-  labResult LabResult?
+  labReports LabResult[]
 
   @@index([diagnosticId])
+  @@index([appointmentId])
 }
 
 model LabResult {
@@ -179,13 +208,14 @@ model LabResult {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@unique([labOrderId])
+  @@index([labOrderId])
+  @@index([uploadedAt])
 }
 
 model Prescription {
   id String @id @default(uuid())
 
-  appointmentId String      @unique
+  appointmentId String
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
 
   doctorId String

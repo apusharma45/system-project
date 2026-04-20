@@ -147,7 +147,7 @@ export type PatientProfileGroupByOutputType = {
     _min: PatientProfileMinAggregateOutputType | null;
     _max: PatientProfileMaxAggregateOutputType | null;
 };
-type GetPatientProfileGroupByPayload<T extends PatientProfileGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<PatientProfileGroupByOutputType, T['by']> & {
+export type GetPatientProfileGroupByPayload<T extends PatientProfileGroupByArgs> = Prisma.PrismaPromise<Array<Prisma.PickEnumerable<PatientProfileGroupByOutputType, T['by']> & {
     [P in ((keyof T) & (keyof PatientProfileGroupByOutputType))]: P extends '_count' ? T[P] extends boolean ? number : Prisma.GetScalarType<T[P], PatientProfileGroupByOutputType[P]> : Prisma.GetScalarType<T[P], PatientProfileGroupByOutputType[P]>;
 }>>;
 export type PatientProfileWhereInput = {
@@ -435,9 +435,6 @@ export type PatientProfileUncheckedUpdateOneWithoutPatientNestedInput = {
     delete?: Prisma.PatientProfileWhereInput | boolean;
     connect?: Prisma.PatientProfileWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.PatientProfileUpdateToOneWithWhereWithoutPatientInput, Prisma.PatientProfileUpdateWithoutPatientInput>, Prisma.PatientProfileUncheckedUpdateWithoutPatientInput>;
-};
-export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null;
 };
 export type PatientProfileCreateWithoutPatientInput = {
     id?: string;
@@ -787,4 +784,3 @@ export type PatientProfileDefaultArgs<ExtArgs extends runtime.Types.Extensions.I
     omit?: Prisma.PatientProfileOmit<ExtArgs> | null;
     include?: Prisma.PatientProfileInclude<ExtArgs> | null;
 };
-export {};

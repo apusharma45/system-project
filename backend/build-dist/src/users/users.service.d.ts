@@ -1,12 +1,20 @@
 import { Role } from '../../generated/prisma/client';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { PrismaService } from '../prisma/prisma.service';
 export declare class UsersService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly cloudinaryService;
+    constructor(prisma: PrismaService, cloudinaryService: CloudinaryService);
     private static readonly REGISTER_SELECT;
+    private static readonly ALLOWED_AVATAR_MIME_TYPES;
+    private static readonly MAX_AVATAR_SIZE_BYTES;
     findByEmail(email: string): import("../../generated/prisma/models").Prisma__UserClient<{
         id: string;
         fullName: string | null;
+        avatarUrl: string | null;
+        avatarPublicId: string | null;
+        avatarMimeType: string | null;
+        avatarSizeBytes: number | null;
         email: string;
         phone: string | null;
         address: string | null;
@@ -20,6 +28,10 @@ export declare class UsersService {
     findById(id: string): import("../../generated/prisma/models").Prisma__UserClient<{
         id: string;
         fullName: string | null;
+        avatarUrl: string | null;
+        avatarPublicId: string | null;
+        avatarMimeType: string | null;
+        avatarSizeBytes: number | null;
         email: string;
         phone: string | null;
         address: string | null;
@@ -29,6 +41,23 @@ export declare class UsersService {
         updatedAt: Date;
     } | null, null, import("@prisma/client/runtime/client").DefaultArgs, {
         omit: import("../../generated/prisma/internal/prismaNamespace").GlobalOmitConfig | undefined;
+    }>;
+    uploadMyAvatar(userId: string, file: {
+        originalname: string;
+        mimetype: string;
+        size: number;
+        buffer: Buffer;
+    } | undefined): Promise<{
+        user: {
+            id: string;
+            avatarUrl: string | null;
+        };
+    }>;
+    removeMyAvatar(userId: string): Promise<{
+        user: {
+            id: string;
+            avatarUrl: string | null;
+        };
     }>;
     createUser(params: {
         fullName: string;
@@ -63,6 +92,7 @@ export declare class UsersService {
         };
     }): import("../../generated/prisma/models").Prisma__UserClient<{
         id: string;
+        avatarUrl: string | null;
         email: string;
         role: Role;
     }, never, import("@prisma/client/runtime/client").DefaultArgs, {
@@ -74,4 +104,32 @@ export declare class UsersService {
         email: string;
         role: Role;
     }[]>;
+    listDoctorsForPatients(): Promise<{
+        id: string;
+        fullName: string | null;
+        avatarUrl: string | null;
+        email: string;
+        role: Role;
+        specialization: string | null;
+        yearsOfExperience: number | null;
+    }[]>;
+    getDoctorDetailsForPatients(doctorId: string): Promise<{
+        doctor: {
+            id: string;
+            fullName: string | null;
+            avatarUrl: string | null;
+            email: string;
+            role: "DOCTOR";
+            phone: string | null;
+            address: string | null;
+            specialization: string | null;
+            yearsOfExperience: number | null;
+            degrees: string | number | boolean | import("@prisma/client/runtime/client").JsonObject | import("@prisma/client/runtime/client").JsonArray | null;
+            about: string | null;
+            clinicName: string | null;
+            clinicAddress: string | null;
+            clinicPhone: string | null;
+            availableTimeSlots: string | number | boolean | import("@prisma/client/runtime/client").JsonObject | import("@prisma/client/runtime/client").JsonArray | null;
+        };
+    }>;
 }

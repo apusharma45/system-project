@@ -81,10 +81,27 @@ export class AppointmentsService {
 
   async listMine(userId: string, role: Role) {
     if (role === Role.PATIENT) {
-      return this.prisma.appointment.findMany({
+      const appointments = await this.prisma.appointment.findMany({
         where: { patientId: userId },
+        include: {
+          doctor: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+            },
+          },
+        },
         orderBy: { scheduledAt: 'asc' },
       });
+      return appointments.map(({ doctor, ...appointment }) => ({
+        ...appointment,
+        doctorSnapshot: {
+          id: doctor.id,
+          fullName: doctor.fullName,
+          email: doctor.email,
+        },
+      }));
     }
     if (role === Role.DOCTOR) {
       const appointments = await this.prisma.appointment.findMany({
@@ -390,15 +407,24 @@ export class AppointmentsService {
     }
 
     const db = this.prisma as any;
-    const result = await db.labResult.findFirst({
+    const labOrderCount = await db.labOrder.count({
       where: {
-        labOrder: {
-          appointmentId: appointment.id,
-        },
+        appointmentId: appointment.id,
       },
     });
-    if (!result) {
-      throw new BadRequestException('Cannot close appointment before lab result is uploaded');
+    if (labOrderCount === 0) {
+      throw new BadRequestException('Cannot close appointment before creating a lab order');
+    }
+
+    const pendingOrder = await db.labOrder.findFirst({
+      where: {
+        appointmentId: appointment.id,
+        labReports: { none: {} },
+      },
+      select: { id: true },
+    });
+    if (pendingOrder) {
+      throw new BadRequestException('Cannot close appointment before all lab results are uploaded');
     }
   }
 }

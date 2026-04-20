@@ -7,6 +7,7 @@ export declare class PatientsService {
         patient: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             role: "PATIENT";
             phone: string | null;
@@ -18,15 +19,15 @@ export declare class PatientsService {
                 address: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                gender: string | null;
+                patientId: string;
                 dateOfBirth: Date | null;
+                gender: string | null;
                 allergies: string | null;
                 chronicConditions: string | null;
                 currentMedications: string | null;
                 emergencyContactName: string | null;
                 emergencyContactPhone: string | null;
                 emergencyContactRelation: string | null;
-                patientId: string;
             } | null;
         };
     }>;
@@ -34,6 +35,7 @@ export declare class PatientsService {
         patient: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             role: "PATIENT";
             phone: string | null;
@@ -45,15 +47,15 @@ export declare class PatientsService {
                 address: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                gender: string | null;
+                patientId: string;
                 dateOfBirth: Date | null;
+                gender: string | null;
                 allergies: string | null;
                 chronicConditions: string | null;
                 currentMedications: string | null;
                 emergencyContactName: string | null;
                 emergencyContactPhone: string | null;
                 emergencyContactRelation: string | null;
-                patientId: string;
             } | null;
         };
     }>;
@@ -61,6 +63,7 @@ export declare class PatientsService {
         patient: {
             id: string;
             fullName: string | null;
+            avatarUrl: string | null;
             email: string;
             joinedAt: Date;
             profile: {
@@ -69,15 +72,15 @@ export declare class PatientsService {
                 address: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                gender: string | null;
+                patientId: string;
                 dateOfBirth: Date | null;
+                gender: string | null;
                 allergies: string | null;
                 chronicConditions: string | null;
                 currentMedications: string | null;
                 emergencyContactName: string | null;
                 emergencyContactPhone: string | null;
                 emergencyContactRelation: string | null;
-                patientId: string;
             } | null;
         };
         summary: {
@@ -90,16 +93,16 @@ export declare class PatientsService {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                patientId: string;
                 doctorId: string;
+                status: import("../../generated/prisma/enums").AppointmentStatus;
+                scheduledAt: Date | null;
+                reason: string | null;
                 preferredDateFrom: Date | null;
                 preferredDateTo: Date | null;
-                reason: string | null;
                 preferredTimeNote: string | null;
-                scheduledAt: Date | null;
-                status: import("../../generated/prisma/enums").AppointmentStatus;
                 requiresLab: boolean;
                 labFlowLocked: boolean;
-                patientId: string;
             }[];
             labOrders: any;
             prescriptions: any;

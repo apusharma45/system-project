@@ -8,9 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrescriptionsService = void 0;
 const common_1 = require("@nestjs/common");
+const pdfkit_1 = __importDefault(require("pdfkit"));
 const client_1 = require("../../generated/prisma/client");
 const audit_service_1 = require("../audit/audit.service");
 const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
@@ -55,12 +59,6 @@ let PrescriptionsService = class PrescriptionsService {
         });
         if (!pharmacy || pharmacy.role !== client_1.Role.PHARMACY) {
             throw new common_1.BadRequestException('pharmacyId must belong to a pharmacy user');
-        }
-        const existing = await db.prescription.findUnique({
-            where: { appointmentId: dto.appointmentId },
-        });
-        if (existing) {
-            throw new common_1.BadRequestException('Prescription already exists for this appointment');
         }
         const prescription = await db.prescription.create({
             data: {
@@ -174,6 +172,36 @@ let PrescriptionsService = class PrescriptionsService {
         });
         return updated;
     }
+    async generateDocumentByDoctor(doctorId, prescriptionId) {
+        const db = this.prisma;
+        const prescription = await this.getPrescriptionForDocumentGenerationOrThrow(prescriptionId);
+        this.assertDoctorOwnership(prescription.doctorId, doctorId);
+        const pdfBuffer = await this.buildPrescriptionPdfBuffer(prescription);
+        const upload = await this.cloudinaryService.uploadBuffer({
+            buffer: pdfBuffer,
+            fileName: `prescription-${prescription.id}.pdf`,
+            folder: 'prescriptions',
+            contentType: 'application/pdf',
+            resourceType: 'raw',
+        });
+        if (prescription.documentPublicId) {
+            await this.cloudinaryService.destroy(prescription.documentPublicId, prescription.documentMimeType?.startsWith('image/') ? 'image' : 'raw');
+        }
+        const updated = await db.prescription.update({
+            where: { id: prescriptionId },
+            data: {
+                documentUrl: upload.url,
+                documentPublicId: upload.publicId,
+                documentMimeType: upload.mimeType,
+                documentVersion: (prescription.documentVersion ?? 0) + 1,
+            },
+        });
+        await this.auditService.record(doctorId, 'PRESCRIPTION_DOCUMENT_GENERATED', 'Prescription', prescriptionId, {
+            documentPublicId: updated.documentPublicId,
+            documentVersion: updated.documentVersion,
+        });
+        return updated;
+    }
     listMine(userId, role) {
         const db = this.prisma;
         if (role === client_1.Role.DOCTOR) {
@@ -191,14 +219,45 @@ let PrescriptionsService = class PrescriptionsService {
                             },
                         },
                     },
+                    pharmacy: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            email: true,
+                            professionalProfile: {
+                                select: {
+                                    pharmacyName: true,
+                                },
+                            },
+                        },
+                    },
                 },
                 orderBy: { createdAt: 'desc' },
-            });
+            }).then((items) => items.map((item) => this.withPharmacySnapshot(item)));
         }
         if (role === client_1.Role.PHARMACY) {
             return db.prescription.findMany({
                 where: { pharmacyId: userId },
-                include: { appointment: true },
+                include: {
+                    appointment: {
+                        include: {
+                            patient: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                    email: true,
+                                },
+                            },
+                            doctor: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
+                },
                 orderBy: { createdAt: 'desc' },
             });
         }
@@ -207,9 +266,25 @@ let PrescriptionsService = class PrescriptionsService {
                 where: {
                     appointment: { patientId: userId },
                 },
-                include: { appointment: true },
+                include: {
+                    appointment: true,
+                    pharmacy: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            email: true,
+                            address: true,
+                            phone: true,
+                            professionalProfile: {
+                                select: {
+                                    pharmacyName: true,
+                                },
+                            },
+                        },
+                    },
+                },
                 orderBy: { createdAt: 'desc' },
-            });
+            }).then((items) => items.map((item) => this.withPharmacySnapshot(item)));
         }
         throw new common_1.ForbiddenException('Role cannot view prescriptions');
     }
@@ -217,19 +292,50 @@ let PrescriptionsService = class PrescriptionsService {
         const db = this.prisma;
         const prescription = await db.prescription.findUnique({
             where: { id: prescriptionId },
-            include: { appointment: true },
+            include: {
+                appointment: {
+                    include: {
+                        patient: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                                email: true,
+                            },
+                        },
+                        doctor: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
+                pharmacy: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        email: true,
+                        professionalProfile: {
+                            select: {
+                                pharmacyName: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
         if (!prescription) {
             throw new common_1.NotFoundException('Prescription not found');
         }
         if (role === client_1.Role.DOCTOR && prescription.doctorId === userId) {
-            return prescription;
+            return this.withPharmacySnapshot(prescription);
         }
         if (role === client_1.Role.PHARMACY && prescription.pharmacyId === userId) {
             return prescription;
         }
         if (role === client_1.Role.PATIENT && prescription.appointment.patientId === userId) {
-            return prescription;
+            return this.withPharmacySnapshot(prescription);
         }
         throw new common_1.ForbiddenException('You are not allowed to access this prescription');
     }
@@ -238,6 +344,49 @@ let PrescriptionsService = class PrescriptionsService {
         const prescription = await db.prescription.findUnique({
             where: { id: prescriptionId },
             include: { appointment: true },
+        });
+        if (!prescription) {
+            throw new common_1.NotFoundException('Prescription not found');
+        }
+        return prescription;
+    }
+    async getPrescriptionForDocumentGenerationOrThrow(prescriptionId) {
+        const db = this.prisma;
+        const prescription = await db.prescription.findUnique({
+            where: { id: prescriptionId },
+            include: {
+                appointment: {
+                    include: {
+                        patient: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                                email: true,
+                            },
+                        },
+                        doctor: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
+                pharmacy: {
+                    select: {
+                        fullName: true,
+                        email: true,
+                        address: true,
+                        phone: true,
+                        professionalProfile: {
+                            select: {
+                                pharmacyName: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
         if (!prescription) {
             throw new common_1.NotFoundException('Prescription not found');
@@ -272,6 +421,83 @@ let PrescriptionsService = class PrescriptionsService {
         if (!result) {
             throw new common_1.BadRequestException('Cannot sign prescription before lab result is uploaded');
         }
+    }
+    withPharmacySnapshot(prescription) {
+        const snapshot = this.getPharmacySnapshot(prescription);
+        return {
+            ...prescription,
+            pharmacySnapshot: snapshot,
+        };
+    }
+    getPharmacySnapshot(prescription) {
+        const pharmacyName = prescription.pharmacy?.professionalProfile?.pharmacyName ?? null;
+        const fullName = prescription.pharmacy?.fullName ?? null;
+        const email = prescription.pharmacy?.email ?? null;
+        const address = prescription.pharmacy?.address ?? null;
+        const phone = prescription.pharmacy?.phone ?? null;
+        const name = pharmacyName ?? fullName ?? email ?? 'Not assigned';
+        return {
+            id: prescription.pharmacyId,
+            name,
+            pharmacyName,
+            fullName,
+            email,
+            address,
+            phone,
+        };
+    }
+    buildPrescriptionPdfBuffer(prescription) {
+        const meds = Array.isArray(prescription.medications) ? prescription.medications : [];
+        const doctorName = prescription.appointment?.doctor?.fullName ||
+            prescription.appointment?.doctor?.email ||
+            'Unknown doctor';
+        const patientName = prescription.appointment?.patient?.fullName ||
+            prescription.appointment?.patient?.email ||
+            'Unknown patient';
+        const pharmacyName = prescription.pharmacy?.professionalProfile?.pharmacyName ||
+            prescription.pharmacy?.fullName ||
+            prescription.pharmacy?.email ||
+            'Not assigned';
+        return new Promise((resolve, reject) => {
+            const doc = new pdfkit_1.default({ size: 'A4', margin: 48 });
+            const chunks = [];
+            doc.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+            doc.fontSize(18).text('Prescription');
+            doc.moveDown(0.5);
+            doc.fontSize(11);
+            doc.text(`Prescription ID: ${prescription.id}`);
+            doc.text(`Appointment ID: ${prescription.appointmentId}`);
+            doc.text(`Doctor: ${doctorName}`);
+            doc.text(`Patient: ${patientName}`);
+            doc.text(`Status: ${prescription.status}`);
+            doc.moveDown(0.5);
+            doc.text(`Diagnosis: ${prescription.diagnosis || 'Not provided'}`);
+            doc.text(`Instructions: ${prescription.instructions || 'Not provided'}`);
+            doc.text(`Doctor Advice: ${prescription.notes || 'Not provided'}`);
+            doc.moveDown(0.5);
+            doc.text(`Pharmacy: ${pharmacyName}`);
+            doc.text(`Pharmacy Address: ${prescription.pharmacy?.address || 'Not provided'}`);
+            doc.text(`Pharmacy Phone: ${prescription.pharmacy?.phone || 'Not provided'}`);
+            doc.moveDown(0.8);
+            doc.fontSize(13).text('Medications');
+            doc.fontSize(11);
+            if (meds.length) {
+                meds.forEach((med, idx) => {
+                    doc.text(`${idx + 1}. ${med?.name || 'Unnamed'}`);
+                    doc.text(`   Dosage: ${med?.dosage || 'Not provided'}`);
+                    doc.text(`   Frequency: ${med?.frequency || 'Not provided'}`);
+                    doc.text(`   Duration: ${med?.duration || 'Not provided'}`);
+                    doc.text(`   Route: ${med?.route || 'Not provided'}`);
+                    doc.moveDown(0.2);
+                });
+            }
+            else {
+                doc.text('- No medications listed');
+            }
+            doc.end();
+        });
     }
 };
 exports.PrescriptionsService = PrescriptionsService;

@@ -7,6 +7,8 @@ describe('AuthController', () => {
   const authServiceMock = {
     register: jest.fn(),
     login: jest.fn(),
+    requestPasswordReset: jest.fn(),
+    resetPassword: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -48,5 +50,35 @@ describe('AuthController', () => {
 
     expect(authServiceMock.login).toHaveBeenCalledWith(dto);
     expect(result).toEqual({ access_token: 'token' });
+  });
+
+  it('forgotPassword forwards dto to service', async () => {
+    authServiceMock.requestPasswordReset.mockResolvedValueOnce({
+      message: 'If the email exists, a reset code has been sent.',
+    });
+    const dto = { email: 'a@a.com' };
+    const result = await controller.forgotPassword(dto);
+
+    expect(authServiceMock.requestPasswordReset).toHaveBeenCalledWith(dto);
+    expect(result).toEqual({
+      message: 'If the email exists, a reset code has been sent.',
+    });
+  });
+
+  it('resetPassword forwards dto to service', async () => {
+    authServiceMock.resetPassword.mockResolvedValueOnce({
+      message: 'Password reset successful',
+    });
+    const dto = {
+      email: 'a@a.com',
+      resetCode: '123456',
+      newPassword: 'secret123',
+    };
+    const result = await controller.resetPassword(dto);
+
+    expect(authServiceMock.resetPassword).toHaveBeenCalledWith(dto);
+    expect(result).toEqual({
+      message: 'Password reset successful',
+    });
   });
 });

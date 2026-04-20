@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import PDFDocument from 'pdfkit';
 import {
   AppointmentStatus,
   NotificationType,
@@ -22,6 +23,16 @@ type UploadedPrescriptionFile = {
   mimetype: string;
   size: number;
   buffer: Buffer;
+};
+
+type PharmacySnapshot = {
+  id: string;
+  name: string;
+  pharmacyName: string | null;
+  fullName: string | null;
+  email: string | null;
+  address: string | null;
+  phone: string | null;
 };
 
 const TRANSITIONS: Record<PrescriptionStatus, PrescriptionStatus[]> = {
@@ -67,13 +78,6 @@ export class PrescriptionsService {
     });
     if (!pharmacy || pharmacy.role !== Role.PHARMACY) {
       throw new BadRequestException('pharmacyId must belong to a pharmacy user');
-    }
-
-    const existing = await db.prescription.findUnique({
-      where: { appointmentId: dto.appointmentId },
-    });
-    if (existing) {
-      throw new BadRequestException('Prescription already exists for this appointment');
     }
 
     const prescription = await db.prescription.create({
@@ -256,6 +260,51 @@ export class PrescriptionsService {
     return updated;
   }
 
+  async generateDocumentByDoctor(doctorId: string, prescriptionId: string) {
+    const db = this.prisma as any;
+    const prescription = await this.getPrescriptionForDocumentGenerationOrThrow(prescriptionId);
+    this.assertDoctorOwnership(prescription.doctorId, doctorId);
+
+    const pdfBuffer = await this.buildPrescriptionPdfBuffer(prescription);
+    const upload = await this.cloudinaryService.uploadBuffer({
+      buffer: pdfBuffer,
+      fileName: `prescription-${prescription.id}.pdf`,
+      folder: 'prescriptions',
+      contentType: 'application/pdf',
+      resourceType: 'raw',
+    });
+
+    if (prescription.documentPublicId) {
+      await this.cloudinaryService.destroy(
+        prescription.documentPublicId,
+        prescription.documentMimeType?.startsWith('image/') ? 'image' : 'raw',
+      );
+    }
+
+    const updated = await db.prescription.update({
+      where: { id: prescriptionId },
+      data: {
+        documentUrl: upload.url,
+        documentPublicId: upload.publicId,
+        documentMimeType: upload.mimeType,
+        documentVersion: (prescription.documentVersion ?? 0) + 1,
+      },
+    });
+
+    await this.auditService.record(
+      doctorId,
+      'PRESCRIPTION_DOCUMENT_GENERATED',
+      'Prescription',
+      prescriptionId,
+      {
+        documentPublicId: updated.documentPublicId,
+        documentVersion: updated.documentVersion,
+      },
+    );
+
+    return updated;
+  }
+
   listMine(userId: string, role: Role) {
     const db = this.prisma as any;
     if (role === Role.DOCTOR) {
@@ -273,14 +322,45 @@ export class PrescriptionsService {
               },
             },
           },
+          pharmacy: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              professionalProfile: {
+                select: {
+                  pharmacyName: true,
+                },
+              },
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
-      });
+      }).then((items: any[]) => items.map((item) => this.withPharmacySnapshot(item)));
     }
     if (role === Role.PHARMACY) {
       return db.prescription.findMany({
         where: { pharmacyId: userId },
-        include: { appointment: true },
+        include: {
+          appointment: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+              doctor: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
     }
@@ -289,9 +369,25 @@ export class PrescriptionsService {
         where: {
           appointment: { patientId: userId },
         },
-        include: { appointment: true },
+        include: {
+          appointment: true,
+          pharmacy: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              address: true,
+              phone: true,
+              professionalProfile: {
+                select: {
+                  pharmacyName: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
-      });
+      }).then((items: any[]) => items.map((item) => this.withPharmacySnapshot(item)));
     }
 
     throw new ForbiddenException('Role cannot view prescriptions');
@@ -301,20 +397,51 @@ export class PrescriptionsService {
     const db = this.prisma as any;
     const prescription = await db.prescription.findUnique({
       where: { id: prescriptionId },
-      include: { appointment: true },
+      include: {
+        appointment: {
+          include: {
+            patient: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+            doctor: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        pharmacy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            professionalProfile: {
+              select: {
+                pharmacyName: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!prescription) {
       throw new NotFoundException('Prescription not found');
     }
 
     if (role === Role.DOCTOR && prescription.doctorId === userId) {
-      return prescription;
+      return this.withPharmacySnapshot(prescription);
     }
     if (role === Role.PHARMACY && prescription.pharmacyId === userId) {
       return prescription;
     }
     if (role === Role.PATIENT && prescription.appointment.patientId === userId) {
-      return prescription;
+      return this.withPharmacySnapshot(prescription);
     }
 
     throw new ForbiddenException('You are not allowed to access this prescription');
@@ -327,6 +454,52 @@ export class PrescriptionsService {
     const prescription = await db.prescription.findUnique({
       where: { id: prescriptionId },
       include: { appointment: true },
+    });
+    if (!prescription) {
+      throw new NotFoundException('Prescription not found');
+    }
+    return prescription;
+  }
+
+  private async getPrescriptionForDocumentGenerationOrThrow(
+    prescriptionId: string,
+  ): Promise<any> {
+    const db = this.prisma as any;
+    const prescription = await db.prescription.findUnique({
+      where: { id: prescriptionId },
+      include: {
+        appointment: {
+          include: {
+            patient: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+            doctor: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        pharmacy: {
+          select: {
+            fullName: true,
+            email: true,
+            address: true,
+            phone: true,
+            professionalProfile: {
+              select: {
+                pharmacyName: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!prescription) {
       throw new NotFoundException('Prescription not found');
@@ -367,5 +540,90 @@ export class PrescriptionsService {
     if (!result) {
       throw new BadRequestException('Cannot sign prescription before lab result is uploaded');
     }
+  }
+
+  private withPharmacySnapshot(prescription: any) {
+    const snapshot = this.getPharmacySnapshot(prescription);
+    return {
+      ...prescription,
+      pharmacySnapshot: snapshot,
+    };
+  }
+
+  private getPharmacySnapshot(prescription: any): PharmacySnapshot {
+    const pharmacyName = prescription.pharmacy?.professionalProfile?.pharmacyName ?? null;
+    const fullName = prescription.pharmacy?.fullName ?? null;
+    const email = prescription.pharmacy?.email ?? null;
+    const address = prescription.pharmacy?.address ?? null;
+    const phone = prescription.pharmacy?.phone ?? null;
+    const name = pharmacyName ?? fullName ?? email ?? 'Not assigned';
+
+    return {
+      id: prescription.pharmacyId,
+      name,
+      pharmacyName,
+      fullName,
+      email,
+      address,
+      phone,
+    };
+  }
+
+  private buildPrescriptionPdfBuffer(prescription: any): Promise<Buffer> {
+    const meds = Array.isArray(prescription.medications) ? prescription.medications : [];
+    const doctorName =
+      prescription.appointment?.doctor?.fullName ||
+      prescription.appointment?.doctor?.email ||
+      'Unknown doctor';
+    const patientName =
+      prescription.appointment?.patient?.fullName ||
+      prescription.appointment?.patient?.email ||
+      'Unknown patient';
+    const pharmacyName =
+      prescription.pharmacy?.professionalProfile?.pharmacyName ||
+      prescription.pharmacy?.fullName ||
+      prescription.pharmacy?.email ||
+      'Not assigned';
+
+    return new Promise<Buffer>((resolve, reject) => {
+      const doc = new PDFDocument({ size: 'A4', margin: 48 });
+      const chunks: Buffer[] = [];
+      doc.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+
+      doc.fontSize(18).text('Prescription');
+      doc.moveDown(0.5);
+      doc.fontSize(11);
+      doc.text(`Prescription ID: ${prescription.id}`);
+      doc.text(`Appointment ID: ${prescription.appointmentId}`);
+      doc.text(`Doctor: ${doctorName}`);
+      doc.text(`Patient: ${patientName}`);
+      doc.text(`Status: ${prescription.status}`);
+      doc.moveDown(0.5);
+      doc.text(`Diagnosis: ${prescription.diagnosis || 'Not provided'}`);
+      doc.text(`Instructions: ${prescription.instructions || 'Not provided'}`);
+      doc.text(`Doctor Advice: ${prescription.notes || 'Not provided'}`);
+      doc.moveDown(0.5);
+      doc.text(`Pharmacy: ${pharmacyName}`);
+      doc.text(`Pharmacy Address: ${prescription.pharmacy?.address || 'Not provided'}`);
+      doc.text(`Pharmacy Phone: ${prescription.pharmacy?.phone || 'Not provided'}`);
+      doc.moveDown(0.8);
+      doc.fontSize(13).text('Medications');
+      doc.fontSize(11);
+      if (meds.length) {
+        meds.forEach((med: any, idx: number) => {
+          doc.text(`${idx + 1}. ${med?.name || 'Unnamed'}`);
+          doc.text(`   Dosage: ${med?.dosage || 'Not provided'}`);
+          doc.text(`   Frequency: ${med?.frequency || 'Not provided'}`);
+          doc.text(`   Duration: ${med?.duration || 'Not provided'}`);
+          doc.text(`   Route: ${med?.route || 'Not provided'}`);
+          doc.moveDown(0.2);
+        });
+      } else {
+        doc.text('- No medications listed');
+      }
+      doc.end();
+    });
   }
 }

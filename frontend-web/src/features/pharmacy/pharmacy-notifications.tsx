@@ -1,8 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Socket } from 'socket.io-client'
 import { Bell, FileText } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
+import {
+  showBrowserNotification,
+} from '../../lib/browser-notifications'
 import { connectNotificationsSocket } from '../../lib/socket'
 import { useAuth } from '../auth/auth-context'
 import { NotificationsPanel } from '../notifications/notifications-panel'
@@ -14,6 +18,8 @@ export function PharmacyNotificationsPage() {
   const notificationsQuery = usePharmacyNotifications()
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [realtimeEvents, setRealtimeEvents] = useState<string[]>([])
+  const [socketWarning, setSocketWarning] = useState<string | null>(null)
+  const didWarnOnceRef = useRef(false)
 
   useEffect(() => {
     if (!token) return
@@ -21,9 +27,37 @@ export function PharmacyNotificationsPage() {
     const onEvent = (eventName: string) => {
       setRealtimeEvents((prev) => [eventName, ...prev].slice(0, 20))
       void queryClient.invalidateQueries({ queryKey: pharmacyInvalidateKeys.notifications })
+      if (eventName === 'prescription.ready') {
+        showBrowserNotification('Prescription Ready', {
+          body: 'A prescription is ready for dispensing.',
+        })
+      }
     }
+    const onConnect = () => {
+      setSocketWarning(null)
+      didWarnOnceRef.current = false
+    }
+    const onConnectError = (err: { message?: string }) => {
+      setSocketWarning('Realtime connection unavailable. Retrying...')
+      if (!didWarnOnceRef.current) {
+        console.warn('notifications socket connect_error:', err?.message ?? 'unknown')
+        didWarnOnceRef.current = true
+      }
+    }
+    const onDisconnect = (reason: string) => {
+      if (reason !== 'io client disconnect') {
+        setSocketWarning('Realtime connection unavailable. Retrying...')
+      }
+    }
+    socket.on('connect', onConnect)
+    socket.on('connect_error', onConnectError)
+    socket.on('disconnect', onDisconnect)
     socket.on('prescription.ready', () => onEvent('prescription.ready'))
     return () => {
+      socket.off('connect', onConnect)
+      socket.off('connect_error', onConnectError)
+      socket.off('disconnect', onDisconnect)
+      socket.off('prescription.ready')
       socket.disconnect()
     }
   }, [queryClient, token])
@@ -51,12 +85,19 @@ export function PharmacyNotificationsPage() {
     return filter === 'unread' ? list.filter((item) => !item.read) : list
   }, [filter, notificationsQuery.data])
 
+  const getPrescriptionIdFromMessage = (message: string) => {
+    const match = message.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i)
+    return match?.[0] ?? null
+  }
+
   return (
     <div className="page">
       <div className="page-head">
         <h1>Notifications</h1>
         <p>Pharmacy inbox with read-state controls and realtime updates.</p>
       </div>
+
+      {socketWarning ? <p className="muted">{socketWarning}</p> : null}
 
       <section className="kpi-grid kpi-three">
         <article className="kpi">
@@ -109,6 +150,20 @@ export function PharmacyNotificationsPage() {
               ) : (
                 <span className="muted">Read</span>
               )}
+              {item.type === 'PRESCRIPTION_READY' ? (
+                getPrescriptionIdFromMessage(item.message) ? (
+                  <Link
+                    to={`/pharmacy/prescriptions/${getPrescriptionIdFromMessage(item.message)}`}
+                    className="quick-link"
+                  >
+                    Open Prescription
+                  </Link>
+                ) : (
+                  <Link to="/pharmacy/prescriptions" className="quick-link">
+                    Open Queue
+                  </Link>
+                )
+              ) : null}
             </li>
           ))}
           {visible.length === 0 ? <li className="empty">No notifications found.</li> : null}
