@@ -26,6 +26,10 @@ class _PatientAppState extends State<PatientApp> {
       widget.dependencies.notificationPermissionCoordinator
           .promptOnFirstLaunchIfNeeded(),
     );
+    unawaited(
+      widget.dependencies.storagePermissionCoordinator
+          .promptOnFirstLaunchIfNeeded(),
+    );
   }
 
   @override

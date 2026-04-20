@@ -52,13 +52,15 @@ class _PrescriptionDetailsPageState extends State<PrescriptionDetailsPage> {
         );
         if (!opened && mounted) {
           messenger.showSnackBar(
-            const SnackBar(content: Text('File saved in app storage.')),
+            const SnackBar(
+              content: Text('File saved in Download/MedFlow.'),
+            ),
           );
         }
       } catch (_) {
         if (!mounted) return;
         messenger.showSnackBar(
-          const SnackBar(content: Text('File saved in app storage.')),
+          const SnackBar(content: Text('File saved in Download/MedFlow.')),
         );
       }
     } on FileDownloadException catch (error) {
