@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app/app.dart';
 import 'app/app_dependencies.dart';
 import 'app/permissions/notification_permission_coordinator.dart';
+import 'app/permissions/storage_permission_coordinator.dart';
 import 'app/state/session_controller.dart';
 import 'core/api/api_client.dart';
 import 'core/config/app_config.dart';
@@ -38,6 +39,10 @@ Future<void> main() async {
     preferences: preferences,
     requester: const PermissionHandlerNotificationPermissionRequester(),
   );
+  final storagePermissionCoordinator = StoragePermissionCoordinator(
+    preferences: preferences,
+    requester: const PermissionHandlerStoragePermissionRequester(),
+  );
   final dependencies = AppDependencies(
     config: config,
     apiClient: apiClient,
@@ -52,6 +57,7 @@ Future<void> main() async {
     notificationsRealtimeService: notificationsRealtimeService,
     notificationsCenterController: notificationsCenterController,
     notificationPermissionCoordinator: notificationPermissionCoordinator,
+    storagePermissionCoordinator: storagePermissionCoordinator,
   );
 
   await session.bootstrap();
