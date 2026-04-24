@@ -1,0 +1,73 @@
+\contentsline {chapter}{Title Page}{i}{Doc-Start}%
+\contentsline {chapter}{Acknowledgment}{ii}{chapter*.1}%
+\contentsline {chapter}{Abstract}{iii}{chapter*.2}%
+\contentsline {chapter}{Contents}{iv}{chapter*.2}%
+\contentsline {chapter}{List of Tables}{vii}{chapter*.2}%
+\contentsline {chapter}{List of Figures}{viii}{chapter*.3}%
+\contentsline {chapter}{\numberline {I}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Introduction}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Background / Problem Statement}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectives}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Scope}{2}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Unfamiliarity of the Problem / Topic / Solution}{2}{section.1.5}%
+\contentsline {section}{\numberline {1.6}Project Planning and Work Distribution}{3}{section.1.6}%
+\contentsline {section}{\numberline {1.7}Applications of the Work}{3}{section.1.7}%
+\contentsline {section}{\numberline {1.8}Organization of the Project}{4}{section.1.8}%
+\contentsline {chapter}{\numberline {II}Related Works}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introduction}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Related Works}{5}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Electronic Health Record Systems}{5}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Commercial Appointment APIs}{5}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Pharmacy and Laboratory Information Systems}{6}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Clinical Workflow Backends}{6}{subsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.2.5}Flutter Healthcare Applications}{6}{subsection.2.2.5}%
+\contentsline {section}{\numberline {2.3}Discussion}{6}{section.2.3}%
+\contentsline {chapter}{\numberline {III}System Analysis and Design}{8}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Introduction}{8}{section.3.1}%
+\contentsline {section}{\numberline {3.2}System Analysis and Design Approach}{8}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Overall Framework and Architecture}{8}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Data Flow Diagram}{9}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Backend Module Structure}{9}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Web Frontend Architecture}{9}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Mobile Frontend Architecture}{9}{subsection.3.3.4}%
+\contentsline {section}{\numberline {3.4}Problem Design and Analysis}{14}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Role Identification}{14}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Appointment State Machine}{19}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Prescription State Machine}{19}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Lab Order State Machine}{22}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Database Schema Design}{22}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Conclusion}{22}{section.3.6}%
+\contentsline {chapter}{\numberline {IV}Implementation, Results and Discussions}{26}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Introduction}{26}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Experimental Setup}{26}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Evaluation Metrics}{26}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Dataset}{26}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Implementation and Results}{27}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Backend Implementation}{27}{subsection.4.5.1}%
+\contentsline {subsubsection}{Authentication and Registration}{27}{subsubsection*.24}%
+\contentsline {subsubsection}{Appointment Service}{27}{subsubsection*.25}%
+\contentsline {subsubsection}{Prescription Service}{27}{subsubsection*.26}%
+\contentsline {subsubsection}{Lab Order and Result Service}{28}{subsubsection*.27}%
+\contentsline {subsubsection}{WebSocket Notification Gateway}{28}{subsubsection*.28}%
+\contentsline {subsubsection}{Cloudinary Service}{28}{subsubsection*.30}%
+\contentsline {subsection}{\numberline {4.5.2}REST API Endpoints}{28}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}React Web Frontend Implementation}{30}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Flutter Mobile Frontend Implementation}{31}{subsection.4.5.4}%
+\contentsline {subsection}{\numberline {4.5.5}Qualitative Results}{31}{subsection.4.5.5}%
+\contentsline {subsection}{\numberline {4.5.6}Quantitative Results}{31}{subsection.4.5.6}%
+\contentsline {subsection}{\numberline {4.5.7}Objective Achievement}{33}{subsection.4.5.7}%
+\contentsline {section}{\numberline {4.6}Conclusion}{33}{section.4.6}%
+\contentsline {chapter}{\numberline {V}Societal, Health, Environment, Safety, Ethical, Legal and Cultural Issues}{34}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Intellectual Property Considerations}{34}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Ethical Considerations}{34}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Safety Considerations}{34}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Legal Considerations}{34}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Impact of the Project on Societal, Health, and Cultural Issues}{35}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Impact of Project on the Environment and Sustainability}{35}{section.5.6}%
+\contentsline {chapter}{\numberline {VI}Addressing Complex Engineering Problems and Activities}{36}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Complex Engineering Problems Associated with the Current Project}{36}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Complex Engineering Activities Associated with the Current Project}{36}{section.6.2}%
+\contentsline {chapter}{\numberline {VII}Conclusions}{37}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Summary}{37}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Limitations}{37}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Recommendations and Future Works}{37}{section.7.3}%

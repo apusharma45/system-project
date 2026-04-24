@@ -82,4 +82,54 @@ describe('DiagnosticService', () => {
       },
     });
   });
+
+  it('updateProfileForAdmin can update diagnostic profile fields', async () => {
+    prismaMock.user.findUnique
+      .mockResolvedValueOnce({ id: 'diag-1', role: Role.DIAGNOSTIC })
+      .mockResolvedValueOnce({
+        id: 'diag-1',
+        fullName: 'Prime Lab Updated',
+        email: 'lab@medflow.local',
+        role: Role.DIAGNOSTIC,
+        phone: '+8801700000099',
+        address: 'Updated Address',
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        professionalProfile: { licenseNumber: 'LAB-2001', specialization: 'Pathology' },
+      });
+
+    await service.updateProfileForAdmin('diag-1', {
+      fullName: 'Prime Lab Updated',
+      phone: '+8801700000099',
+      address: 'Updated Address',
+      licenseNumber: 'LAB-2001',
+      specialization: 'Pathology',
+      gender: 'MALE',
+      dateOfBirth: '1995-03-01',
+    });
+
+    expect(prismaMock.user.update).toHaveBeenCalledWith({
+      where: { id: 'diag-1' },
+      data: {
+        fullName: 'Prime Lab Updated',
+        phone: '+8801700000099',
+        address: 'Updated Address',
+        professionalProfile: {
+          upsert: {
+            create: {
+              licenseNumber: 'LAB-2001',
+              specialization: 'Pathology',
+              gender: 'MALE',
+              dateOfBirth: new Date('1995-03-01'),
+            },
+            update: {
+              licenseNumber: 'LAB-2001',
+              specialization: 'Pathology',
+              gender: 'MALE',
+              dateOfBirth: new Date('1995-03-01'),
+            },
+          },
+        },
+      },
+    });
+  });
 });

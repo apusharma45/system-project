@@ -7,7 +7,7 @@ import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 export class PatientsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMyProfile(patientId: string) {
+  private async getPatientProfile(patientId: string) {
     const patient = await this.prisma.user.findUnique({
       where: { id: patientId },
       select: {
@@ -42,7 +42,31 @@ export class PatientsService {
     };
   }
 
-  async updateMyProfile(patientId: string, dto: UpdateMyProfileDto) {
+  async getMyProfile(patientId: string) {
+    return this.getPatientProfile(patientId);
+  }
+
+  async getProfileForAdmin(patientId: string) {
+    return this.getPatientProfile(patientId);
+  }
+
+  async listPatientsForAdmin() {
+    return this.prisma.user.findMany({
+      where: { role: Role.PATIENT },
+      select: {
+        id: true,
+        fullName: true,
+        avatarUrl: true,
+        email: true,
+        role: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  private async updatePatientProfile(patientId: string, dto: UpdateMyProfileDto) {
     const patient = await this.prisma.user.findUnique({
       where: { id: patientId },
       select: { id: true, role: true },
@@ -83,7 +107,15 @@ export class PatientsService {
       },
     });
 
-    return this.getMyProfile(patientId);
+    return this.getPatientProfile(patientId);
+  }
+
+  async updateMyProfile(patientId: string, dto: UpdateMyProfileDto) {
+    return this.updatePatientProfile(patientId, dto);
+  }
+
+  async updateProfileForAdmin(patientId: string, dto: UpdateMyProfileDto) {
+    return this.updatePatientProfile(patientId, dto);
   }
 
   async getProfileForDoctor(doctorId: string, patientId: string) {

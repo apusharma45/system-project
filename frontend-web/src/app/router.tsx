@@ -28,6 +28,18 @@ import { DiagnosticLabOrdersPage } from '../features/diagnostic/diagnostic-lab-o
 import { DiagnosticLabOrderDetailsPage } from '../features/diagnostic/diagnostic-lab-order-details'
 import { DiagnosticNotificationsPage } from '../features/diagnostic/diagnostic-notifications'
 import { DiagnosticProfilePage } from '../features/diagnostic/diagnostic-profile'
+import {
+  AdminAuditPage,
+  AdminDiagnosticsPage,
+  AdminDoctorsPage,
+  AdminPharmaciesPage,
+  AdminIntegrationsPage,
+  AdminLayout,
+  AdminNotificationsPage,
+  AdminOverviewPage,
+  AdminProfilePage,
+  AdminUsersPage,
+} from '../features/admin/admin-ui'
 import { useAuth } from '../features/auth/auth-context'
 
 function RoleHomeRedirect() {
@@ -37,6 +49,7 @@ function RoleHomeRedirect() {
   if (user.role === 'PATIENT') return <Navigate to="/patient" replace />
   if (user.role === 'PHARMACY') return <Navigate to="/pharmacy" replace />
   if (user.role === 'DIAGNOSTIC') return <Navigate to="/diagnostic" replace />
+  if (user.role === 'ADMIN') return <Navigate to="/admin" replace />
   return <Navigate to="/login" replace />
 }
 
@@ -180,6 +193,52 @@ export const router = createBrowserRouter([
               {
                 path: '/diagnostic/profile',
                 element: <DiagnosticProfilePage />,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        element: <RequireRole roles={['ADMIN']} />,
+        children: [
+          {
+            element: <AdminLayout />,
+            children: [
+              {
+                path: '/admin',
+                element: <AdminOverviewPage />,
+              },
+              {
+                path: '/admin/users',
+                element: <AdminUsersPage />,
+              },
+              {
+                path: '/admin/doctors',
+                element: <AdminDoctorsPage />,
+              },
+              {
+                path: '/admin/pharmacies',
+                element: <AdminPharmaciesPage />,
+              },
+              {
+                path: '/admin/diagnostics',
+                element: <AdminDiagnosticsPage />,
+              },
+              {
+                path: '/admin/notifications',
+                element: <AdminNotificationsPage />,
+              },
+              {
+                path: '/admin/audit',
+                element: <AdminAuditPage />,
+              },
+              {
+                path: '/admin/integrations',
+                element: <AdminIntegrationsPage />,
+              },
+              {
+                path: '/admin/profile',
+                element: <AdminProfilePage />,
               },
             ],
           },

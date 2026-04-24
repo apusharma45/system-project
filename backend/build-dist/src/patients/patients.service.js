@@ -18,7 +18,7 @@ let PatientsService = class PatientsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getMyProfile(patientId) {
+    async getPatientProfile(patientId) {
         const patient = await this.prisma.user.findUnique({
             where: { id: patientId },
             select: {
@@ -50,7 +50,28 @@ let PatientsService = class PatientsService {
             },
         };
     }
-    async updateMyProfile(patientId, dto) {
+    async getMyProfile(patientId) {
+        return this.getPatientProfile(patientId);
+    }
+    async getProfileForAdmin(patientId) {
+        return this.getPatientProfile(patientId);
+    }
+    async listPatientsForAdmin() {
+        return this.prisma.user.findMany({
+            where: { role: client_1.Role.PATIENT },
+            select: {
+                id: true,
+                fullName: true,
+                avatarUrl: true,
+                email: true,
+                role: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
+    async updatePatientProfile(patientId, dto) {
         const patient = await this.prisma.user.findUnique({
             where: { id: patientId },
             select: { id: true, role: true },
@@ -87,7 +108,13 @@ let PatientsService = class PatientsService {
                     : undefined,
             },
         });
-        return this.getMyProfile(patientId);
+        return this.getPatientProfile(patientId);
+    }
+    async updateMyProfile(patientId, dto) {
+        return this.updatePatientProfile(patientId, dto);
+    }
+    async updateProfileForAdmin(patientId, dto) {
+        return this.updatePatientProfile(patientId, dto);
     }
     async getProfileForDoctor(doctorId, patientId) {
         const canAccess = await this.prisma.appointment.findFirst({

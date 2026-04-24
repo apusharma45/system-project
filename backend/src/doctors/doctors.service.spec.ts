@@ -111,4 +111,20 @@ describe('DoctorsService', () => {
       },
     });
   });
+
+  it('getProfileForAdmin returns the same doctor payload', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({
+      id: 'd1',
+      fullName: 'Dr. Admin View',
+      email: 'admin-view@medflow.local',
+      role: Role.DOCTOR,
+      phone: '+8801700000001',
+      address: 'Dhaka',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      professionalProfile: { specialization: 'Neurology' },
+    });
+
+    const result = await service.getProfileForAdmin('d1');
+    expect(result.doctor.profile.specialization).toBe('Neurology');
+  });
 });

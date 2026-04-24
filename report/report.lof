@@ -1,0 +1,24 @@
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Gantt Chart of Project Timeline}}{4}{figure.caption.6}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Overall System Architecture of MedFlow}}{10}{figure.caption.8}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Level-0 Data Flow Diagram of MedFlow}}{11}{figure.caption.9}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Level-1 Data Flow Diagram of MedFlow}}{12}{figure.caption.10}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Use Case Diagram of MedFlow --- Authentication and Patient Care Access}}{15}{figure.caption.12}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Use Case Diagram of MedFlow --- Patient and Doctor Workflows}}{16}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Use Case Diagram of MedFlow --- Pharmacy and Diagnostic Workflows}}{17}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Use Case Diagram of MedFlow --- Oversight and System Side Effects}}{18}{figure.caption.15}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Appointment Finite-State Machine}}{20}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Prescription Finite-State Machine}}{21}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Lab Order Finite-State Machine}}{23}{figure.caption.21}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Entity Relationship Diagram of MedFlow}}{25}{figure.caption.23}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Appointment Called Notification Sequence}}{29}{figure.caption.29}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Doctor Dashboard and Analytics Interface}}{30}{figure.caption.33}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Doctor Appointment Details and Prescription Creation Interface}}{31}{figure.caption.34}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Patient Mobile Dashboard Interface}}{32}{figure.caption.35}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Distribution of Passing Automated Tests Across Codebases}}{33}{figure.caption.37}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

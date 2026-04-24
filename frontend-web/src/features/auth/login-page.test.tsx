@@ -8,7 +8,7 @@ const getMock = vi.fn()
 const loginMock = vi.fn().mockResolvedValue(undefined)
 const navigateMock = vi.fn()
 const authState = {
-  user: null as null | { role: 'PATIENT' | 'DOCTOR' | 'PHARMACY' | 'DIAGNOSTIC' },
+  user: null as null | { role: 'PATIENT' | 'DOCTOR' | 'PHARMACY' | 'DIAGNOSTIC' | 'ADMIN' },
 }
 
 vi.mock('../../lib/api', () => ({
@@ -74,6 +74,25 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(navigateMock).toHaveBeenCalledWith('/diagnostic')
+    })
+  })
+
+  it('redirects admin role to admin route after login', async () => {
+    postMock.mockResolvedValue({ data: { access_token: 'token' } })
+    getMock.mockResolvedValue({ data: { role: 'ADMIN' } })
+
+    render(
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'admin@example.com' } })
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'secret123' } })
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith('/admin')
     })
   })
 })
