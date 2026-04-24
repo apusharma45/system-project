@@ -18,7 +18,7 @@ let DiagnosticService = class DiagnosticService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getMyProfile(diagnosticId) {
+    async getDiagnosticProfile(diagnosticId) {
         const diagnostic = await this.prisma.user.findUnique({
             where: { id: diagnosticId },
             select: {
@@ -50,7 +50,13 @@ let DiagnosticService = class DiagnosticService {
             },
         };
     }
-    async updateMyProfile(diagnosticId, dto) {
+    async getMyProfile(diagnosticId) {
+        return this.getDiagnosticProfile(diagnosticId);
+    }
+    async getProfileForAdmin(diagnosticId) {
+        return this.getDiagnosticProfile(diagnosticId);
+    }
+    async updateDiagnosticProfile(diagnosticId, dto) {
         const diagnostic = await this.prisma.user.findUnique({
             where: { id: diagnosticId },
             select: { id: true, role: true },
@@ -58,15 +64,40 @@ let DiagnosticService = class DiagnosticService {
         if (!diagnostic || diagnostic.role !== client_1.Role.DIAGNOSTIC) {
             throw new common_1.NotFoundException('Diagnostic user not found');
         }
+        const profileData = {
+            ...(dto.licenseNumber !== undefined ? { licenseNumber: dto.licenseNumber } : {}),
+            ...(dto.specialization !== undefined ? { specialization: dto.specialization } : {}),
+            ...(dto.dateOfBirth !== undefined
+                ? { dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null }
+                : {}),
+            ...(dto.gender !== undefined ? { gender: dto.gender } : {}),
+        };
+        const hasProfileData = Object.keys(profileData).length > 0;
         await this.prisma.user.update({
             where: { id: diagnosticId },
             data: {
                 fullName: dto.fullName,
                 phone: dto.phone,
                 address: dto.address,
+                ...(hasProfileData
+                    ? {
+                        professionalProfile: {
+                            upsert: {
+                                create: profileData,
+                                update: profileData,
+                            },
+                        },
+                    }
+                    : {}),
             },
         });
-        return this.getMyProfile(diagnosticId);
+        return this.getDiagnosticProfile(diagnosticId);
+    }
+    async updateMyProfile(diagnosticId, dto) {
+        return this.updateDiagnosticProfile(diagnosticId, dto);
+    }
+    async updateProfileForAdmin(diagnosticId, dto) {
+        return this.updateDiagnosticProfile(diagnosticId, dto);
     }
 };
 exports.DiagnosticService = DiagnosticService;

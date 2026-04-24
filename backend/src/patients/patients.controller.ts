@@ -15,6 +15,12 @@ type RequestUser = {
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
+  @Get()
+  @Roles(Role.ADMIN)
+  listPatients() {
+    return this.patientsService.listPatientsForAdmin();
+  }
+
   @Get('me/profile')
   @Roles(Role.PATIENT)
   getMyProfile(@Req() req: { user: RequestUser }) {
@@ -25,6 +31,21 @@ export class PatientsController {
   @Roles(Role.PATIENT)
   updateMyProfile(@Req() req: { user: RequestUser }, @Body() dto: UpdateMyProfileDto) {
     return this.patientsService.updateMyProfile(req.user.userId, dto);
+  }
+
+  @Get(':patientId/admin-profile')
+  @Roles(Role.ADMIN)
+  getProfileForAdmin(@Param('patientId', ParseUUIDPipe) patientId: string) {
+    return this.patientsService.getProfileForAdmin(patientId);
+  }
+
+  @Patch(':patientId/admin-profile')
+  @Roles(Role.ADMIN)
+  updateProfileForAdmin(
+    @Param('patientId', ParseUUIDPipe) patientId: string,
+    @Body() dto: UpdateMyProfileDto,
+  ) {
+    return this.patientsService.updateProfileForAdmin(patientId, dto);
   }
 
   @Get(':patientId/profile')

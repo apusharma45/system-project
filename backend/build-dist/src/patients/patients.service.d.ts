@@ -1,8 +1,10 @@
+import { Role } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 export declare class PatientsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
+    private getPatientProfile;
     getMyProfile(patientId: string): Promise<{
         patient: {
             id: string;
@@ -31,7 +33,71 @@ export declare class PatientsService {
             } | null;
         };
     }>;
+    getProfileForAdmin(patientId: string): Promise<{
+        patient: {
+            id: string;
+            fullName: string | null;
+            avatarUrl: string | null;
+            email: string;
+            role: "PATIENT";
+            phone: string | null;
+            address: string | null;
+            joinedAt: Date;
+            profile: {
+                id: string;
+                phone: string | null;
+                address: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                patientId: string;
+                dateOfBirth: Date | null;
+                gender: string | null;
+                allergies: string | null;
+                chronicConditions: string | null;
+                currentMedications: string | null;
+                emergencyContactName: string | null;
+                emergencyContactPhone: string | null;
+                emergencyContactRelation: string | null;
+            } | null;
+        };
+    }>;
+    listPatientsForAdmin(): Promise<{
+        id: string;
+        fullName: string | null;
+        avatarUrl: string | null;
+        email: string;
+        role: Role;
+    }[]>;
+    private updatePatientProfile;
     updateMyProfile(patientId: string, dto: UpdateMyProfileDto): Promise<{
+        patient: {
+            id: string;
+            fullName: string | null;
+            avatarUrl: string | null;
+            email: string;
+            role: "PATIENT";
+            phone: string | null;
+            address: string | null;
+            joinedAt: Date;
+            profile: {
+                id: string;
+                phone: string | null;
+                address: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                patientId: string;
+                dateOfBirth: Date | null;
+                gender: string | null;
+                allergies: string | null;
+                chronicConditions: string | null;
+                currentMedications: string | null;
+                emergencyContactName: string | null;
+                emergencyContactPhone: string | null;
+                emergencyContactRelation: string | null;
+            } | null;
+        };
+    }>;
+    updateProfileForAdmin(patientId: string, dto: UpdateMyProfileDto): Promise<{
         patient: {
             id: string;
             fullName: string | null;

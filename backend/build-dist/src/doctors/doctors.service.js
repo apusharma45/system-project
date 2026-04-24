@@ -18,7 +18,7 @@ let DoctorsService = class DoctorsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getMyProfile(doctorId) {
+    async getDoctorProfile(doctorId) {
         const doctor = await this.prisma.user.findUnique({
             where: { id: doctorId },
             select: {
@@ -50,15 +50,14 @@ let DoctorsService = class DoctorsService {
             },
         };
     }
-    async updateMyProfile(doctorId, dto) {
-        const doctor = await this.prisma.user.findUnique({
-            where: { id: doctorId },
-            select: { id: true, role: true },
-        });
-        if (!doctor || doctor.role !== client_1.Role.DOCTOR) {
-            throw new common_1.NotFoundException('Doctor not found');
-        }
-        const profileData = {
+    async getMyProfile(doctorId) {
+        return this.getDoctorProfile(doctorId);
+    }
+    async getProfileForAdmin(doctorId) {
+        return this.getDoctorProfile(doctorId);
+    }
+    buildProfileData(dto) {
+        return {
             ...(dto.licenseNumber !== undefined ? { licenseNumber: dto.licenseNumber } : {}),
             ...(dto.specialization !== undefined ? { specialization: dto.specialization } : {}),
             ...(dto.dateOfBirth !== undefined
@@ -86,6 +85,16 @@ let DoctorsService = class DoctorsService {
                 }
                 : {}),
         };
+    }
+    async updateDoctorProfile(doctorId, dto) {
+        const doctor = await this.prisma.user.findUnique({
+            where: { id: doctorId },
+            select: { id: true, role: true },
+        });
+        if (!doctor || doctor.role !== client_1.Role.DOCTOR) {
+            throw new common_1.NotFoundException('Doctor not found');
+        }
+        const profileData = this.buildProfileData(dto);
         const hasProfileData = Object.keys(profileData).length > 0;
         await this.prisma.user.update({
             where: { id: doctorId },
@@ -105,7 +114,13 @@ let DoctorsService = class DoctorsService {
                     : {}),
             },
         });
-        return this.getMyProfile(doctorId);
+        return this.getDoctorProfile(doctorId);
+    }
+    async updateMyProfile(doctorId, dto) {
+        return this.updateDoctorProfile(doctorId, dto);
+    }
+    async updateProfileForAdmin(doctorId, dto) {
+        return this.updateDoctorProfile(doctorId, dto);
     }
 };
 exports.DoctorsService = DoctorsService;

@@ -25,17 +25,33 @@ let PatientsController = class PatientsController {
     constructor(patientsService) {
         this.patientsService = patientsService;
     }
+    listPatients() {
+        return this.patientsService.listPatientsForAdmin();
+    }
     getMyProfile(req) {
         return this.patientsService.getMyProfile(req.user.userId);
     }
     updateMyProfile(req, dto) {
         return this.patientsService.updateMyProfile(req.user.userId, dto);
     }
+    getProfileForAdmin(patientId) {
+        return this.patientsService.getProfileForAdmin(patientId);
+    }
+    updateProfileForAdmin(patientId, dto) {
+        return this.patientsService.updateProfileForAdmin(patientId, dto);
+    }
     getProfile(req, patientId) {
         return this.patientsService.getProfileForDoctor(req.user.userId, patientId);
     }
 };
 exports.PatientsController = PatientsController;
+__decorate([
+    (0, common_1.Get)(),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PatientsController.prototype, "listPatients", null);
 __decorate([
     (0, common_1.Get)('me/profile'),
     (0, roles_decorator_1.Roles)(client_1.Role.PATIENT),
@@ -53,6 +69,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, update_my_profile_dto_1.UpdateMyProfileDto]),
     __metadata("design:returntype", void 0)
 ], PatientsController.prototype, "updateMyProfile", null);
+__decorate([
+    (0, common_1.Get)(':patientId/admin-profile'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('patientId', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], PatientsController.prototype, "getProfileForAdmin", null);
+__decorate([
+    (0, common_1.Patch)(':patientId/admin-profile'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('patientId', common_1.ParseUUIDPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_my_profile_dto_1.UpdateMyProfileDto]),
+    __metadata("design:returntype", void 0)
+], PatientsController.prototype, "updateProfileForAdmin", null);
 __decorate([
     (0, common_1.Get)(':patientId/profile'),
     (0, roles_decorator_1.Roles)(client_1.Role.DOCTOR),

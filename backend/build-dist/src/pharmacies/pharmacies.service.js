@@ -18,7 +18,7 @@ let PharmaciesService = class PharmaciesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getMyProfile(pharmacyId) {
+    async getPharmacyProfile(pharmacyId) {
         const pharmacy = await this.prisma.user.findUnique({
             where: { id: pharmacyId },
             select: {
@@ -50,7 +50,13 @@ let PharmaciesService = class PharmaciesService {
             },
         };
     }
-    async updateMyProfile(pharmacyId, dto) {
+    async getMyProfile(pharmacyId) {
+        return this.getPharmacyProfile(pharmacyId);
+    }
+    async getProfileForAdmin(pharmacyId) {
+        return this.getPharmacyProfile(pharmacyId);
+    }
+    async updatePharmacyProfile(pharmacyId, dto) {
         const pharmacy = await this.prisma.user.findUnique({
             where: { id: pharmacyId },
             select: { id: true, role: true },
@@ -58,15 +64,36 @@ let PharmaciesService = class PharmaciesService {
         if (!pharmacy || pharmacy.role !== client_1.Role.PHARMACY) {
             throw new common_1.NotFoundException('Pharmacy user not found');
         }
+        const profileData = {
+            ...(dto.licenseNumber !== undefined ? { licenseNumber: dto.licenseNumber } : {}),
+            ...(dto.pharmacyName !== undefined ? { pharmacyName: dto.pharmacyName } : {}),
+        };
+        const hasProfileData = Object.keys(profileData).length > 0;
         await this.prisma.user.update({
             where: { id: pharmacyId },
             data: {
                 fullName: dto.fullName,
                 phone: dto.phone,
                 address: dto.address,
+                ...(hasProfileData
+                    ? {
+                        professionalProfile: {
+                            upsert: {
+                                create: profileData,
+                                update: profileData,
+                            },
+                        },
+                    }
+                    : {}),
             },
         });
-        return this.getMyProfile(pharmacyId);
+        return this.getPharmacyProfile(pharmacyId);
+    }
+    async updateMyProfile(pharmacyId, dto) {
+        return this.updatePharmacyProfile(pharmacyId, dto);
+    }
+    async updateProfileForAdmin(pharmacyId, dto) {
+        return this.updatePharmacyProfile(pharmacyId, dto);
     }
 };
 exports.PharmaciesService = PharmaciesService;
