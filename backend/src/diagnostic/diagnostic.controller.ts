@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Req, UseGuards } from '@nestjs/common';
 import { Role } from '../../generated/prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -28,5 +28,20 @@ export class DiagnosticController {
     @Body() dto: UpdateDiagnosticMyProfileDto,
   ) {
     return this.diagnosticService.updateMyProfile(req.user.userId, dto);
+  }
+
+  @Get(':diagnosticId/profile')
+  @Roles(Role.ADMIN)
+  getProfileForAdmin(@Param('diagnosticId', ParseUUIDPipe) diagnosticId: string) {
+    return this.diagnosticService.getProfileForAdmin(diagnosticId);
+  }
+
+  @Patch(':diagnosticId/profile')
+  @Roles(Role.ADMIN)
+  updateProfileForAdmin(
+    @Param('diagnosticId', ParseUUIDPipe) diagnosticId: string,
+    @Body() dto: UpdateDiagnosticMyProfileDto,
+  ) {
+    return this.diagnosticService.updateProfileForAdmin(diagnosticId, dto);
   }
 }

@@ -7,7 +7,7 @@ import { UpdatePharmacyMyProfileDto } from './dto/update-my-profile.dto';
 export class PharmaciesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMyProfile(pharmacyId: string) {
+  private async getPharmacyProfile(pharmacyId: string) {
     const pharmacy = await this.prisma.user.findUnique({
       where: { id: pharmacyId },
       select: {
@@ -42,7 +42,15 @@ export class PharmaciesService {
     };
   }
 
-  async updateMyProfile(pharmacyId: string, dto: UpdatePharmacyMyProfileDto) {
+  async getMyProfile(pharmacyId: string) {
+    return this.getPharmacyProfile(pharmacyId);
+  }
+
+  async getProfileForAdmin(pharmacyId: string) {
+    return this.getPharmacyProfile(pharmacyId);
+  }
+
+  private async updatePharmacyProfile(pharmacyId: string, dto: UpdatePharmacyMyProfileDto) {
     const pharmacy = await this.prisma.user.findUnique({
       where: { id: pharmacyId },
       select: { id: true, role: true },
@@ -52,15 +60,39 @@ export class PharmaciesService {
       throw new NotFoundException('Pharmacy user not found');
     }
 
+    const profileData = {
+      ...(dto.licenseNumber !== undefined ? { licenseNumber: dto.licenseNumber } : {}),
+      ...(dto.pharmacyName !== undefined ? { pharmacyName: dto.pharmacyName } : {}),
+    };
+    const hasProfileData = Object.keys(profileData).length > 0;
+
     await this.prisma.user.update({
       where: { id: pharmacyId },
       data: {
         fullName: dto.fullName,
         phone: dto.phone,
         address: dto.address,
+        ...(hasProfileData
+          ? {
+              professionalProfile: {
+                upsert: {
+                  create: profileData,
+                  update: profileData,
+                },
+              },
+            }
+          : {}),
       },
     });
 
-    return this.getMyProfile(pharmacyId);
+    return this.getPharmacyProfile(pharmacyId);
+  }
+
+  async updateMyProfile(pharmacyId: string, dto: UpdatePharmacyMyProfileDto) {
+    return this.updatePharmacyProfile(pharmacyId, dto);
+  }
+
+  async updateProfileForAdmin(pharmacyId: string, dto: UpdatePharmacyMyProfileDto) {
+    return this.updatePharmacyProfile(pharmacyId, dto);
   }
 }

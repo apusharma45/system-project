@@ -140,4 +140,78 @@ describe('PatientsService', () => {
     });
     expect(result.patient.fullName).toBe('Updated Name');
   });
+
+  it('lists patients for admin', async () => {
+    prismaMock.user.findMany = jest.fn().mockResolvedValueOnce([
+      {
+        id: 'patient-1',
+        fullName: 'Patient One',
+        email: 'patient@test.com',
+        role: Role.PATIENT,
+      },
+    ]);
+
+    const result = await service.listPatientsForAdmin();
+
+    expect(prismaMock.user.findMany).toHaveBeenCalledWith({
+      where: { role: Role.PATIENT },
+      select: {
+        id: true,
+        fullName: true,
+        avatarUrl: true,
+        email: true,
+        role: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    expect(result).toHaveLength(1);
+  });
+
+  it('updateProfileForAdmin updates patient profile fields', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({
+      id: 'patient-1',
+      role: Role.PATIENT,
+    });
+    prismaMock.user.update.mockResolvedValueOnce({});
+    prismaMock.user.findUnique.mockResolvedValueOnce({
+      id: 'patient-1',
+      fullName: 'Admin Updated',
+      email: 'patient@test.com',
+      role: Role.PATIENT,
+      phone: '+8801700000000',
+      address: 'Dhaka Updated',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      patientProfile: { allergies: 'Dust', emergencyContactName: 'Jane' },
+    });
+
+    const result = await service.updateProfileForAdmin('patient-1', {
+      fullName: 'Admin Updated',
+      address: 'Dhaka Updated',
+      allergies: 'Dust',
+      emergencyContactName: 'Jane',
+    });
+
+    expect(result.patient.fullName).toBe('Admin Updated');
+    expect(prismaMock.user.update).toHaveBeenCalledWith({
+      where: { id: 'patient-1' },
+      data: expect.objectContaining({
+        fullName: 'Admin Updated',
+        address: 'Dhaka Updated',
+        patientProfile: {
+          upsert: {
+            create: {
+              allergies: 'Dust',
+              emergencyContactName: 'Jane',
+            },
+            update: {
+              allergies: 'Dust',
+              emergencyContactName: 'Jane',
+            },
+          },
+        },
+      }),
+    });
+  });
 });

@@ -7,6 +7,7 @@ function homeByRole(role: Role) {
   if (role === 'PATIENT') return '/patient'
   if (role === 'PHARMACY') return '/pharmacy'
   if (role === 'DIAGNOSTIC') return '/diagnostic'
+  if (role === 'ADMIN') return '/admin'
   return '/login'
 }
 
@@ -31,13 +32,6 @@ export function RequireRole({ roles }: { roles: Role[] }) {
   }
   if (!roles.includes(user.role)) {
     const home = homeByRole(user.role)
-    if (home === '/login') {
-      return (
-        <div className="state">
-          <p>This web dashboard currently supports PATIENT, DOCTOR, PHARMACY and DIAGNOSTIC roles.</p>
-        </div>
-      )
-    }
     return <Navigate to={home} replace />
   }
   return <Outlet />

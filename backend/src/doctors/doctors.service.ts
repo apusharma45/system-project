@@ -8,7 +8,7 @@ import { UpdateDoctorMyProfileDto } from './dto/update-my-profile.dto';
 export class DoctorsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMyProfile(doctorId: string) {
+  private async getDoctorProfile(doctorId: string) {
     const doctor = await this.prisma.user.findUnique({
       where: { id: doctorId },
       select: {
@@ -43,17 +43,16 @@ export class DoctorsService {
     };
   }
 
-  async updateMyProfile(doctorId: string, dto: UpdateDoctorMyProfileDto) {
-    const doctor = await this.prisma.user.findUnique({
-      where: { id: doctorId },
-      select: { id: true, role: true },
-    });
+  async getMyProfile(doctorId: string) {
+    return this.getDoctorProfile(doctorId);
+  }
 
-    if (!doctor || doctor.role !== Role.DOCTOR) {
-      throw new NotFoundException('Doctor not found');
-    }
+  async getProfileForAdmin(doctorId: string) {
+    return this.getDoctorProfile(doctorId);
+  }
 
-    const profileData = {
+  private buildProfileData(dto: UpdateDoctorMyProfileDto) {
+    return {
       ...(dto.licenseNumber !== undefined ? { licenseNumber: dto.licenseNumber } : {}),
       ...(dto.specialization !== undefined ? { specialization: dto.specialization } : {}),
       ...(dto.dateOfBirth !== undefined
@@ -81,6 +80,19 @@ export class DoctorsService {
           }
         : {}),
     };
+  }
+
+  private async updateDoctorProfile(doctorId: string, dto: UpdateDoctorMyProfileDto) {
+    const doctor = await this.prisma.user.findUnique({
+      where: { id: doctorId },
+      select: { id: true, role: true },
+    });
+
+    if (!doctor || doctor.role !== Role.DOCTOR) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    const profileData = this.buildProfileData(dto);
     const hasProfileData = Object.keys(profileData).length > 0;
 
     await this.prisma.user.update({
@@ -102,6 +114,14 @@ export class DoctorsService {
       },
     });
 
-    return this.getMyProfile(doctorId);
+    return this.getDoctorProfile(doctorId);
+  }
+
+  async updateMyProfile(doctorId: string, dto: UpdateDoctorMyProfileDto) {
+    return this.updateDoctorProfile(doctorId, dto);
+  }
+
+  async updateProfileForAdmin(doctorId: string, dto: UpdateDoctorMyProfileDto) {
+    return this.updateDoctorProfile(doctorId, dto);
   }
 }

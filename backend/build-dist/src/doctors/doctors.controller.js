@@ -31,6 +31,12 @@ let DoctorsController = class DoctorsController {
     updateMyProfile(req, dto) {
         return this.doctorsService.updateMyProfile(req.user.userId, dto);
     }
+    getProfileForAdmin(doctorId) {
+        return this.doctorsService.getProfileForAdmin(doctorId);
+    }
+    updateProfileForAdmin(doctorId, dto) {
+        return this.doctorsService.updateProfileForAdmin(doctorId, dto);
+    }
 };
 exports.DoctorsController = DoctorsController;
 __decorate([
@@ -50,6 +56,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, update_my_profile_dto_1.UpdateDoctorMyProfileDto]),
     __metadata("design:returntype", void 0)
 ], DoctorsController.prototype, "updateMyProfile", null);
+__decorate([
+    (0, common_1.Get)(':doctorId/profile'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('doctorId', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], DoctorsController.prototype, "getProfileForAdmin", null);
+__decorate([
+    (0, common_1.Patch)(':doctorId/profile'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('doctorId', common_1.ParseUUIDPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_my_profile_dto_1.UpdateDoctorMyProfileDto]),
+    __metadata("design:returntype", void 0)
+], DoctorsController.prototype, "updateProfileForAdmin", null);
 exports.DoctorsController = DoctorsController = __decorate([
     (0, common_1.Controller)('doctors'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

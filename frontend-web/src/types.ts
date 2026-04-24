@@ -72,6 +72,20 @@ export type CurrentUser = {
   avatarUrl?: string | null
 }
 
+export type AuditLogEntry = {
+  id: string
+  actorUserId?: string | null
+  action: string
+  entityType: string
+  entityId: string
+  metadata?: Record<string, unknown> | null
+  createdAt: string
+}
+
+export type HealthCheckResponse = {
+  status: 'ok'
+}
+
 export type Appointment = {
   id: string
   patientId: string
@@ -249,9 +263,14 @@ export type DoctorProfessionalProfile = {
   specialization?: string | null
   dateOfBirth?: string | null
   gender?: string | null
+  about?: string | null
+  clinicName?: string | null
+  clinicAddress?: string | null
+  clinicPhone?: string | null
   degrees?: string[] | null
   certifications?: string[] | null
   yearsOfExperience?: number | null
+  availableTimeSlots?: DoctorAvailabilitySlot[] | null
 }
 
 export type MyDoctorProfileResponse = {
@@ -271,6 +290,7 @@ export type MyDoctorProfileResponse = {
 export type DiagnosticProfessionalProfile = {
   labName?: string | null
   licenseNumber?: string | null
+  specialization?: string | null
   dateOfBirth?: string | null
   gender?: string | null
   accreditations?: string[] | null

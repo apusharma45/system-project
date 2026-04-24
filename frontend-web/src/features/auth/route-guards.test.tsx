@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { RequireAuth, RequireRole } from './route-guards'
 
 const authState = {
-  user: null as null | { role: 'PATIENT' | 'DOCTOR' | 'PHARMACY' | 'DIAGNOSTIC' },
+  user: null as null | { role: 'PATIENT' | 'DOCTOR' | 'PHARMACY' | 'DIAGNOSTIC' | 'ADMIN' },
   loading: false,
 }
 
@@ -80,5 +80,22 @@ describe('route guards', () => {
     )
 
     expect(screen.getByText('Diagnostic Home')).toBeInTheDocument()
+  })
+
+  it('RequireRole allows admin role', () => {
+    authState.user = { role: 'ADMIN' }
+    authState.loading = false
+
+    render(
+      <MemoryRouter initialEntries={['/admin']}>
+        <Routes>
+          <Route element={<RequireRole roles={['ADMIN']} />}>
+            <Route path="/admin" element={<div>Admin Home</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('Admin Home')).toBeInTheDocument()
   })
 })
