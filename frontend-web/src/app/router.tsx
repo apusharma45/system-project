@@ -37,6 +37,7 @@ import {
   AdminLayout,
   AdminNotificationsPage,
   AdminOverviewPage,
+  AdminPatientsPage,
   AdminProfilePage,
   AdminUsersPage,
 } from '../features/admin/admin-ui'
@@ -211,6 +212,10 @@ export const router = createBrowserRouter([
               {
                 path: '/admin/users',
                 element: <AdminUsersPage />,
+              },
+              {
+                path: '/admin/patients',
+                element: <AdminPatientsPage />,
               },
               {
                 path: '/admin/doctors',

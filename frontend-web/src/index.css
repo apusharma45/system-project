@@ -1623,6 +1623,22 @@ textarea:focus {
   gap: 0.55rem;
 }
 
+.admin-header-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.58rem 0.85rem;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.admin-header-logout:hover {
+  background: rgba(239, 68, 68, 0.13);
+}
+
 .admin-notice-bar {
   margin: 1rem 1.5rem 0;
   display: flex;
@@ -2263,6 +2279,34 @@ textarea:focus {
   margin-top: 1.25rem;
   border-top: 1px solid #e2e8f0;
   padding-top: 1.25rem;
+}
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+.admin-modal-dialog {
+  width: min(960px, 100%);
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  border-radius: 28px;
+  background: #fff;
+  padding: 1.5rem;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.24);
+}
+
+.admin-modal-dialog .admin-detail-panel {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
 }
 
 .admin-detail-grid {
