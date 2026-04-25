@@ -340,7 +340,12 @@ export class PrescriptionsService {
     }
     if (role === Role.PHARMACY) {
       return db.prescription.findMany({
-        where: { pharmacyId: userId },
+        where: {
+          pharmacyId: userId,
+          status: {
+            in: [PrescriptionStatus.SENT_TO_PHARMACY, PrescriptionStatus.DISPENSED],
+          },
+        },
         include: {
           appointment: {
             include: {
@@ -437,7 +442,13 @@ export class PrescriptionsService {
     if (role === Role.DOCTOR && prescription.doctorId === userId) {
       return this.withPharmacySnapshot(prescription);
     }
-    if (role === Role.PHARMACY && prescription.pharmacyId === userId) {
+    if (
+      role === Role.PHARMACY &&
+      prescription.pharmacyId === userId &&
+      [PrescriptionStatus.SENT_TO_PHARMACY, PrescriptionStatus.DISPENSED].includes(
+        prescription.status,
+      )
+    ) {
       return prescription;
     }
     if (role === Role.PATIENT && prescription.appointment.patientId === userId) {

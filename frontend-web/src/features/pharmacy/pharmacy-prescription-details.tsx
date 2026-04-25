@@ -49,7 +49,7 @@ export function PharmacyPrescriptionDetailsPage() {
           <section className="card">
             <h3>Overview</h3>
             <p>Prescription Ref: {prescription.id}</p>
-            <p>Status: {prescription.status}</p>
+            <p>Status: {statusLabel(prescription.status)}</p>
             <p className="muted">Appointment Ref: {prescription.appointmentId}</p>
           </section>
 
@@ -123,4 +123,10 @@ export function PharmacyPrescriptionDetailsPage() {
       ) : null}
     </div>
   )
+}
+
+function statusLabel(status: Prescription['status']) {
+  if (status === 'SENT_TO_PHARMACY') return 'Sent to pharmacy'
+  if (status === 'DISPENSED') return 'Dispensed'
+  return status
 }

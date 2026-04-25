@@ -237,7 +237,12 @@ let PrescriptionsService = class PrescriptionsService {
         }
         if (role === client_1.Role.PHARMACY) {
             return db.prescription.findMany({
-                where: { pharmacyId: userId },
+                where: {
+                    pharmacyId: userId,
+                    status: {
+                        in: [client_1.PrescriptionStatus.SENT_TO_PHARMACY, client_1.PrescriptionStatus.DISPENSED],
+                    },
+                },
                 include: {
                     appointment: {
                         include: {
@@ -331,7 +336,9 @@ let PrescriptionsService = class PrescriptionsService {
         if (role === client_1.Role.DOCTOR && prescription.doctorId === userId) {
             return this.withPharmacySnapshot(prescription);
         }
-        if (role === client_1.Role.PHARMACY && prescription.pharmacyId === userId) {
+        if (role === client_1.Role.PHARMACY &&
+            prescription.pharmacyId === userId &&
+            [client_1.PrescriptionStatus.SENT_TO_PHARMACY, client_1.PrescriptionStatus.DISPENSED].includes(prescription.status)) {
             return prescription;
         }
         if (role === client_1.Role.PATIENT && prescription.appointment.patientId === userId) {

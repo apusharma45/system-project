@@ -513,7 +513,12 @@ describe('PrescriptionsService', () => {
       orderBy: { createdAt: 'desc' },
     });
     expect(prismaMock.prescription.findMany).toHaveBeenNthCalledWith(2, {
-      where: { pharmacyId: 'p1' },
+      where: {
+        pharmacyId: 'p1',
+        status: {
+          in: [PrescriptionStatus.SENT_TO_PHARMACY, PrescriptionStatus.DISPENSED],
+        },
+      },
       include: {
         appointment: {
           include: {
@@ -598,6 +603,30 @@ describe('PrescriptionsService', () => {
     );
     await expect(service.getOne('d1', Role.DOCTOR, 'missing')).rejects.toBeInstanceOf(
       NotFoundException,
+    );
+
+    prismaMock.prescription.findUnique
+      .mockResolvedValueOnce({
+        id: 'rx2',
+        doctorId: 'd1',
+        pharmacyId: 'ph1',
+        status: PrescriptionStatus.SENT_TO_PHARMACY,
+        appointment: { patientId: 'pt1' },
+      })
+      .mockResolvedValueOnce({
+        id: 'rx3',
+        doctorId: 'd1',
+        pharmacyId: 'ph1',
+        status: PrescriptionStatus.SIGNED,
+        appointment: { patientId: 'pt1' },
+      });
+
+    await expect(service.getOne('ph1', Role.PHARMACY, 'rx2')).resolves.toMatchObject({
+      id: 'rx2',
+      status: PrescriptionStatus.SENT_TO_PHARMACY,
+    });
+    await expect(service.getOne('ph1', Role.PHARMACY, 'rx3')).rejects.toBeInstanceOf(
+      ForbiddenException,
     );
   });
 });
