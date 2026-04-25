@@ -152,6 +152,7 @@ describe('pharmacy UI regression', () => {
     expect(document.querySelector('.pharmacy-prescriptions-toolbar')).not.toBeNull()
     expect(document.querySelector('.pharmacy-search-wrap')).not.toBeNull()
     expect(document.querySelector('.pharmacy-status-filter')).not.toBeNull()
+    expect(screen.queryByRole('option', { name: 'Signed' })).not.toBeInTheDocument()
   })
 
   it('filters prescriptions by patient name and status together', () => {
