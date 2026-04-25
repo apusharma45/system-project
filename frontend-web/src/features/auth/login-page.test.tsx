@@ -95,4 +95,36 @@ describe('LoginPage', () => {
       expect(navigateMock).toHaveBeenCalledWith('/admin')
     })
   })
+
+  it('requests and submits password reset code', async () => {
+    postMock
+      .mockResolvedValueOnce({ data: { message: 'If the email exists, a reset code has been sent.' } })
+      .mockResolvedValueOnce({ data: { message: 'Password reset successful' } })
+
+    render(
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'patient@example.com' } })
+    fireEvent.click(screen.getByRole('button', { name: /forgot password/i }))
+    fireEvent.click(screen.getByRole('button', { name: /send reset code/i }))
+
+    await waitFor(() => {
+      expect(postMock).toHaveBeenCalledWith('/auth/forgot-password', { email: 'patient@example.com' })
+    })
+
+    fireEvent.change(screen.getByLabelText(/reset code/i), { target: { value: '123456' } })
+    fireEvent.change(screen.getByLabelText(/new password/i), { target: { value: 'secret123' } })
+    fireEvent.click(screen.getByRole('button', { name: /reset password/i }))
+
+    await waitFor(() => {
+      expect(postMock).toHaveBeenLastCalledWith('/auth/reset-password', {
+        email: 'patient@example.com',
+        resetCode: '123456',
+        newPassword: 'secret123',
+      })
+    })
+  })
 })
