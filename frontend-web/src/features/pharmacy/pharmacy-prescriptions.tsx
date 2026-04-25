@@ -61,9 +61,6 @@ export function PharmacyPrescriptionsPage() {
             <option value="all">All Status</option>
             <option value="SENT_TO_PHARMACY">Sent To Pharmacy</option>
             <option value="DISPENSED">Dispensed</option>
-            <option value="DRAFT">Draft</option>
-            <option value="SIGNED">Signed</option>
-            <option value="SENT_TO_PATIENT">Sent To Patient</option>
           </select>
         </div>
       </section>
@@ -89,7 +86,7 @@ export function PharmacyPrescriptionsPage() {
                     'Unknown doctor'}
                 </p>
                 <p>
-                  <span className={statusClass(item.status)}>{item.status}</span>
+                  <span className={statusClass(item.status)}>{statusLabel(item.status)}</span>
                 </p>
                 <p className="muted">Appointment Ref: {item.appointmentId}</p>
                 <p className="muted row-meta">
@@ -126,4 +123,10 @@ function statusClass(status: PrescriptionStatus) {
   if (status === 'SENT_TO_PATIENT') return 'status status-yellow'
   if (status === 'DRAFT') return 'status status-gray'
   return 'status status-gray'
+}
+
+function statusLabel(status: PrescriptionStatus) {
+  if (status === 'SENT_TO_PHARMACY') return 'Sent to pharmacy'
+  if (status === 'DISPENSED') return 'Dispensed'
+  return status
 }
