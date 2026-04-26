@@ -26,3 +26,8 @@ coverage/
 # Temp
 .temp
 .tmp
+
+report/
+*.zip
+backend/scripts/seed-admin.ts
+backend/scripts/upload-seeded-avatars.ts
