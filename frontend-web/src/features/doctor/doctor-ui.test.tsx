@@ -342,7 +342,11 @@ describe('doctor UI regression', () => {
     fireEvent.change(screen.getByLabelText('Assign New Time'), {
       target: { value: '2026-03-01T10:30' },
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Assign New Time' }))
+    const assignNewTimeButton = screen.getByRole('button', { name: 'Assign New Time' })
+    await waitFor(() => {
+      expect(assignNewTimeButton).toBeEnabled()
+    })
+    fireEvent.click(assignNewTimeButton)
 
     await waitFor(() => {
       expect(patchMock).toHaveBeenCalledWith('/appointments/apt-1/schedule', {
