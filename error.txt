@@ -1,0 +1,759 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/doctor/doctor-ui.test.tsx > doctor UI regression > appointment details workflow actions hit appointment endpoints
+AssertionError: expected "vi.fn()" to be called with arguments: [ Array(2) ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   "/appointments/apt-1/schedule",
+-   {
+-     "scheduledAt": "2026-03-01T04:30:00.000Z",
+-   },
++   "/appointments/apt-1/confirm",
+  ]
+
+  2nd vi.fn() call:
+
+  [
+    "/appointments/apt-1/schedule",
+    {
+-     "scheduledAt": "2026-03-01T04:30:00.000Z",
++     "scheduledAt": "2026-03-01T10:30:00.000Z",
+    },
+  ]
+
+
+Number of calls: 2
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <div
+        class="shell"
+      >
+        <aside
+          class="sidebar open"
+        >
+          <div
+            class="sidebar-inner"
+          >
+            <div
+              class="brand"
+            >
+              <div
+                class="brand-mark"
+              >
+                +
+              </div>
+              <div>
+                <h2>
+                  MedFlow
+                </h2>
+                <p>
+                  Doctor Portal
+                </p>
+              </div>
+            </div>
+            <nav
+              class="nav"
+            >
+              <a
+                class=""
+                data-discover="true"
+                href="/doctor"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-layout-dashboard"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    height="9"
+                    rx="1"
+                    width="7"
+                    x="3"
+                    y="3"
+                  />
+                  <rect
+                    height="5"
+                    rx="1"
+                    width="7"
+                    x="14"
+                    y="3"
+                  />
+                  <rect
+                    height="9"
+                    rx="1"
+                    width="7"
+                    x="14"
+                    y="12"
+                  />
+                  <rect
+                    height="5"
+                    rx="1"
+                    width="7"
+                    x="3"
+                    y="16"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Dashboard
+                </span>
+              </a>
+              <a
+                class="active"
+                data-discover="true"
+                href="/doctor/appointments"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-calendar"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 2v4"
+                  />
+                  <path
+                    d="M16 2v4"
+                  />
+                  <rect
+                    height="18"
+                    rx="2"
+                    width="18"
+                    x="3"
+                    y="4"
+                  />
+                  <path
+                    d="M3 10h18"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Appointments
+                </span>
+              </a>
+              <a
+                class=""
+                data-discover="true"
+                href="/doctor/patients"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-user"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="7"
+                    r="4"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Patients
+                </span>
+              </a>
+              <a
+                class=""
+                data-discover="true"
+                href="/doctor/prescriptions"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-file-text"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+                  />
+                  <path
+                    d="M14 2v5a1 1 0 0 0 1 1h5"
+                  />
+                  <path
+                    d="M10 9H8"
+                  />
+                  <path
+                    d="M16 13H8"
+                  />
+                  <path
+                    d="M16 17H8"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Prescriptions
+                </span>
+              </a>
+              <a
+                class=""
+                data-discover="true"
+                href="/doctor/lab-orders"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-flask-conical"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"
+                  />
+                  <path
+                    d="M6.453 15h11.094"
+                  />
+                  <path
+                    d="M8.5 2h7"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Lab Orders
+                </span>
+              </a>
+              <a
+                class=""
+                data-discover="true"
+                href="/doctor/notifications"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-bell"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M10.268 21a2 2 0 0 0 3.464 0"
+                  />
+                  <path
+                    d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Notifications
+                </span>
+                <span
+                  class="nav-badge"
+                >
+                  1
+                </span>
+              </a>
+              <a
+                class=""
+                data-discover="true"
+                href="/doctor/profile"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-user"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="7"
+                    r="4"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Profile
+                </span>
+              </a>
+            </nav>
+            <div
+              class="profile"
+            >
+              <a
+                aria-label="Open profile"
+                class="profile-card"
+                data-discover="true"
+                href="/doctor/profile"
+              >
+                <div
+                  class="avatar"
+                >
+                  <span>
+                    DR
+                  </span>
+                </div>
+                <div>
+                  <strong>
+                    Dr. Demo
+                  </strong>
+                  <p>
+                    Doctor
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </aside>
+        <div
+          class="main-column"
+        >
+          <header
+            class="app-header"
+          >
+            <button
+              class="icon-btn"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-x"
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18 6 6 18"
+                />
+                <path
+                  d="m6 6 12 12"
+                />
+              </svg>
+            </button>
+            <div
+              class="header-meta"
+            >
+              <span>
+                Sunday, April 26, 2026
+              </span>
+              <button
+                class="outline-btn"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-log-out"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m16 17 5-5-5-5"
+                  />
+                  <path
+                    d="M21 12H9"
+                  />
+                  <path
+                    d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                  />
+                </svg>
+                Logout
+              </button>
+            </div>
+          </header>
+          <div
+            class="page"
+          >
+            <div
+              class="page-head"
+            >
+              <div>
+                <h1>
+                  Appointment Details
+                </h1>
+                <p>
+                  Alice Smith
+                   (
+                  patient-1
+                  )
+                </p>
+                <p
+                  class="muted"
+                >
+                  Appointment Ref: 
+                  apt-1
+                </p>
+                <a
+                  class="quick-link"
+                  data-discover="true"
+                  href="/doctor/patients/patient-1/profile"
+                >
+                  View Patient Profile
+                </a>
+              </div>
+            </div>
+            <section
+              class="card"
+            >
+              <div
+                class="actions"
+              >
+                <button
+                  class="tab"
+                  type="button"
+                >
+                  Overview
+                </button>
+                <button
+                  class="tab active"
+                  type="button"
+                >
+                  Actions
+                </button>
+                <button
+                  class="tab"
+                  type="button"
+                >
+                  Prescription
+                </button>
+                <button
+                  class="tab"
+                  type="button"
+                >
+                  Lab
+                </button>
+                <button
+                  class="tab"
+                  type="button"
+                >
+                  Report
+                </button>
+              </div>
+            </section>
+            <section
+              class="card"
+            >
+              <h3>
+                Workflow Actions
+              </h3>
+              <div
+                class="stack"
+              >
+                <label
+                  for="scheduleAt"
+                >
+                  Assign New Time
+                </label>
+                <input
+                  id="scheduleAt"
+                  type="datetime-local"
+                  value=""
+                />
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  Assign New Time
+                </button>
+              </div>
+              <div
+                class="actions"
+              >
+                <button
+                  type="button"
+                >
+                  Approve Preferred
+                </button>
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  Call
+                </button>
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  In Visit
+                </button>
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  Exam Done
+                </button>
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                >
+                  Cancel
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+ ❯ src/features/doctor/doctor-ui.test.tsx:352:25
+    350| 
+    351|     await waitFor(() => {
+    352|       expect(patchMock).toHaveBeenCalledWith('/appointments/apt-1/sche…
+       |                         ^
+    353|         scheduledAt: '2026-03-01T04:30:00.000Z',
+    354|       })
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 14 passed (15)
+      Tests  1 failed | 81 passed (82)
+   Start at  18:05:41
+   Duration  14.93s (transform 1.32s, setup 2.76s, import 4.58s, tests 22.37s, environment 12.12s)
+
+
+Error: AssertionError: expected "vi.fn()" to be called with arguments: [ Array(2) ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   "/appointments/apt-1/schedule",
+-   {
+-     "scheduledAt": "2026-03-01T04:30:00.000Z",
+-   },
++   "/appointments/apt-1/confirm",
+  ]
+
+  2nd vi.fn() call:
+
+  [
+    "/appointments/apt-1/schedule",
+    {
+-     "scheduledAt": "2026-03-01T04:30:00.000Z",
++     "scheduledAt": "2026-03-01T10:30:00.000Z",
+    },
+  ]
+
+
+Number of calls: 2
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <div
+        class="shell"
+      >
+        <aside
+          class="sidebar open"
+        >
+          <div
+            class="sidebar-inner"
+          >
+            <div
+              class="brand"
+            >
+              <div
+                class="brand-mark"
+              >
+                +
+              </div>
+              <div>
+                <h2>
+                  MedFlow
+                </h2>
+                <p>
+                  Doctor Portal
+                </p>
+              </div>
+            </div>
+            <nav
+              class="nav"
+            >
+              <a
+                class=""
+                data-discover="true"
+                href="/doctor"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-layout-dashboard"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    height="9"
+                    rx="1"
+                    width="7"
+                    x="3"
+                    y="3"
+                  />
+                  <rect
+                    height="5"
+                    rx="1"
+                    width="7"
+                    x="14"
+                    y="3"
+                  />
+                  <rect
+                    height="9"
+                    rx="1"
+                    width="7"
+                    x="14"
+                    y="12"
+                  />
+                  <rect
+                    height="5"
+                    rx="1"
+                    width="7"
+                    x="3"
+                    y="16"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Dashboard
+                </span>
+              </a>
+              <a
+                class="active"
+                data-discover="true"
+                href="/doctor/appointments"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-calendar"
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 2v4"
+                  />
+                  <path
+                    d="M16 2v4"
+                  />
+                  <rect
+                    height="18"
+                    rx="2"
+                    width="18"
+                    x="3"
+                    y="4"
+                  />
+                  <path
+                    d="M3 10h18"
+                  />
+                </svg>
+                <span
+                  class="nav-item-name"
+                >
+                  Appointments
+                </span>
+              </a>
+              <a
+                class=""
+                data-discover="true"
+                href="/doctor/patients"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-user"
+                  fill="non
+Error: Process completed with exit code 1.

@@ -350,7 +350,7 @@ describe('doctor UI regression', () => {
 
     await waitFor(() => {
       expect(patchMock).toHaveBeenCalledWith('/appointments/apt-1/schedule', {
-        scheduledAt: '2026-03-01T04:30:00.000Z',
+        scheduledAt: new Date('2026-03-01T10:30').toISOString(),
       })
     })
   })
